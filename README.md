@@ -4,7 +4,7 @@
  
 #### **With Mineify, each player can upload their own sounds or music to the server and let them play to any player at any position. The best thing about this mod is that no resource pack is required as the music is loaded directly from the server.**
 
-FFmpeg is required for this mod to upload custom sounds and music! Download the FFmpeg binaries for your OS from https://ffmpeg.org and put them in a folder named "ffmpeg" inside your minecraft installation folder (default: .minecraft). The reason forthis dependency is, that minecraft can only read ogg files. And for ease of use, you can select any audio format and it will be converted with FFmpeg automatically before uploading.
+FFmpeg is required for this mod to upload custom sounds and music! Download the FFmpeg binaries for your OS from https://ffmpeg.org and put them in a folder named "ffmpeg" inside your minecraft installation folder (default: .minecraft). The reason for this dependency is, that minecraft can only read ogg files. And for ease of use, you can select any audio format and it will be converted with FFmpeg automatically before uploading.
 
 #### **Advantages compared to sound resource packs**
 - Clients don't need an additional resource pack (where (re)loading can take a while especially in large modpacks).
@@ -35,7 +35,7 @@ Due to the fact that the currently playing sound and music data needs to be stor
  - German (100%)
 
 #### **Please note ...**
-... when using this mod (especially **alpha** versions) that it can always contain bugs that could potentially **damage your world**! So please make a **backup** of your world before embedding this mod.
+... when using this mod (especially **alpha** versions) that it can always contain bugs that could potentially **damage your world**! So please make a **backup** of your world before installing this mod.
 
 #### **Supported Versions**
 A **fabric** version of this mod is currently **not planned** and the mod is mainly ported to **newer versions**. Please don't ask when the update for version X will come out as I don't know myself. The update will come when I have time for it and it's ready.
