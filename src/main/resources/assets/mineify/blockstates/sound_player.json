@@ -1,0 +1,7 @@
+{
+    "variants": {
+      "": {
+        "model": "mineify:block/sound_player"
+      }
+    }
+  }

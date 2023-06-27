@@ -1,0 +1,7 @@
+{
+    "parent": "minecraft:block/cube_column",
+    "textures": {
+      "end": "mineify:block/sound_player_top",
+      "side": "mineify:block/sound_player"
+    }
+  }

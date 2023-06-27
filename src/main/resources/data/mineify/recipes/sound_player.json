@@ -1,0 +1,34 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "RIR",
+        "GNG",
+        "RIR"
+    ],
+    "key": {
+        "R": [
+            {
+                "item": "minecraft:redstone"
+            }
+        ],
+        "I": [
+            {
+                "item": "minecraft:iron_ingot"
+            }
+        ],
+        "G": [
+            {
+                "item": "minecraft:gold_nugget"
+            }
+        ],
+        "N": [
+            {
+                "item": "minecraft:note_block"
+            }
+        ]
+    },
+    "result": {
+        "item": "mineify:sound_player",
+        "count": 1
+    }
+}
