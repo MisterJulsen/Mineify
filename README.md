@@ -1,6 +1,6 @@
 # Mineify
 
-![Logo](https://github.com/MisterJulsen/Mineify/blob/1.18.2/mineify_logo.png)
+![Logo](https://github.com/MisterJulsen/Mineify/blob/1.18.2/mineify_icon.png)
  
 #### **With Mineify, each player can upload their own sounds or music to the server and let them play to any player at any position. The best thing about this mod is that no resource pack is required as the music is loaded directly from the server.**
 
