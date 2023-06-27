@@ -1,10 +1,5 @@
 # Mineify
 
-[![CurseForge downloads](https://cf.way2muchnoise.eu/title/852322.svg)](https://www.curseforge.com/minecraft/mc-mods/mineify)
-[![CurseForge downloads](http://cf.way2muchnoise.eu/full_852322_downloads.svg)](https://www.curseforge.com/minecraft/mc-mods/mineify)
-[![CurseForge downloads](http://cf.way2muchnoise.eu/versions/852322.svg)](https://www.curseforge.com/minecraft/mc-mods/mineify)
-
-
 ![Logo](https://github.com/MisterJulsen/Mineify/blob/1.18.2/mineify_logo.png)
  
 #### **With Mineify, each player can upload their own sounds or music to the server and let them play to any player at any position. The best thing about this mod is that no resource pack is required as the music is loaded directly from the server.**
