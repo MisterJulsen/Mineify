@@ -89,7 +89,11 @@ public class SoundPlayerBlockEntity extends BlockEntity {
             playlist.put(String.valueOf(i), this.playlist[i].toNbt());
         }
         tag.put("playlist", playlist);
-        if (this.getOwnerUUID() != null) tag.putUUID("owner", this.getOwnerUUID());
+        if (this.getOwnerUUID() != null) {
+            tag.putUUID("owner", this.getOwnerUUID());
+        } else {
+            tag.putBoolean("owner", false);
+        }
         tag.putByte("trigger", this.getTrigger().getIndex());
         tag.putBoolean("loop", this.isLooping());
         tag.putBoolean("random", this.isRandom());
