@@ -29,6 +29,9 @@ public class UploaderUsercache {
      * @return The name of that player.
      */
     public String add(String uuid) {
+        if (uuid.equals(Constants.SERVER_USERNAME))
+            return uuid;
+
         String name = Utils.getPlayerName(uuid);
         if (cache.containsKey(uuid)) {
             cache.remove(uuid);
@@ -78,7 +81,7 @@ public class UploaderUsercache {
         return add(uuid);
     }
 
-    public static UploaderUsercache loadOrCreate(String filename) {
+    public synchronized static UploaderUsercache loadOrCreate(String filename) {
         try {
             String json = IOUtils.readTextFile(filename);
             Gson gson = new Gson();
@@ -89,7 +92,7 @@ public class UploaderUsercache {
         return INSTANCE = new UploaderUsercache();
     }
 
-    public boolean save(String filename) {
+    public synchronized boolean save(String filename) {
         try {
             String json = new Gson().toJson(this);
             IOUtils.createDirectory(Constants.CUSTOM_SOUNDS_SERVER_PATH);
