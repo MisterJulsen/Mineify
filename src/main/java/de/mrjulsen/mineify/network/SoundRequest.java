@@ -11,7 +11,7 @@ import de.mrjulsen.mineify.client.ClientWrapper;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
-import de.mrjulsen.mineify.network.packets.InstanceManager;
+import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.SoundFile;
@@ -23,26 +23,54 @@ public class SoundRequest {
 
     public static long sendRequestFromServer(SoundFile file, long soundId, ServerPlayer[] players, BlockPos pos, float volume) {
         final long requestId = System.nanoTime();
-        Thread receiveThread = new Thread(() -> {  
+        new Thread(() -> {  
             try {
-                InputStream stream = new FileInputStream(file.buildPath());
-                final int maxLength = stream.available();
+                InstanceManager.Server.fileCache.put(requestId, new FileInputStream(file.buildPath()));
+                InputStream stream = InstanceManager.Server.fileCache.get(requestId);
+                final int maxLength = ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get() ? (Constants.PRE_BUFFER_MULTIPLIER * 2) * Constants.DEFAULT_DATA_BLOCK_SIZE : stream.available() + Constants.DEFAULT_DATA_BLOCK_SIZE;
                 byte[] buffer = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
-                while (stream.read(buffer) != -1) {
+                int part = 0;
+                int bytesRead = 0;
+                
+                while ((bytesRead = stream.read(buffer)) != -1) {
                     for (ServerPlayer p : players) {
-                        NetworkManager.MOD_CHANNEL.sendTo(new DownloadSoundPacket(requestId, pos, 0, buffer, maxLength, volume), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                        NetworkManager.MOD_CHANNEL.sendTo(new DownloadSoundPacket(requestId, 0, buffer, maxLength, ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get()), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                        if (part == Constants.PRE_BUFFER_MULTIPLIER) {
+                            NetworkManager.MOD_CHANNEL.sendTo(new PlaySoundPacket(requestId, pos, volume), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                        }
+                    }                    
+
+                    if (part >= Constants.PRE_BUFFER_MULTIPLIER) {
+                        if (ModCommonConfig.EXPERIMENTAL_SLOW_STREAMING.get() > 0) {
+                            try {
+                                Thread.sleep(ModCommonConfig.EXPERIMENTAL_SLOW_STREAMING.get());
+                            } catch (InterruptedException e) { }
+                        } else if (ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get()) {
+                            Thread.yield();
+                            return; // The client must ask for more, so this method is done.
+                        }   
                     }
+
+                    if (InstanceManager.Server.streamCache.containsKey(requestId)) {
+                        Thread.yield();
+                        return;
+                    }
+
+                    part++;
                 }
-                stream.close();
-                System.out.println("Sound reading complete. Playing on " + players.length + " players.");
+
+                for (ServerPlayer p : players) {
+                    if (bytesRead == -1 && part < Constants.PRE_BUFFER_MULTIPLIER) {
+                        NetworkManager.MOD_CHANNEL.sendTo(new PlaySoundPacket(requestId, pos, volume), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                    }
+                } 
+                InstanceManager.Server.closeFileStream(requestId);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 Thread.yield();
             }
-        });
-
-        receiveThread.start();
+        }).start();
 
         return requestId;
     }

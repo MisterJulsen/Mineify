@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
+import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.ToastMessage;
 import de.mrjulsen.mineify.network.UploaderUsercache;
@@ -16,10 +17,10 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 public class UploadSoundCompletionPacket {
-    private long requestId;
-    private UUID uploaderUUID;
-    private EUserSoundVisibility visibility;
-    private String filename;
+    private final long requestId;
+    private final UUID uploaderUUID;
+    private final EUserSoundVisibility visibility;
+    private final String filename;
 
     public UploadSoundCompletionPacket(long requestId, UUID uploader, EUserSoundVisibility visibility, String filename) {
         this.uploaderUUID = uploader;
@@ -55,9 +56,17 @@ public class UploadSoundCompletionPacket {
                     try (FileOutputStream outputStream = new FileOutputStream(soundPath)) {
                         InstanceManager.Server.streamCache.get(packet.requestId).writeTo(outputStream);
                     } catch (IOException e) {
+                        NetworkManager.MOD_CHANNEL.sendTo(new ErrorMessagePacket(new ToastMessage("gui.mineify.soundselection.task_fail", "Unable to upload sound file.")), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        InstanceManager.Server.streamCache.get(packet.requestId).close();
+                    } catch (IOException e) {
                         NetworkManager.MOD_CHANNEL.sendTo(new ErrorMessagePacket(new ToastMessage("gui.mineify.soundselection.task_fail", e.getMessage())), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                         e.printStackTrace();
                     }
+                    InstanceManager.Server.streamCache.remove(packet.requestId);
                 }
 
                 UploaderUsercache.INSTANCE.add(packet.uploaderUUID.toString());

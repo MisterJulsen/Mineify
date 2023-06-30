@@ -6,15 +6,20 @@ import java.io.InputStream;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import org.apache.http.client.protocol.ClientContextConfigurer;
+
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
 import de.mrjulsen.mineify.client.screen.SoundPlayerConfigurationScreen;
 import de.mrjulsen.mineify.client.screen.SoundSelectionScreen;
+import de.mrjulsen.mineify.config.ModClientConfig;
+import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
 import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
-import de.mrjulsen.mineify.network.packets.InstanceManager;
+import de.mrjulsen.mineify.network.packets.NextSoundDataResponsePacket;
+import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.RefreshSoundListPacket;
 import de.mrjulsen.mineify.network.packets.SoundListResponsePacket;
 import de.mrjulsen.mineify.network.packets.StopSoundPacket;
@@ -44,9 +49,19 @@ public class ClientWrapper {
             return;
 
         if (!InstanceManager.Client.soundStreamCache.containsKey(packet.requestId)) {
+            InstanceManager.Client.soundStreamCache.put(packet.requestId, new ReadWriteBuffer(packet.maxLength, packet.requestId, packet.streamRequest));
+        }           
+        
+        InstanceManager.Client.soundStreamCache.get(packet.requestId).write(packet.data, packet.dataOffset, packet.data.length);
+    }
+
+    public static void handlePlaySoundPacket(PlaySoundPacket packet, Supplier<NetworkEvent.Context> ctx) {  
         if (!ModClientConfig.ACTIVATION.get())
             return;
 
+        if (InstanceManager.Client.soundStreamCache.containsKey(packet.requestId)) {
+            final ReadWriteBuffer buff = InstanceManager.Client.soundStreamCache.get(packet.requestId);
+            Minecraft.getInstance().getSoundManager().play(new ExtendedSoundInstance(new ResourceLocation("minecraft:ambient.cave"), buff, SoundSource.MASTER, packet.volume, packet.pos));
         }
     }
 
@@ -69,6 +84,25 @@ public class ClientWrapper {
         }
     }
 
+    public static void handleNextSoundDataResponsePacket(NextSoundDataResponsePacket packet, Supplier<NetworkEvent.Context> ctx) {
+
+        if (InstanceManager.Client.soundStreamCache.containsKey(packet.requestId)) {
+            final ReadWriteBuffer buff = InstanceManager.Client.soundStreamCache.get(packet.requestId);
+            new Thread(() -> {
+                while (buff.currentIndexNeeded() != packet.index && buff.hasSpace(packet.data.length)) {
+                    try {
+                        Thread.sleep(1);
+                    } catch (InterruptedException e) { }
+                }
+                buff.write(packet.data, 0, packet.data.length);
+                buff.setHasNext(packet.hasNext);
+            }).start();
+            InstanceManager.Client.soundStreamCache.remove(packet.requestId);
+            InstanceManager.Client.soundStreamCache.put(packet.requestId, buff);
+        }
+        ctx.get().setPacketHandled(true);
+    }
+
     public static void handleStopSoundPacket(StopSoundPacket packet, Supplier<NetworkEvent.Context> ctx) {
         SoundRequest.stopSoundOnClient(packet.soundId);
     }
@@ -82,11 +116,8 @@ public class ClientWrapper {
                 Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.started"), new TextComponent(filename)));
                 final int maxSize = stream.available();
                 byte[] buffer = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
-                int bytesRead = 0;
-                while ((bytesRead = stream.read(buffer)) != -1) {
-                    byte[] arr = new byte[bytesRead];
-                    System.arraycopy(buffer, 0, arr, 0, bytesRead);
-                    NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundPacket(requestId, arr, maxSize));
+                while (stream.read(buffer) != -1) {                    
+                    NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundPacket(requestId, buffer, maxSize));
                 }
                 stream.close();
                 NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename));

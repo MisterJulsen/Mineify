@@ -3,6 +3,9 @@ package de.mrjulsen.mineify.network;
 import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
 import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
+import de.mrjulsen.mineify.network.packets.NextSoundDataRequestPacket;
+import de.mrjulsen.mineify.network.packets.NextSoundDataResponsePacket;
+import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.RefreshSoundListPacket;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
@@ -31,6 +34,9 @@ public class NetworkManager {
         MOD_CHANNEL.messageBuilder(StopSoundPacket.class, 7).encoder(StopSoundPacket::encode).decoder(StopSoundPacket::decode).consumer(StopSoundPacket::handle).add();
         MOD_CHANNEL.messageBuilder(ErrorMessagePacket.class, 8).encoder(ErrorMessagePacket::encode).decoder(ErrorMessagePacket::decode).consumer(ErrorMessagePacket::handle).add();
         MOD_CHANNEL.messageBuilder(RefreshSoundListPacket.class, 9).encoder(RefreshSoundListPacket::encode).decoder(RefreshSoundListPacket::decode).consumer(RefreshSoundListPacket::handle).add();
+        MOD_CHANNEL.messageBuilder(NextSoundDataRequestPacket.class, 10).encoder(NextSoundDataRequestPacket::encode).decoder(NextSoundDataRequestPacket::decode).consumer(NextSoundDataRequestPacket::handle).add();
+        MOD_CHANNEL.messageBuilder(NextSoundDataResponsePacket.class, 11).encoder(NextSoundDataResponsePacket::encode).decoder(NextSoundDataResponsePacket::decode).consumer(NextSoundDataResponsePacket::handle).add();
+        MOD_CHANNEL.messageBuilder(PlaySoundPacket.class, 12).encoder(PlaySoundPacket::encode).decoder(PlaySoundPacket::decode).consumer(PlaySoundPacket::handle).add();
         
     }
 
