@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.client.screen.widgets.TransferableSoundSelectionList;
 import de.mrjulsen.mineify.config.ModClientConfig;
+import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.sound.PlaylistData;
 import de.mrjulsen.mineify.util.IOUtils;
@@ -139,6 +140,7 @@ public class SoundSelectionScreen extends Screen {
     public void onClose() {
         this.model.commit();
         this.minecraft.setScreen(this.lastScreen);
+        InstanceManager.Client.consumerCache.clear();
     }
 
     private void fillLists() {
