@@ -44,6 +44,9 @@ public class SoundPlayerBlockEntity extends BlockEntity {
     private long currentSoundId = 0;
     private boolean powered = false;
 
+    //helper variables
+    private boolean nextTrackRequested = false;
+
 
     protected SoundPlayerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -265,10 +268,18 @@ public class SoundPlayerBlockEntity extends BlockEntity {
             return;
         }
 
-        this.setPlaying(true);        
-        this.calcTimeToPlayNext(this.getPlaying().readDurationInSeconds());
-        this.stopPlayingSound();
-        this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getCurrentSoundId(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getDistance()));
+        nextTrackRequested = true;
+        new Thread(() -> {
+            try {
+                this.setPlaying(true);        
+                this.calcTimeToPlayNext(this.getPlaying().calcDuration() + 1);
+                this.stopPlayingSound();
+                this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getCurrentSoundId(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getDistance()));
+            } finally {
+                nextTrackRequested = false;
+                Thread.yield();
+            }
+        }).start();
     }
 
     private void setCurrentSoundId(long soundId) {
@@ -277,6 +288,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
     }
 
     private void onTrackPlaying() {
+        
         SoundFile current = this.getPlaying();
         if (current == null) {
             return;
@@ -287,7 +299,10 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         }
     }
 
-    public void playNext() {
+    public void playNext() {        
+        if (nextTrackRequested) {
+            return;
+        }
 
         if (this.isRandom()) {
             short i = (short)rand.nextInt(0, this.getPlaylist().length);
@@ -306,8 +321,12 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         this.playTrack();
     }
 
-    public void playPrevious() {
+    public void playPrevious() {        
         
+        if (nextTrackRequested) {
+            return;
+        }
+
         if (this.isRandom()) {
             short i = (short)rand.nextInt(0, this.getPlaylist().length);
             this.setCurrentTrack(i);
@@ -326,6 +345,11 @@ public class SoundPlayerBlockEntity extends BlockEntity {
     }
 
     public void start() {
+
+        if (nextTrackRequested) {
+            return;
+        }
+
         this.stop();
         this.setTimeToPlayNext(0);
         this.setCurrentTrack((short)0);
