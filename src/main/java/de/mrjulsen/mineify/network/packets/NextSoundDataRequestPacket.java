@@ -1,6 +1,5 @@
 package de.mrjulsen.mineify.network.packets;
 
-import java.io.IOException;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.Constants;

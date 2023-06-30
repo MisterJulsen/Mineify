@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import org.apache.http.client.protocol.ClientContextConfigurer;
-
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
 import de.mrjulsen.mineify.client.screen.SoundPlayerConfigurationScreen;
