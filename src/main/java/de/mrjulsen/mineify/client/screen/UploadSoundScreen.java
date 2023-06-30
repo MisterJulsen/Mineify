@@ -8,7 +8,6 @@ import java.util.function.BiConsumer;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.client.UploadSoundSettings;
 import de.mrjulsen.mineify.config.ModCommonConfig;
