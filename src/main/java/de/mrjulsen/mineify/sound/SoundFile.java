@@ -97,11 +97,20 @@ public class SoundFile implements Serializable {
         return this.getVisibility() != ESoundVisibility.PRIVATE || this.getOwner().equals(uuid);
     }
 
+    
+
     public final int readDurationInSeconds() {
         return calcDurationSeconds(this.getName(), this.getOwner(), this.getVisibility());
     }
 
-    @OnlyIn(Dist.CLIENT)
+    public final int calcDuration() {
+        SoundDataCache cache = SoundDataCache.loadOrCreate(Constants.DEFAULT_SOUND_DATA_CACHE);
+        this.setCachedDurationInSeconds(cache.get(this.buildPath()).getDuration());
+        cache.save(Constants.DEFAULT_SOUND_DATA_CACHE);
+
+        return this.getDurationInSecondsFromCache();
+    }
+
     public final int getDurationInSecondsFromCache() {
         return this.cachedDuration;
     }
@@ -159,7 +168,7 @@ public class SoundFile implements Serializable {
        
         try {
             String oggFilePath = buildPath(filename, owner, visibility);
-        return (int)Utils.calculateOggDuration(oggFilePath);
+            return (int)Utils.calculateOggDuration(oggFilePath);
         } catch (Exception e) { return 0;}
     }
 
