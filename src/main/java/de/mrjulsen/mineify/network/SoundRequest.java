@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.ClientWrapper;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
+import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
 import de.mrjulsen.mineify.network.packets.InstanceManager;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;

@@ -3,6 +3,7 @@ package de.mrjulsen.mineify.client.screen;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.client.screen.widgets.TransferableSoundSelectionList;
+import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.sound.PlaylistData;
 import de.mrjulsen.mineify.util.IOUtils;
@@ -173,7 +174,7 @@ public class SoundSelectionScreen extends Screen {
             return;
         }
 
-        this.minecraft.setScreen(new UploadSoundScreen(this, firstPath, Constants.INITIAL_SOUND_VISIBILITY, Constants.INITIAL_SOUND_CHANNELS, Constants.INITIAL_SOUND_QUALITY, (success, settings) -> {
+        this.minecraft.setScreen(new UploadSoundScreen(this, firstPath, ModClientConfig.DEFAULT_VISIBILITY.get(), ModClientConfig.DEFAULT_CHANNELS.get(), ModClientConfig.DEFAULT_QUALITY.get(), (success, settings) -> {
             if (success) {
                 SoundRequest.uploadFromClient(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID());
                 this.reload();

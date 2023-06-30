@@ -40,12 +40,13 @@ public class ClientWrapper {
     }
 
     public static void handleDownloadSoundPacket(DownloadSoundPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        if (!ModClientConfig.ACTIVATION.get())
+            return;
+
         if (!InstanceManager.Client.soundStreamCache.containsKey(packet.requestId)) {
-            InstanceManager.Client.soundStreamCache.put(packet.requestId, new ReadWriteBuffer(packet.maxLength, packet.requestId));
-            InstanceManager.Client.soundStreamCache.get(packet.requestId).write(packet.data, packet.dataOffset, packet.data.length);
-            Minecraft.getInstance().getSoundManager().play(new ExtendedSoundInstance(new ResourceLocation("minecraft:ambient.cave"), InstanceManager.Client.soundStreamCache.get(packet.requestId), SoundSource.MASTER, packet.volume, packet.pos));
-        } else {                
-            InstanceManager.Client.soundStreamCache.get(packet.requestId).write(packet.data, packet.dataOffset, packet.data.length);
+        if (!ModClientConfig.ACTIVATION.get())
+            return;
+
         }
     }
 

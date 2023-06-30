@@ -11,6 +11,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.client.UploadSoundSettings;
+import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.ESoundChannels;
 import de.mrjulsen.mineify.util.IOUtils;
@@ -59,12 +60,12 @@ public class UploadSoundScreen extends Screen
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
 
-    public UploadSoundScreen(SoundSelectionScreen last, String path, EUserSoundVisibility visibility, ESoundChannels channels, byte quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
+    public UploadSoundScreen(SoundSelectionScreen last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
         super(title);
         this.lastScreen = last;
         this.callback = callback;
         this.channels = channels;
-        this.quality = quality;
+        this.quality = (byte)quality;
         this.filename = IOUtils.getFileNameWithoutExtension(path);
         this.visibility = visibility;
     }
@@ -89,8 +90,8 @@ public class UploadSoundScreen extends Screen
         }));
 
         this.filenameBox = new EditBox(this.font, this.width / 2 - 100, guiTop + 40, 200, 20, new TranslatableComponent("gui.mineify.upload.filename"));
-        this.filenameBox.setMaxLength(Constants.MAX_FILENAME_LENGTH);
-        this.filenameBox.setValue(IOUtils.sanitizeFileName(filename).substring(0, Math.min(filename.length(), Constants.MAX_FILENAME_LENGTH)));
+        this.filenameBox.setMaxLength(ModCommonConfig.MAX_FILENAME_LENGTH.get());
+        this.filenameBox.setValue(IOUtils.sanitizeFileName(filename).substring(0, Math.min(filename.length(), ModCommonConfig.MAX_FILENAME_LENGTH.get())));
         this.filenameBox.setFilter(input -> {
                 return IOUtils.isValidFileName(input);
             }
