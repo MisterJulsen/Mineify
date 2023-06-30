@@ -12,9 +12,9 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SoundDeleteRequestPacket {
-    private String filename;
-    private String fileOwner;
-    private ESoundVisibility visibility;
+    private final String filename;
+    private final String fileOwner;
+    private final ESoundVisibility visibility;
 
     public SoundDeleteRequestPacket(String filename, String fileOwner, ESoundVisibility visibility) {
         this.filename = filename;
@@ -56,7 +56,7 @@ public class SoundDeleteRequestPacket {
                         } catch (Exception e) {
                             tries++;
                             if (tries >= 10) {
-                                NetworkManager.MOD_CHANNEL.sendTo(new ErrorMessagePacket(new ToastMessage("gui.mineify.soundselection.task_fail", e.getMessage())), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                                NetworkManager.MOD_CHANNEL.sendTo(new ErrorMessagePacket(new ToastMessage("gui.mineify.soundselection.task_fail", "Unable to delete sound file.")), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                             }
                         }
                     }

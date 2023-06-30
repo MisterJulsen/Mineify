@@ -215,7 +215,7 @@ public class IOUtils {
         return file.exists();
     }
 
-    public static InputStream convertToOGGNew(String filename, AudioFileConfig config) throws IOException {
+    public static InputStream convertToOGGWithFile(String filename, AudioFileConfig config) throws IOException {
 
         String ffmpegBinary = getFFMPEGBinPath();
 

@@ -10,8 +10,8 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SoundListResponsePacket {
-    public long requestId;
-    public SoundFile[] soundFiles;
+    public final long requestId;
+    public final SoundFile[] soundFiles;
 
     public SoundListResponsePacket(long requestId, SoundFile[] soundFiles) {
         this.requestId = requestId;

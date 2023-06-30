@@ -12,12 +12,11 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SoundPlayerBlockEntityPacket {
-    private BlockPos pos;
-
-    private PlaylistData playlist;
-    private PlaybackArea playbackArea;
-    private boolean locked;
-    private ETrigger trigger;
+    private final BlockPos pos;
+    private final PlaylistData playlist;
+    private final PlaybackArea playbackArea;
+    private final boolean locked;
+    private final ETrigger trigger;
 
      public SoundPlayerBlockEntityPacket(BlockPos pos, PlaylistData playlist, PlaybackArea playbackArea, boolean locked, ETrigger trigger) {
         this.pos = pos;

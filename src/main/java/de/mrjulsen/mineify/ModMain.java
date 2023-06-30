@@ -4,6 +4,8 @@ import com.mojang.logging.LogUtils;
 
 import de.mrjulsen.mineify.blocks.ModBlocks;
 import de.mrjulsen.mineify.blocks.blockentity.ModBlockEntities;
+import de.mrjulsen.mineify.config.ModClientConfig;
+import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.items.ModItems;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.UploaderUsercache;
@@ -51,7 +53,7 @@ public class ModMain
     private void setup(final FMLCommonSetupEvent event)
     {
         // some preinit code
-        LOGGER.info("Welcome to the SERVER SOUNDS mod.");
+        LOGGER.info("Welcome to the MINEIFY mod.");
         PROXY.setup(event);
     }
 }

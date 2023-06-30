@@ -10,7 +10,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
 public class ErrorMessagePacket {
-    public ToastMessage message;
+    public final ToastMessage message;
 
     public ErrorMessagePacket(ToastMessage message) {
         this.message = message;

@@ -18,7 +18,7 @@ import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SoundListRequestPacket {
-    private long requestID;
+    private final long requestID;
 
     public SoundListRequestPacket(long requestId) {
         this.requestID = requestId;
@@ -52,7 +52,7 @@ public class SoundListRequestPacket {
         List<SoundFile> soundFiles = Collections.synchronizedList(new ArrayList<>()); // Contains all visible sounds for that specific user
 
         // Add all server sounds
-        searchForOggFiles(Constants.CUSTOM_SOUNDS_SERVER_PATH).forEach(path -> soundFiles.add(new SoundFile(path, "Server", ESoundVisibility.SERVER)));
+        searchForOggFiles(Constants.CUSTOM_SOUNDS_SERVER_PATH).forEach(path -> soundFiles.add(new SoundFile(path, Constants.SERVER_USERNAME, ESoundVisibility.SERVER)));
         
         // Get all sounds of private folder
         forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PRIVATE.getName()), (userFolderPath, userFolderName) -> { 

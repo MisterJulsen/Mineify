@@ -10,10 +10,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 public class RefreshSoundListPacket {
 
-
-    public static void encode(RefreshSoundListPacket packet, FriendlyByteBuf buffer) {
-        
-    }
+    public static void encode(RefreshSoundListPacket packet, FriendlyByteBuf buffer) { }
 
     public static RefreshSoundListPacket decode(FriendlyByteBuf buffer) {
         RefreshSoundListPacket instance = new RefreshSoundListPacket();

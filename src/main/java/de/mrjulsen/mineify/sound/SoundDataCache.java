@@ -46,7 +46,7 @@ public class SoundDataCache {
         cache.keySet().removeIf(x -> !new File(x).exists());
     }
 
-    public static SoundDataCache loadOrCreate(String filename) {
+    public synchronized static SoundDataCache loadOrCreate(String filename) {
         try {
             String json = IOUtils.readTextFile(filename);
             Gson gson = new Gson();
@@ -59,7 +59,7 @@ public class SoundDataCache {
         return new SoundDataCache();
     }
 
-    public boolean save(String filename) {
+    public synchronized boolean save(String filename) {
         try {
             String json = new Gson().toJson(this);
             IOUtils.createDirectory(Constants.CUSTOM_SOUNDS_SERVER_PATH);

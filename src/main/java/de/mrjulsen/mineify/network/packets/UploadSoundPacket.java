@@ -4,14 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.function.Supplier;
 
+import de.mrjulsen.mineify.network.InstanceManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
 public class UploadSoundPacket {
-    private long requestId;
-
-    private int maxSize; 
-    private byte[] data;
+    private final long requestId;
+    private final int maxSize; 
+    private final byte[] data;
 
     public UploadSoundPacket(long requestId, byte[] data, int maxSize) {
         this.data = data;

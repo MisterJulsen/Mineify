@@ -9,7 +9,7 @@ import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
 public class StopSoundPacket {
-    public long soundId;
+    public final long soundId;
 
     public StopSoundPacket(long soundId) {
         this.soundId = soundId;

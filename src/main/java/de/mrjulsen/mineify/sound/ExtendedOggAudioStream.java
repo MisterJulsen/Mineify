@@ -18,6 +18,7 @@ import org.lwjgl.system.MemoryUtil;
 
 import com.google.common.collect.Lists;
 
+import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.util.ReadWriteBuffer;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.util.Mth;
@@ -26,11 +27,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class ExtendedOggAudioStream implements AudioStream {
-   private static final int EXPECTED_MAX_FRAME_SIZE = 8192;
    private long handle;
    private final AudioFormat audioFormat;
    private final ReadWriteBuffer input;
-   private ByteBuffer buffer = MemoryUtil.memAlloc(EXPECTED_MAX_FRAME_SIZE);
+   private ByteBuffer buffer = MemoryUtil.memAlloc(Constants.DEFAULT_DATA_BLOCK_SIZE);
 
    public ExtendedOggAudioStream(ReadWriteBuffer pInput) throws IOException {
       this.input = pInput;
