@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.client.screen.widgets.TransferableSoundSelectionList;
 import de.mrjulsen.mineify.config.ModClientConfig;
+import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.sound.PlaylistData;
@@ -24,6 +25,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -42,6 +45,8 @@ public class SoundSelectionScreen extends Screen {
     private final Screen lastScreen;
     public final SoundSelectionModel model;
     private final File packDir;
+
+    private boolean isLoading;
     
     //Properties
     private boolean loop;
@@ -52,6 +57,7 @@ public class SoundSelectionScreen extends Screen {
     private TransferableSoundSelectionList selectedPackList;
     private EditBox searchAvailable; 
     private EditBox searchPlaylist; 
+    private Button cancelButton;
 
     private TranslatableComponent textOpenFolder = new TranslatableComponent("gui.mineify.soundselection.open_folder");
     private TranslatableComponent textUpload = new TranslatableComponent("gui.mineify.soundselection.upload");
@@ -59,6 +65,7 @@ public class SoundSelectionScreen extends Screen {
     private TranslatableComponent textRandom = new TranslatableComponent("gui.mineify.soundselection.random");
     private TranslatableComponent titleOpenFileDialog = new TranslatableComponent("gui.mineify.soundselection.openfiledialog.title");
     private TranslatableComponent filterOpenFileDialog = new TranslatableComponent("gui.mineify.soundselection.openfiledialog.filter");
+    private TranslatableComponent textLoading = new TranslatableComponent("gui.mineify.soundselection.loading");
 
     @SuppressWarnings("resource")
     public SoundSelectionScreen(Screen lastScreen, PlaylistData data, Consumer<PlaylistData> callback) {
@@ -73,8 +80,13 @@ public class SoundSelectionScreen extends Screen {
     protected void init() {
         boolean b = this.minecraft.hasSingleplayerServer();
 
-        this.addRenderableWidget(new Button(this.width / 2 + 4 + (b ? 50 : 0), this.height - 30, 100 + (b ? 0 : 50), 20, CommonComponents.GUI_DONE, (p_100036_) -> {
+        cancelButton = this.addWidget(new Button(this.width / 2 - 50, this.height - 50, 100, 20,
+        CommonComponents.GUI_CANCEL, (p_100004_) -> {
             this.onClose();
+        }));
+
+        this.addRenderableWidget(new Button(this.width / 2 + 4 + (b ? 50 : 0), this.height - 30, 100 + (b ? 0 : 50), 20, CommonComponents.GUI_DONE, (p_100036_) -> {
+            this.onDone();
         }));
 
         if (b) {
@@ -136,9 +148,13 @@ public class SoundSelectionScreen extends Screen {
         return this.random;
     }
 
+    public void onDone() {
+        this.model.commit();
+        this.onClose();
+    }
+
     @Override
     public void onClose() {
-        this.model.commit();
         this.minecraft.setScreen(this.lastScreen);
         InstanceManager.Client.consumerCache.clear();
     }
@@ -149,14 +165,24 @@ public class SoundSelectionScreen extends Screen {
     }
 
     public void reload() {
+        this.isLoading = true;
         this.model.readFromDisk(this.minecraft.player.getUUID(), () -> {
             this.fillLists();
+            this.isLoading = false;
         });
     }
 
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+
         this.renderDirtBackground(0);
+
+        if (this.isLoading) {
+            drawCenteredString(pPoseStack, this.font, textLoading, this.width / 2, 100, 16777215);
+            this.cancelButton.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+            return;
+        }
+
         this.availablePackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         this.selectedPackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, 8, 16777215);
@@ -169,6 +195,10 @@ public class SoundSelectionScreen extends Screen {
 
     @Override
     public void onFilesDrop(List<Path> pPacks) {
+        if (this.isLoading) {
+            return;
+        }
+
         String firstPath = pPacks.stream().map(Path::toString).findFirst().get();
 
         if (!IOUtils.ffmpegInstalled()) {
@@ -176,9 +206,19 @@ public class SoundSelectionScreen extends Screen {
             return;
         }
 
+        if (this.model.storageUsedByUser() >= ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() && ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() > 0) {
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.storage_full"), new TranslatableComponent("gui.mineify.soundselection.upload.storage_full.details", IOUtils.formatBytes(ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get()))));
+            return;
+        }
+
+        if (this.model.uploadsByUser() >= ModCommonConfig.MAX_FILES.get() && ModCommonConfig.MAX_FILES.get() >= 0) {
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.file_limit_exceeded"), new TranslatableComponent("gui.mineify.soundselection.upload.file_limit_exceeded.details", ModCommonConfig.MAX_FILES.get())));
+            return;
+        }
+
         this.minecraft.setScreen(new UploadSoundScreen(this, firstPath, ModClientConfig.DEFAULT_VISIBILITY.get(), ModClientConfig.DEFAULT_CHANNELS.get(), ModClientConfig.DEFAULT_QUALITY.get(), (success, settings) -> {
             if (success) {
-                SoundRequest.uploadFromClient(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID());
+                SoundRequest.uploadFromClient(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID(), this.model.storageUsedByUser());
                 this.reload();
             }
         }));
