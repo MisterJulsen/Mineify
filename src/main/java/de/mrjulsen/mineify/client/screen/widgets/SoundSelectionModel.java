@@ -19,6 +19,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -44,8 +45,7 @@ public class SoundSelectionModel {
         this.parent = screen;
         this.onListChanged = pOnListChanged;
         this.callback = callback;
-        this.playlist = data.sounds;
-        //this.readFromDisk(userUUID, () -> {}, true);        
+        this.playlist = data.sounds;       
     }
 
     public Stream<SoundSelectionModel.Entry> getUnselected() {
@@ -58,6 +58,14 @@ public class SoundSelectionModel {
         return this.selected.stream().map((sound) -> {
             return new SoundSelectionModel.SelectedPackEntry(sound);
         });
+    }
+
+    public long storageUsedByUser() {
+        return Arrays.stream(this.pool).filter(x -> x.getOwner().equals(Minecraft.getInstance().player.getUUID().toString())).mapToLong(x -> x.getSize()).sum();
+    }
+
+    public long uploadsByUser() {
+        return Arrays.stream(this.pool).filter(x -> x.getOwner().equals(Minecraft.getInstance().player.getUUID().toString())).count();
     }
 
     public void commit() {
@@ -89,7 +97,7 @@ public class SoundSelectionModel {
             this.unselected.clear();
             this.unselected.addAll(Lists.newArrayList(Arrays.stream(this.pool).filter(x -> x.visibleFor(playerUUID) && !Arrays.asList(this.playlist).contains(x)).toList()));
             this.unselected.removeAll(this.selected);
-
+            
             andThen.run();
         });   
     }

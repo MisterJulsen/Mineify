@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -118,34 +119,49 @@ public class Utils {
         }
     }
 
-    public static double calculateOggDuration(final String filePath) throws IOException {
-        int rate = -1;
-        int length = -1;
-        final File oggFile = new File(filePath);
+    
 
+    public static double calculateOggDuration(final String filePath) throws IOException {
+        final File oggFile = new File(filePath);
+        
         int size = (int) oggFile.length();
         byte[] t = new byte[size];
-
+        
         try (FileInputStream stream = new FileInputStream(oggFile)) {
             stream.read(t);
+        }
 
-            for (int i = size - 1 - 8 - 2 - 4; i >= 0 && length < 0; i--) {
-                if (isMatch(t, i, "OggS")) {
-                    byte[] byteArray = extractByteArray(t, i + 6, 8);
-                    length = extractIntLittleEndian(byteArray);
-                }
+        return calculateOggDuration(t);
+    }
+
+    public static double calculateOggDuration(final byte[] data) {
+        int rate = -1;
+        int length = -1;
+
+        for (int i = data.length - 1 - 8 - 2 - 4; i >= 0 && length < 0; i--) {
+            if (isMatch(data, i, "OggS")) {
+                byte[] byteArray = extractByteArray(data, i + 6, 8);
+                length = extractIntLittleEndian(byteArray);
             }
+        }
 
-            for (int i = 0; i < size - 8 - 2 - 4 && rate < 0; i++) {
-                if (isMatch(t, i, "vorbis")) {
-                    byte[] byteArray = extractByteArray(t, i + 11, 4);
-                    rate = extractIntLittleEndian(byteArray);
-                }
+        for (int i = 0; i < data.length - 8 - 2 - 4 && rate < 0; i++) {
+            if (isMatch(data, i, "vorbis")) {
+                byte[] byteArray = extractByteArray(data, i + 11, 4);
+                rate = extractIntLittleEndian(byteArray);
             }
         }
 
         double duration = (double) length / (double) rate;
         return duration;
+    }
+
+    public static final LocalTime formattedDuration(int seconds) {
+        int hours = seconds / 3600;
+        int minutes = (seconds % 3600) / 60;
+        int secs = seconds % 60;
+
+        return LocalTime.of(hours, minutes, secs);
     }
 
     private static boolean isMatch(byte[] array, int startIndex, String pattern) {

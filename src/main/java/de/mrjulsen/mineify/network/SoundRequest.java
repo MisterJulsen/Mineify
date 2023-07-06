@@ -75,8 +75,8 @@ public class SoundRequest {
         return requestId;
     }
 
-    public static void uploadFromClient(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader) {        
-        ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader);
+    public static void uploadFromClient(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader, long usedBytes) {        
+        ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, usedBytes);
     }
 
     public static void getSoundListFromServer(Consumer<SoundFile[]> callback) {
