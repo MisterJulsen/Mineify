@@ -1,0 +1,23 @@
+{
+    "display": {
+      "icon": {
+        "item": "mineify:sound_player"
+      },
+      "title": {
+        "translate": "advancement.mineify.root"
+      },
+      "description": {
+        "translate": "advancement.mineify.root.description"
+      },
+      "background": "minecraft:textures/block/spruce_planks.png",
+      "frame": "challenge",
+      "show_toast": false,
+      "announce_to_chat": false
+    },
+    "criteria": {
+      "requirement": {
+        "trigger": "minecraft:impossible"
+      }
+    }
+  }
+  

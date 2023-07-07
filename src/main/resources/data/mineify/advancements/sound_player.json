@@ -1,0 +1,32 @@
+{
+    "display": {
+      "icon": {
+        "item": "mineify:sound_player"
+      },
+      "title": {
+        "translate": "advancement.mineify.sound_player"
+      },
+      "description": {
+        "translate": "advancement.mineify.sound_player.description"
+      },
+      "frame": "task",
+      "show_toast": true,
+      "announce_to_chat": true
+    },
+    "parent": "mineify:root",
+    "criteria": {
+      "requirement": {
+        "trigger": "minecraft:inventory_changed",
+        "conditions": {
+          "items": [
+            {
+              "items": [
+                "mineify:sound_player"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+  

@@ -3,6 +3,15 @@
 
     "block.mineify.sound_player": "Sound Player",
     "block.mineify.sound_player.locked": "This block has been locked by its owner.",
+    
+    "advancement.mineify.root": "Mineify",
+    "advancement.mineify.root.description": "Welcome to the Mineify Mod by MrJulsen.",    
+    "advancement.mineify.sound_player": "DJ",
+    "advancement.mineify.sound_player.description": "Craft a Sound Player.",    
+    "advancement.mineify.first_upload": "Music Publisher",
+    "advancement.mineify.first_upload.description": "Upload your first sound file.",  
+    "advancement.mineify.pirate_copy": "Pirate Copy",
+    "advancement.mineify.pirate_copy.description": "Use a sound or music uploaded by another user on a server.",
 
     "gui.mineify.soundselection.task_fail": "Task failed!",
     "gui.mineify.soundselection.task_success": "Task success!",

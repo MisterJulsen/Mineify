@@ -1,0 +1,24 @@
+{
+    "display": {
+      "icon": {
+        "item": "minecraft:writable_book"
+      },
+      "title": {
+        "translate": "advancement.mineify.pirate_copy"
+      },
+      "description": {
+        "translate": "advancement.mineify.pirate_copy.description"
+      },
+      "frame": "task",
+      "hidden": true,
+      "show_toast": true,
+      "announce_to_chat": true
+    },
+    "parent": "mineify:sound_player",
+    "criteria": {
+      "requirement": {
+        "trigger": "minecraft:impossible"
+      }
+    }
+  }
+  

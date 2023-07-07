@@ -1,0 +1,23 @@
+{
+    "display": {
+      "icon": {
+        "item": "minecraft:music_disc_13"
+      },
+      "title": {
+        "translate": "advancement.mineify.first_upload"
+      },
+      "description": {
+        "translate": "advancement.mineify.first_upload.description"
+      },
+      "frame": "task",
+      "show_toast": true,
+      "announce_to_chat": true
+    },
+    "parent": "mineify:sound_player",
+    "criteria": {
+      "requirement": {
+        "trigger": "minecraft:impossible"
+      }
+    }
+  }
+  

@@ -6,13 +6,19 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.ToastMessage;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.util.IOUtils;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementList;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.commands.AdvancementCommands;
+import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -71,6 +77,9 @@ public class UploadSoundCompletionPacket {
 
                 UploaderUsercache.INSTANCE.add(packet.uploaderUUID.toString());
                 UploaderUsercache.INSTANCE.save(Constants.DEFAULT_USERCACHE_PATH);
+
+                Advancement adv = context.get().getSender().getServer().getAdvancements().getAdvancement(new ResourceLocation(ModMain.MOD_ID, "first_upload"));
+                context.get().getSender().getAdvancements().award(adv, "impossible");
 
                 NetworkManager.MOD_CHANNEL.sendTo(new RefreshSoundListPacket(), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }).start();

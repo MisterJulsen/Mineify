@@ -135,7 +135,7 @@ public class ClientWrapper {
                 while (stream.read(buffer) != -1) {                    
                     NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundPacket(requestId, buffer, maxSize));
                 }
-                NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename));
+                NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename));                
             } catch (ConfigException e) {
                 Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TextComponent(e.getMessage()), new TextComponent(e.getDetails())));
             } catch (Exception e) {
