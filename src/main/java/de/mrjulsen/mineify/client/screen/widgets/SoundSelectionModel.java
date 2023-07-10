@@ -81,7 +81,6 @@ public class SoundSelectionModel {
     }
 
     public void readFromDisk(UUID playerUUID, Runnable andThen) {
-        //this.selected.retainAll(this.unselected);
         SoundRequest.getSoundListFromServer((sounds) -> {
             this.pool = sounds;
             if (this.pool == null) {
