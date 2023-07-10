@@ -38,7 +38,7 @@ public class NextSoundDataRequestPacket {
                 byte[] data = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
                 boolean hasNext = false;
                 try {
-                    int bytesRead = InstanceManager.Server.fileCache.get(packet.requestId).readBlock(context.get().getSender().getUUID(), data);
+                    int bytesRead = InstanceManager.Server.fileCache.get(packet.requestId).read(context.get().getSender().getUUID(), data);
                     hasNext = bytesRead > -1;
                 } catch (Exception e) {
                     e.printStackTrace();

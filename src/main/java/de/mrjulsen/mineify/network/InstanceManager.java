@@ -1,6 +1,8 @@
 package de.mrjulsen.mineify.network;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,6 +41,10 @@ public class InstanceManager {
             running = false;
         }
 
+        public void gc() {
+            this.check();
+        }
+
         protected abstract void check();
 
     }
@@ -49,11 +55,16 @@ public class InstanceManager {
 
         public static void closeFileStream(long requestId) {
             if (fileCache.containsKey(requestId)) {
-                fileCache.get(requestId).close();
+                try {
+                    fileCache.get(requestId).close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 fileCache.remove(requestId);
             }
         }
 
+        
         public static final class GarbageCollection extends GarbageCollectionBase {
 
             public static final GarbageCollection INSTANCE = new GarbageCollection();
@@ -62,10 +73,11 @@ public class InstanceManager {
             protected void check() {
                 Collection<UUID> onlinePlayers = Minecraft.getInstance().getConnection().getOnlinePlayerIds();
                 InstanceManager.Server.fileCache.values().removeIf(x -> {
-                    return x.isDisposed() || Arrays.stream(x.registeredPlayers()).noneMatch(y -> onlinePlayers.contains(y));
+                    return x.isDisposed() || Arrays.stream(x.getRegisteredPlayers()).noneMatch(y -> onlinePlayers.contains(y));
                 });
             }
         }
+        
     }
 
     public static final class Client {
