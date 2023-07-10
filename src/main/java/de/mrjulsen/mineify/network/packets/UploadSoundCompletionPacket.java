@@ -13,6 +13,7 @@ import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.ToastMessage;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.util.IOUtils;
+import de.mrjulsen.mineify.util.Utils;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementList;
 import net.minecraft.network.FriendlyByteBuf;
@@ -78,8 +79,7 @@ public class UploadSoundCompletionPacket {
                 UploaderUsercache.INSTANCE.add(packet.uploaderUUID.toString());
                 UploaderUsercache.INSTANCE.save(Constants.DEFAULT_USERCACHE_PATH);
 
-                Advancement adv = context.get().getSender().getServer().getAdvancements().getAdvancement(new ResourceLocation(ModMain.MOD_ID, "first_upload"));
-                context.get().getSender().getAdvancements().award(adv, "impossible");
+                Utils.giveAdvancement(context.get().getSender(), "first_upload", "requirement");
 
                 NetworkManager.MOD_CHANNEL.sendTo(new RefreshSoundListPacket(), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
             }).start();

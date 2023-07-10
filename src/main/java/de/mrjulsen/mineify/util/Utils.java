@@ -18,12 +18,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import de.mrjulsen.mineify.ModMain;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.entity.player.Player;
 
 public class Utils {
     public static void shiftByteArray(byte[] array, int n) {
@@ -183,6 +188,11 @@ public class Utils {
         ByteBuffer bb = ByteBuffer.wrap(byteArray);
         bb.order(ByteOrder.LITTLE_ENDIAN);
         return bb.getInt();
+    }
+
+    public static void giveAdvancement(ServerPlayer player, String name, String criteriaKey) {
+        Advancement adv = player.getServer().getAdvancements().getAdvancement(new ResourceLocation(ModMain.MOD_ID, name));
+        player.getAdvancements().award(adv, criteriaKey);
     }
 
 }

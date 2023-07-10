@@ -10,6 +10,7 @@ import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
 import de.mrjulsen.mineify.sound.PlaylistData;
 import de.mrjulsen.mineify.sound.SoundFile;
+import de.mrjulsen.mineify.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +24,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -68,8 +70,15 @@ public class SoundSelectionModel {
         return Arrays.stream(this.pool).filter(x -> x.getOwner().equals(Minecraft.getInstance().player.getUUID().toString())).count();
     }
 
+    public boolean playlistContainsFileByOtherUsers() {
+        return this.selected.stream().filter(x -> !x.getOwner().equals(Minecraft.getInstance().player.getUUID().toString())).count() > 0;
+    }
+
+    @SuppressWarnings("resource") 
     public void commit() {
-        this.callback.accept(new PlaylistData(this.selected.toArray(SoundFile[]::new), this.parent.isLooping(), this.parent.isRandom()));        
+        this.callback.accept(new PlaylistData(this.selected.toArray(SoundFile[]::new), this.parent.isLooping(), this.parent.isRandom()));
+        ServerPlayer player = Minecraft.getInstance().player.getServer().getPlayerList().getPlayer(Minecraft.getInstance().player.getUUID());
+        Utils.giveAdvancement(player, "pirate_copy", "requirement");
     }
 
     public SoundFile[] getPool() {
