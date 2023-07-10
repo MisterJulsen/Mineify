@@ -17,6 +17,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
@@ -203,6 +204,12 @@ public class PlaylistScreen extends Screen {
 
         if (!IOUtils.ffmpegInstalled()) {
             this.minecraft.setScreen(new FFMPEGMissingScreen(this));
+            return;
+        }
+
+        final String fileExtension = IOUtils.getFileExtension(firstPath);
+        if (Arrays.stream(Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS).noneMatch(x -> x.equals(fileExtension))) {
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.invalid_extension"), new TranslatableComponent("gui.mineify.soundselection.upload.invalid_extension.details", fileExtension.toUpperCase())));
             return;
         }
 
