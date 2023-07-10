@@ -145,25 +145,6 @@ public class SoundFile implements Serializable {
         }
     }
 
-    /* UNUSED
-    private static int calcDurationSecondsClient(String filename, String owner, ESoundVisibility visibility) {
-        float lengthSeconds = 0;
-
-        try (MemoryStack memorystack = MemoryStack.stackPush()) {
-            String filePath = SoundFile.buildPath(filename, owner, visibility);
-            IntBuffer intbuffer = memorystack.mallocInt(1);
-            long handle = STBVorbis.stb_vorbis_open_filename(filePath, intbuffer, (STBVorbisAlloc)null);            
-            STBVorbisInfo stbvorbisinfo = STBVorbisInfo.mallocStack(memorystack);
-            STBVorbis.stb_vorbis_get_info(handle, stbvorbisinfo);
-            lengthSeconds = STBVorbis.stb_vorbis_stream_length_in_seconds(handle);
-            STBVorbis.stb_vorbis_close(handle);
-        } catch (Exception e) {
-        }
-         
-        return (int)lengthSeconds;
-    }
-    */
-
     private static int calcDurationSeconds(String filename, String owner, ESoundVisibility visibility) {
        
         try {
