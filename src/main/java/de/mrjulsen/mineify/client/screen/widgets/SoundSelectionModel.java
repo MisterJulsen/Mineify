@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.ESoundVisibility;
-import de.mrjulsen.mineify.client.screen.SoundSelectionScreen;
+import de.mrjulsen.mineify.client.screen.PlaylistScreen;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
@@ -29,7 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SoundSelectionModel {
     
-    private final SoundSelectionScreen parent;
+    private final PlaylistScreen parent;
     private final Consumer<PlaylistData> callback;
 
     private SoundFile[] pool;
@@ -41,7 +41,7 @@ public class SoundSelectionModel {
 
     private boolean initialized = false;
 
-    public SoundSelectionModel(SoundSelectionScreen screen, Runnable pOnListChanged, UUID userUUID, PlaylistData data, Consumer<PlaylistData> callback) {
+    public SoundSelectionModel(PlaylistScreen screen, Runnable pOnListChanged, UUID userUUID, PlaylistData data, Consumer<PlaylistData> callback) {
         this.parent = screen;
         this.onListChanged = pOnListChanged;
         this.callback = callback;

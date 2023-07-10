@@ -89,7 +89,7 @@ public class SoundPlayerConfigurationScreen extends Screen
 
         /* Controls */
         this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 25, 200, 20, textPlaylist, (p) -> {
-            Minecraft.getInstance().setScreen(new SoundSelectionScreen(this, this.playlist, (data) -> {
+            Minecraft.getInstance().setScreen(new PlaylistScreen(this, this.playlist, (data) -> {
                 this.playlist = data;
             }));
         }));

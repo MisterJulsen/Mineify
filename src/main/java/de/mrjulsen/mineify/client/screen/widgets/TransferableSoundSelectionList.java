@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 
 import de.mrjulsen.mineify.ModMain;
-import de.mrjulsen.mineify.client.screen.SoundSelectionScreen;
+import de.mrjulsen.mineify.client.screen.PlaylistScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -184,7 +184,7 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                     if (result) {
                         this.pack.delete(this.minecraft.player.getUUID());
                         Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.delete"), this.pack.getName())); 
-                        ((SoundSelectionScreen)this.screen).reload();
+                        ((PlaylistScreen)this.screen).reload();
                     }
 
                     this.minecraft.setScreen(this.screen);

@@ -29,7 +29,7 @@ import net.minecraftforge.client.gui.widget.ForgeSlider;
 public class UploadSoundScreen extends Screen
 {
     public static final Component title = new TextComponent("soundupload");
-    private final SoundSelectionScreen lastScreen;
+    private final PlaylistScreen lastScreen;
     
     private int guiTop = 50;
     
@@ -59,7 +59,7 @@ public class UploadSoundScreen extends Screen
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
 
-    public UploadSoundScreen(SoundSelectionScreen last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
+    public UploadSoundScreen(PlaylistScreen last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
         super(title);
         this.lastScreen = last;
         this.callback = callback;

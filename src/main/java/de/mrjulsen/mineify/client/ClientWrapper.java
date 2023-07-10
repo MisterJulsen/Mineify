@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
 import de.mrjulsen.mineify.client.screen.SoundPlayerConfigurationScreen;
-import de.mrjulsen.mineify.client.screen.SoundSelectionScreen;
+import de.mrjulsen.mineify.client.screen.PlaylistScreen;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.InstanceManager;
@@ -71,7 +71,7 @@ public class ClientWrapper {
 
     @SuppressWarnings("resource")
     public static void handleRefreshSoundListPacket(RefreshSoundListPacket packet, Supplier<NetworkEvent.Context> ctx) {        
-        if (Minecraft.getInstance().screen instanceof SoundSelectionScreen screen) {
+        if (Minecraft.getInstance().screen instanceof PlaylistScreen screen) {
             screen.reload(); 
         }
         

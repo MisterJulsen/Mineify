@@ -38,7 +38,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 @OnlyIn(Dist.CLIENT)
-public class SoundSelectionScreen extends Screen {
+public class PlaylistScreen extends Screen {
     private static final int LIST_WIDTH = 200;
     private static final Component DRAG_AND_DROP = (new TranslatableComponent("gui.mineify.soundselection.drag_and_drop")).withStyle(ChatFormatting.GRAY);
     
@@ -68,7 +68,7 @@ public class SoundSelectionScreen extends Screen {
     private TranslatableComponent textLoading = new TranslatableComponent("gui.mineify.soundselection.loading");
 
     @SuppressWarnings("resource")
-    public SoundSelectionScreen(Screen lastScreen, PlaylistData data, Consumer<PlaylistData> callback) {
+    public PlaylistScreen(Screen lastScreen, PlaylistData data, Consumer<PlaylistData> callback) {
         super(new TranslatableComponent("gui.mineify.soundselection.title"));
         this.lastScreen = lastScreen;
         this.packDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH);
