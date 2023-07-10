@@ -38,16 +38,13 @@ public class NextSoundDataRequestPacket {
                 byte[] data = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
                 boolean hasNext = false;
                 try {
-                    int bytesRead = InstanceManager.Server.fileCache.get(packet.requestId).read(data);
+                    int bytesRead = InstanceManager.Server.fileCache.get(packet.requestId).readBlock(context.get().getSender().getUUID(), data);
                     hasNext = bytesRead > -1;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 NetworkManager.MOD_CHANNEL.sendTo(new NextSoundDataResponsePacket(packet.requestId, data, hasNext, packet.index), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 
-                if (!hasNext) {
-                    InstanceManager.Server.closeFileStream(packet.requestId);
-                }
             }
 
         });

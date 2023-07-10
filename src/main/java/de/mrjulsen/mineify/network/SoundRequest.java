@@ -2,7 +2,7 @@ package de.mrjulsen.mineify.network;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -15,6 +15,7 @@ import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.SoundFile;
+import de.mrjulsen.mineify.util.PlayerDependDataBuffer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -25,14 +26,14 @@ public class SoundRequest {
         final long requestId = System.nanoTime();
         new Thread(() -> {  
             try {
-                InstanceManager.Server.fileCache.put(requestId, new FileInputStream(file.buildPath()));
-                InputStream stream = InstanceManager.Server.fileCache.get(requestId);
-                final int maxLength = ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get() ? (Constants.PRE_BUFFER_MULTIPLIER * 2) * Constants.DEFAULT_DATA_BLOCK_SIZE : stream.available() + Constants.DEFAULT_DATA_BLOCK_SIZE;
+                InstanceManager.Server.fileCache.put(requestId, new PlayerDependDataBuffer(Constants.DEFAULT_DATA_BLOCK_SIZE, new FileInputStream(file.buildPath()), Arrays.stream(players).map(ServerPlayer::getUUID).toArray(UUID[]::new)));
+                PlayerDependDataBuffer stream = InstanceManager.Server.fileCache.get(requestId);
+                final int maxLength = ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get() ? (Constants.PRE_BUFFER_MULTIPLIER * 2) * Constants.DEFAULT_DATA_BLOCK_SIZE : stream.length() + Constants.DEFAULT_DATA_BLOCK_SIZE;
                 byte[] buffer = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
                 int part = 0;
                 int bytesRead = 0;
                 
-                while ((bytesRead = stream.read(buffer)) != -1) {
+                while ((bytesRead = stream.readBlockForAll(buffer)) != -1) {
                     for (ServerPlayer p : players) {
                         NetworkManager.MOD_CHANNEL.sendTo(new DownloadSoundPacket(requestId, 0, buffer, maxLength, ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get()), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                         if (part == Constants.PRE_BUFFER_MULTIPLIER) {
@@ -63,7 +64,7 @@ public class SoundRequest {
                     if (bytesRead == -1 && part < Constants.PRE_BUFFER_MULTIPLIER) {
                         NetworkManager.MOD_CHANNEL.sendTo(new PlaySoundPacket(requestId, pos, volume), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                     }
-                } 
+                }
                 InstanceManager.Server.closeFileStream(requestId);
             } catch (IOException e) {
                 e.printStackTrace();

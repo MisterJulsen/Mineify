@@ -15,6 +15,7 @@ public class Constants {
     public static final String USER_PREFIX = "@";
     public static final String VISIBILITY_PREFIX = "$";
     public static final String SERVER_USERNAME = "Server";
+    public static final int GC_INTERVALL = 60000;
     public static final int DEFAULT_DATA_BLOCK_SIZE = 8192; 
     public static final int PRE_BUFFER_MULTIPLIER = 6;
     public static final int MAX_FILENAME_LENGTH = 32;
