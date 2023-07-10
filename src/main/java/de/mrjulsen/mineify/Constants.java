@@ -25,9 +25,9 @@ public class Constants {
     public static final ESoundChannels INITIAL_SOUND_CHANNELS = ESoundChannels.MONO;
     public static final byte INITIAL_SOUND_QUALITY = AudioFileConfig.OGG_QUALITY_DEFAULT;
     public static final String[] ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS = {
-            ".3g2", ".3ga", ".aac", ".ac3", ".aif", ".amr", ".ape", ".au", ".caf", ".dts", ".flac",
-            ".m4a", ".m4b", ".m4p", ".mka", ".mp2", ".mp3", ".oga", ".ogg", ".oma", ".opus", ".ra",
-            ".ram", ".sln", ".tta", ".voc", ".wav", ".wma", ".wv"
+            "3g2", "3ga", "aac", "ac3", "aif", "amr", "ape", "au", "caf", "dts", "flac",
+            "m4a", "m4b", "m4p", "mka", "mp2", "mp3", "oga", "ogg", "oma", "opus", "ra",
+            "ram", "sln", "tta", "voc", "wav", "wma", "wv"
         };
 
 }
