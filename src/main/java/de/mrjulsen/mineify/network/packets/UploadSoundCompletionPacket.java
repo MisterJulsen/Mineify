@@ -6,7 +6,6 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.Constants;
-import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
@@ -14,12 +13,7 @@ import de.mrjulsen.mineify.network.ToastMessage;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.Utils;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementList;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.commands.AdvancementCommands;
-import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 

@@ -28,7 +28,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.world.entity.player.Player;
 
 public class Utils {
     public static void shiftByteArray(byte[] array, int n) {
@@ -74,31 +73,7 @@ public class Utils {
             return "Unknown User";
         }
     }
-
-    /*
-    public static <T> byte[] serialize(T obj) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream)) {
-            objectOutputStream.writeObject(obj);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return byteArrayOutputStream.toByteArray();
-    }
     
-    @SuppressWarnings("unchecked")
-    public static <T> T deserialize(byte[] data) {
-        try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
-            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream)) {            
-                return (T)objectInputStream.readObject();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    */
-
     @SuppressWarnings("resource")
     public static <T extends Enum<T> & ITranslatableEnum> List<FormattedCharSequence> getEnumTooltipData(Screen s, Class<T> enumClass, int maxWidth) {
         List<FormattedCharSequence> c = new ArrayList<>();
