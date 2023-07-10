@@ -2,7 +2,7 @@
     "itemGroup.mineifytab": "Mineify Blocks & Items",
 
     "block.mineify.sound_player": "Sound Player",
-    "block.mineify.sound_player.locked": "This block has been locked by its owner.",
+    "block.mineify.sound_player.locked": "§cThis block has been locked by its owner.",
     
     "advancement.mineify.root": "Mineify",
     "advancement.mineify.root.description": "Welcome to the Mineify Mod by MrJulsen.",    
@@ -10,9 +10,7 @@
     "advancement.mineify.sound_player.description": "Craft a Sound Player.",    
     "advancement.mineify.first_upload": "Music Publisher",
     "advancement.mineify.first_upload.description": "Upload your first sound file.",  
-    "advancement.mineify.pirate_copy": "Pirate Copy",
-    "advancement.mineify.pirate_copy.description": "Use a sound or music uploaded by another user on a server.",
-
+    
     "gui.mineify.soundselection.task_fail": "Task failed!",
     "gui.mineify.soundselection.task_success": "Task success!",
     "gui.mineify.soundselection.title": "Sound Selection",
@@ -43,9 +41,11 @@
     "gui.mineify.soundselection.upload.storage_limit_exceeded": "Storage limit exceeded.",
     "gui.mineify.soundselection.upload.storage_limit_exceeded.details": "Size: %s; Storage used: %s, Storage free: %s, Max: %s",
     "gui.mineify.soundselection.upload.file_limit_exceeded": "File limit exceeded.",
-    "gui.mineify.soundselection.upload.file_limit_exceeded.details": "Max: %s files per user",
+    "gui.mineify.soundselection.upload.file_limit_exceeded.details": "Max: %s file(s) per user",
     "gui.mineify.soundselection.upload.storage_full": "Storage full.",
-    "gui.mineify.soundselection.upload.storage_full.details": "Max: %s",
+    "gui.mineify.soundselection.upload.storage_full.details": "Max: %s",    
+    "gui.mineify.soundselection.upload.invlaid_extension": "Invalid file extension.",
+    "gui.mineify.soundselection.upload.invlaid_extension.details": "Current: %s",
     "gui.mineify.soundselection.loading": "Loading files...",
     "gui.mineify.sound_player_config.title": "Sound Player Configuration",
     "gui.mineify.sound_player_config.playlist": "Edit Playlist...",
