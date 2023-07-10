@@ -16,6 +16,7 @@ public class ModBlockEntities {
     
 
     public static void register(IEventBus eventBus) {
+        ModMain.LOGGER.info("Register BlockEntities.");
         BLOCK_ENTITIES.register(eventBus);
     }
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.ToastMessage;
@@ -39,7 +40,9 @@ public class SoundDeleteRequestPacket {
 
     public static void handle(SoundDeleteRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
-            new Thread(() -> {
+            
+            ModMain.LOGGER.debug("Delete sound '" + packet.filename + "' started.");
+            new Thread(() -> {                
                 if (packet.visibility != ESoundVisibility.SERVER) {
                     int tries = 0;
                     File f = new File(String.format("%s/%s/%s/%s.%s", 
@@ -63,7 +66,10 @@ public class SoundDeleteRequestPacket {
 
                     NetworkManager.MOD_CHANNEL.sendTo(new RefreshSoundListPacket(), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 }
-            }).start();
+                
+                ModMain.LOGGER.debug("Sound deleted.");
+            }, "DeleteSound").start();
+
         });
         
         context.get().setPacketHandled(true);      

@@ -6,6 +6,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.ETrigger;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.SoundRequest;
@@ -59,6 +60,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag compound)
     {
+        ModMain.LOGGER.debug("Loading SoundPlayerBlockEntity NBT.");
         super.load(compound);
         
         CompoundTag playlist = compound.getCompound("playlist");
@@ -82,11 +84,15 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         this.currentSoundId = compound.getLong("currentSoundId");
         this.powered = compound.getBoolean("powered");
         this.setPlaybackArea(PlaybackArea.fromNbt(compound.getCompound("playbackArea")));
+        
+        ModMain.LOGGER.debug("SoundPlayerBlockEntity loaded.");
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag)
     {   
+        ModMain.LOGGER.debug("Saving SoundPlayerBlockEntity NBT.");
+
         CompoundTag playlist = new CompoundTag();
         for (int i = 0 ; i < this.playlist.length; i++) {
             playlist.put(String.valueOf(i), this.playlist[i].toNbt());
@@ -108,6 +114,8 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         tag.put("playbackArea", this.getPlaybackArea().toNbt());
 
         super.saveAdditional(tag);
+        
+        ModMain.LOGGER.debug("SoundPlayerBlockEntity saved.");
     }
 
     @Nullable
@@ -269,6 +277,8 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         }
 
         nextTrackRequested = true;
+        
+        ModMain.LOGGER.debug("Play new track: " + this.getPlaying());
         new Thread(() -> {
             try {
                 this.setPlaying(true);        
@@ -277,9 +287,8 @@ public class SoundPlayerBlockEntity extends BlockEntity {
                 this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getCurrentSoundId(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getDistance()));
             } finally {
                 nextTrackRequested = false;
-                Thread.yield();
             }
-        }).start();
+        }, "PlaySoundTrigger").start();
     }
 
     private void setCurrentSoundId(long soundId) {

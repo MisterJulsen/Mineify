@@ -53,7 +53,7 @@ public class ModMain
     private void setup(final FMLCommonSetupEvent event)
     {
         // some preinit code
-        LOGGER.info("Welcome to the MINEIFY mod.");
+        LOGGER.info("Welcome to the MINEIFY mod by MRJULSEN.");
         PROXY.setup(event);
     }
 }

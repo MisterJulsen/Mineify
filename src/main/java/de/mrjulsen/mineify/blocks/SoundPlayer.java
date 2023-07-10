@@ -2,6 +2,7 @@ package de.mrjulsen.mineify.blocks;
 
 import javax.annotation.Nullable;
 
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.blocks.blockentity.ModBlockEntities;
 import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
 import de.mrjulsen.mineify.client.ClientWrapper;
@@ -65,6 +66,8 @@ public class SoundPlayer extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof SoundPlayerBlockEntity blockEntity) { 
             
             if (blockEntity.getTrigger() == ETrigger.NONE && player.isShiftKeyDown()) {
+                
+                ModMain.LOGGER.debug(player.getName().getString() + " interacted with SoundPlayer.");
                 if (blockEntity.isPlaying()) {
                     blockEntity.stop();
                 } else {

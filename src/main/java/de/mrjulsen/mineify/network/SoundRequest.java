@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.ClientWrapper;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.config.ModCommonConfig;
@@ -26,6 +27,8 @@ public class SoundRequest {
         final long requestId = System.nanoTime();
         new Thread(() -> {  
             try {
+                
+                ModMain.LOGGER.debug("Sound requested.");
                 InstanceManager.Server.fileCache.put(requestId, new PlayerDependDataBuffer(Constants.DEFAULT_DATA_BLOCK_SIZE, new FileInputStream(file.buildPath()), Arrays.stream(players).map(ServerPlayer::getUUID).toArray(UUID[]::new)));
                 PlayerDependDataBuffer stream = InstanceManager.Server.fileCache.get(requestId);
                 final int maxLength = ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get() ? (Constants.PRE_BUFFER_MULTIPLIER * 2) * Constants.DEFAULT_DATA_BLOCK_SIZE : stream.length() + Constants.DEFAULT_DATA_BLOCK_SIZE;
@@ -71,6 +74,9 @@ public class SoundRequest {
             } finally {
                 Thread.yield();
             }
+
+            
+            ModMain.LOGGER.debug("Sound request finished.");
         }).start();
 
         return requestId;

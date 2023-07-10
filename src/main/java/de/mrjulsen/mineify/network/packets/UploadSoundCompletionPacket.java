@@ -6,6 +6,7 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
@@ -50,6 +51,8 @@ public class UploadSoundCompletionPacket {
     public static void handle(UploadSoundCompletionPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             new Thread(() -> {
+                
+                ModMain.LOGGER.debug("Sound Upload Finishing...");
                 if (InstanceManager.Server.streamCache.containsKey(packet.requestId)) {
                     String dirPath = IOUtils.getSoundDirectoryPath(packet.visibility.toESoundVisibility(), packet.uploaderUUID);
                     String soundPath = IOUtils.getSoundPath(packet.filename, packet.visibility.toESoundVisibility(), packet.uploaderUUID);
@@ -76,6 +79,8 @@ public class UploadSoundCompletionPacket {
                 Utils.giveAdvancement(context.get().getSender(), "first_upload", "requirement");
 
                 NetworkManager.MOD_CHANNEL.sendTo(new RefreshSoundListPacket(), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                
+                ModMain.LOGGER.debug("Sound Upload filished.");
             }).start();
         });
         

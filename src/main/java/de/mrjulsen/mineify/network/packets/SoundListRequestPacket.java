@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.sound.SoundDataCache;
@@ -38,9 +39,13 @@ public class SoundListRequestPacket {
     public static void handle(SoundListRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             new Thread(() -> {
+                
+                ModMain.LOGGER.debug("Reading sound files...");
                 SoundFile[] soundFiles = getSounds();
                 NetworkManager.MOD_CHANNEL.sendTo(new SoundListResponsePacket(packet.requestID, soundFiles), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-            }).start();
+                
+                ModMain.LOGGER.debug("Sound file list created.");
+            }, "SoundFileListReader").start();
         });
         
         context.get().setPacketHandled(true);      
