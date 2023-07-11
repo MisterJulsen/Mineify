@@ -198,11 +198,11 @@ public class IOUtils {
         String ffmpegBinary;
 
         if (os.contains("win")) {
-            ffmpegBinary = "./ffmpeg/ffmpeg.exe";
+            ffmpegBinary = Constants.FFMPEG_HOME + "/ffmpeg.exe";
         } else if (os.contains("mac")) {
-            ffmpegBinary = "./ffmpeg/ffmpeg";
+            ffmpegBinary = Constants.FFMPEG_HOME + "/ffmpeg";
         } else if (os.contains("nix") || os.contains("nux") || os.contains("bsd")) {
-            ffmpegBinary = "./ffmpeg/ffmpeg";
+            ffmpegBinary = Constants.FFMPEG_HOME + "/ffmpeg";
         } else {
             throw new UnsupportedOperationException("Unsupported operating system: " + os);
         }
@@ -221,7 +221,7 @@ public class IOUtils {
 
         String[] command = new String[] { ffmpegBinary, "-i", filename, "-c:a", "libvorbis", "-q:a",
                 String.valueOf(config.quality), "-f", "ogg", "-vn", "-ac", String.valueOf(config.channels.getCount()),
-                "./salz.ogg" };
+                "./" + filename + ".ogg" };
 
         Process process = Runtime.getRuntime().exec(command);
         InputHandler errorHandler = new InputHandler(process.getErrorStream(), "Error Stream");
@@ -234,7 +234,7 @@ public class IOUtils {
             throw new IOException("process interrupted");
         }
 
-        InputStream s = new FileInputStream(new File("./salz.ogg"));
+        InputStream s = new FileInputStream(new File("./" + filename + ".ogg"));
         return s;
     }
 
@@ -259,7 +259,6 @@ public class IOUtils {
                 outputStream.write(buffer, 0, bytesRead);
             }
         } finally {
-            // Schließe den Eingabestream, um den Prozess zu beenden
             inputAudio.close();
         }
 
@@ -277,13 +276,9 @@ public class IOUtils {
             File file = new File(filePath);
             String data = file.getName() + file.length() + file.lastModified();
             
-            // Erstellen Sie eine Instanz der MessageDigest mit dem gewünschten Hash-Algorithmus (hier: SHA-256)
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            
-            // Konvertieren Sie den kombinierten String in ein Byte-Array und hashen Sie es
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");            
             byte[] hashBytes = digest.digest(data.getBytes(StandardCharsets.UTF_8));
             
-            // Konvertieren Sie den Byte-Array in einen hexadezimalen String
             StringBuilder hexString = new StringBuilder();
             for (byte b : hashBytes) {
                 String hex = Integer.toHexString(0xff & b);
