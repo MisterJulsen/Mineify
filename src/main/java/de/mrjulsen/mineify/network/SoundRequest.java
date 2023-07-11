@@ -15,6 +15,7 @@ import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
+import de.mrjulsen.mineify.sound.EStreamingMode;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.PlayerDependDataBuffer;
 import net.minecraft.core.BlockPos;
@@ -31,28 +32,24 @@ public class SoundRequest {
                 ModMain.LOGGER.debug("Sound requested.");
                 InstanceManager.Server.fileCache.put(requestId, new PlayerDependDataBuffer(new FileInputStream(file.buildPath()), Arrays.stream(players).map(ServerPlayer::getUUID).toArray(UUID[]::new)));
                 PlayerDependDataBuffer stream = InstanceManager.Server.fileCache.get(requestId);
-                final int maxLength = ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get() ? (Constants.PRE_BUFFER_MULTIPLIER * 2) * Constants.DEFAULT_DATA_BLOCK_SIZE : stream.length + Constants.DEFAULT_DATA_BLOCK_SIZE;
+                final int maxLength = ModCommonConfig.STREAMING_MODE.get() == EStreamingMode.ON_REQUEST ? (Constants.PRE_BUFFER_MULTIPLIER * 2) * Constants.DEFAULT_DATA_BLOCK_SIZE : stream.length + Constants.DEFAULT_DATA_BLOCK_SIZE;
                 byte[] buffer = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
                 int part = 0;
                 int bytesRead = 0;
                 
                 while ((bytesRead = stream.readForAll(buffer)) != -1) {
                     for (ServerPlayer p : players) {
-                        NetworkManager.MOD_CHANNEL.sendTo(new DownloadSoundPacket(requestId, 0, buffer, maxLength, ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get()), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                        NetworkManager.MOD_CHANNEL.sendTo(new DownloadSoundPacket(requestId, 0, buffer, maxLength, ModCommonConfig.STREAMING_MODE.get()), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                         if (part == Constants.PRE_BUFFER_MULTIPLIER) {
                             NetworkManager.MOD_CHANNEL.sendTo(new PlaySoundPacket(requestId, pos, volume), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                         }
                     }                    
 
                     if (part >= Constants.PRE_BUFFER_MULTIPLIER) {
-                        if (ModCommonConfig.EXPERIMENTAL_SLOW_STREAMING.get() > 0) {
-                            try {
-                                Thread.sleep(ModCommonConfig.EXPERIMENTAL_SLOW_STREAMING.get());
-                            } catch (InterruptedException e) { }
-                        } else if (ModCommonConfig.EXPERIMENTAL_STREAM_REQUEST.get()) {
+                        if (ModCommonConfig.STREAMING_MODE.get() == EStreamingMode.ON_REQUEST) {
                             Thread.yield();
                             return; // The client must ask for more, so this method is done.
-                        }   
+                        }    
                     }
 
                     if (InstanceManager.Server.streamCache.containsKey(requestId)) {

@@ -24,6 +24,7 @@ import de.mrjulsen.mineify.network.packets.StopSoundPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundCompletionPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
+import de.mrjulsen.mineify.sound.EStreamingMode;
 import de.mrjulsen.mineify.sound.ExtendedSoundInstance;
 import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.ReadWriteBuffer;
@@ -49,7 +50,7 @@ public class ClientWrapper {
             return;
 
         if (!InstanceManager.Client.soundStreamCache.containsKey(packet.requestId)) {
-            InstanceManager.Client.soundStreamCache.put(packet.requestId, new ReadWriteBuffer(packet.maxLength, packet.requestId, packet.streamRequest));
+            InstanceManager.Client.soundStreamCache.put(packet.requestId, new ReadWriteBuffer(packet.maxLength, packet.requestId, packet.streamingMode == EStreamingMode.ON_REQUEST));
         }           
         
         InstanceManager.Client.soundStreamCache.get(packet.requestId).write(packet.data, packet.dataOffset, packet.data.length);

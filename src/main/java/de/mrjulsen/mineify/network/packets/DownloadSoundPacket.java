@@ -3,6 +3,7 @@ package de.mrjulsen.mineify.network.packets;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.client.ClientWrapper;
+import de.mrjulsen.mineify.sound.EStreamingMode;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -12,15 +13,15 @@ public class DownloadSoundPacket {
     public final long requestId;
     public final int dataOffset;
     public final int maxLength;
-    public final boolean streamRequest;
+    public final EStreamingMode streamingMode;
     public final byte[] data;
     
 
-    public DownloadSoundPacket(long requestId, int dataOffset, byte[] data, int maxLength, boolean streamRequest) {
+    public DownloadSoundPacket(long requestId, int dataOffset, byte[] data, int maxLength, EStreamingMode streamingMode) {
         this.data = data;
         this.dataOffset = dataOffset;
         this.requestId = requestId;
-        this.streamRequest = streamRequest;
+        this.streamingMode = streamingMode;
         this.maxLength = maxLength;
     }
 
@@ -28,7 +29,7 @@ public class DownloadSoundPacket {
         buffer.writeLong(packet.requestId);
         buffer.writeInt(packet.dataOffset);
         buffer.writeInt(packet.maxLength);
-        buffer.writeBoolean(packet.streamRequest);
+        buffer.writeEnum(packet.streamingMode);
         buffer.writeByteArray(packet.data);
     }
 
@@ -36,10 +37,10 @@ public class DownloadSoundPacket {
         long requestId = buffer.readLong();
         int dataOffset = buffer.readInt();
         int maxLength = buffer.readInt();
-        boolean streamRequest = buffer.readBoolean();
+        EStreamingMode streamingMode = buffer.readEnum(EStreamingMode.class);
         byte[] data = buffer.readByteArray();
 
-        DownloadSoundPacket instance = new DownloadSoundPacket(requestId, dataOffset, data, maxLength, streamRequest);
+        DownloadSoundPacket instance = new DownloadSoundPacket(requestId, dataOffset, data, maxLength, streamingMode);
         return instance;
     }
 

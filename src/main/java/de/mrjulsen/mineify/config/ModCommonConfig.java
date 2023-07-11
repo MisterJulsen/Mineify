@@ -1,5 +1,6 @@
 package de.mrjulsen.mineify.config;
 
+import de.mrjulsen.mineify.sound.EStreamingMode;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 public class ModCommonConfig {
@@ -14,8 +15,7 @@ public class ModCommonConfig {
     public static final ForgeConfigSpec.ConfigValue<Integer> MAX_RADIUS;
     public static final ForgeConfigSpec.ConfigValue<Integer> MAX_VOLUME;
     public static final ForgeConfigSpec.ConfigValue<Integer> MAX_BOX_SIZE;
-    public static final ForgeConfigSpec.ConfigValue<Integer> EXPERIMENTAL_SLOW_STREAMING;
-    public static final ForgeConfigSpec.BooleanValue EXPERIMENTAL_STREAM_REQUEST;
+    public static final ForgeConfigSpec.ConfigValue<EStreamingMode> STREAMING_MODE;
 
     static {
         BUILDER.push("mineify_common_config");
@@ -42,11 +42,8 @@ public class ModCommonConfig {
                 .defineInRange("range.max_volume", 64, 0, 256);                
         
 
-        EXPERIMENTAL_SLOW_STREAMING = BUILDER.comment("EXPERIMENTAL! When not 0, sound data is being streamed slower to clients. The defined value is the delay in milliseconds. May improve client and server performance. This option will not take effect when stream_request_enabled = true")
-                .defineInRange("experimental.slow_streaming", 0, 0, 1000);
-
-        EXPERIMENTAL_STREAM_REQUEST = BUILDER.comment("EXPERIMENTAL! When true, the client must send a request to the server to get more sound data. May improve server and client performance and RAM usage.")
-                .define("experimental.stream_request_enabled", false);
+        STREAMING_MODE = BUILDER.comment("Defines how the data is streamed to clients. ALL_AT_ONCE means that all data is split up into small packets and sent to the client. ON_REQUEST means that a buffer is created on the client and the client must request more data. The last method might improve performance and RAM usage, but might fail on low-bandwidth devices.")
+                .define("streaming_mode", EStreamingMode.ON_REQUEST);
 
         BUILDER.pop();
         SPEC = BUILDER.build();
