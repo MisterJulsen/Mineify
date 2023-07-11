@@ -2,7 +2,6 @@ package de.mrjulsen.mineify.network;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;

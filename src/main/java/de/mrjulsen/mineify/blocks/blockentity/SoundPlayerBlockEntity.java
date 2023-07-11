@@ -60,7 +60,6 @@ public class SoundPlayerBlockEntity extends BlockEntity {
     @Override
     public void load(CompoundTag compound)
     {
-        ModMain.LOGGER.debug("Loading SoundPlayerBlockEntity NBT.");
         super.load(compound);
         
         CompoundTag playlist = compound.getCompound("playlist");
@@ -85,14 +84,11 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         this.powered = compound.getBoolean("powered");
         this.setPlaybackArea(PlaybackArea.fromNbt(compound.getCompound("playbackArea")));
         
-        ModMain.LOGGER.debug("SoundPlayerBlockEntity loaded.");
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag)
     {   
-        ModMain.LOGGER.debug("Saving SoundPlayerBlockEntity NBT.");
-
         CompoundTag playlist = new CompoundTag();
         for (int i = 0 ; i < this.playlist.length; i++) {
             playlist.put(String.valueOf(i), this.playlist[i].toNbt());
@@ -114,8 +110,6 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         tag.put("playbackArea", this.getPlaybackArea().toNbt());
 
         super.saveAdditional(tag);
-        
-        ModMain.LOGGER.debug("SoundPlayerBlockEntity saved.");
     }
 
     @Nullable
@@ -212,7 +206,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         return this.getPlaylist() == null || this.getPlaylist().length <= 0;
     }
 
-    public PlaybackArea getPlaybackArea() {
+    public PlaybackArea getPlaybackArea() {        
         return this.playbackArea;
     }
 
@@ -248,6 +242,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
 
     public void setPlaybackArea(PlaybackArea area) {
         this.playbackArea = area;
+        this.playbackArea.check();
         this.clientSync();
     }
 
@@ -284,7 +279,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
                 this.setPlaying(true);        
                 this.calcTimeToPlayNext(this.getPlaying().calcDuration() + 1);
                 this.stopPlayingSound();
-                this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getCurrentSoundId(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getDistance()));
+                this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getCurrentSoundId(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getVolume()));
             } finally {
                 nextTrackRequested = false;
             }

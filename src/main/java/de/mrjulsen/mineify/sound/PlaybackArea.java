@@ -2,23 +2,25 @@ package de.mrjulsen.mineify.sound;
 
 import java.io.Serializable;
 
+import de.mrjulsen.mineify.config.ModCommonConfig;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.Mth;
 
 public class PlaybackArea implements Serializable {
 
     private EPlaybackAreaType type;
-    private int distance;
+    private int volume;
 
     private int radius;
 
     private int x1, y1, z1;
     private int x2, y2, z2;
 
-    public PlaybackArea(EPlaybackAreaType type, int distance, int radius, int x1, int y1, int z1, int x2, int y2, int z2) {
+    public PlaybackArea(EPlaybackAreaType type, int volume, int radius, int x1, int y1, int z1, int x2, int y2, int z2) {
         this.type = type;
-        this.distance = distance;
+        this.volume = volume;
         this.radius = radius;
         this.x1 = x1;
         this.y1 = y1;
@@ -37,7 +39,7 @@ public class PlaybackArea implements Serializable {
     }
 
     public PlaybackArea(PlaybackArea p) {
-        this(p.getAreaType(), p.getDistance(), p.getRadius(), p.getX1(), p.getY1(), p.getZ1(), p.getX2(), p.getY2(), p.getZ2());
+        this(p.getAreaType(), p.getVolume(), p.getRadius(), p.getX1(), p.getY1(), p.getZ1(), p.getX2(), p.getY2(), p.getZ2());
     }
 
     public EPlaybackAreaType getAreaType() {
@@ -72,8 +74,20 @@ public class PlaybackArea implements Serializable {
         return this.z2;
     }
 
-    public int getDistance() {
-        return this.distance;
+    public int getVolume() {
+        return this.volume;
+    }
+
+    public void check() {
+        this.x1 = Mth.clamp(x1, -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+        this.y1 = Mth.clamp(y1, -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+        this.z1 = Mth.clamp(z1, -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+        this.x2 = Mth.clamp(x2, -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+        this.y2 = Mth.clamp(y2, -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+        this.z2 = Mth.clamp(z2, -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+        
+        this.radius = Mth.clamp(radius, 0, ModCommonConfig.MAX_RADIUS.get());        
+        this.volume = Mth.clamp(volume, 0, ModCommonConfig.MAX_VOLUME.get());
     }
 
     public boolean isInZone(BlockPos relative, BlockPos pos) {
@@ -124,8 +138,8 @@ public class PlaybackArea implements Serializable {
         this.z2 = v;
     }
 
-    public void setDistance(int d) {
-        this.distance = d;
+    public void setVolume(int d) {
+        this.volume = d;
     }
 
 
@@ -133,7 +147,7 @@ public class PlaybackArea implements Serializable {
     public CompoundTag toNbt() {
         CompoundTag tag = new CompoundTag();
         tag.putByte("type", this.getAreaType().getIndex());
-        tag.putInt("distance", this.getDistance());
+        tag.putInt("volume", this.getVolume());
         switch (this.getAreaType()) {
             case ZONE:
                 tag.putInt("x1", this.getX1());
@@ -154,7 +168,7 @@ public class PlaybackArea implements Serializable {
 
     public static PlaybackArea fromNbt(CompoundTag tag) {
         EPlaybackAreaType type = EPlaybackAreaType.getPlaybackAreaTypeByIndex(tag.getByte("type"));
-        int distance = tag.getInt("distance");
+        int distance = tag.getInt("volume");
         int radius = tag.getInt("radius");
         int x1 = tag.getInt("x1");
         int y1 = tag.getInt("y1");
@@ -168,7 +182,7 @@ public class PlaybackArea implements Serializable {
 
     public void serialize(FriendlyByteBuf buffer) {
         buffer.writeByte(type.getIndex());
-        buffer.writeInt(distance);
+        buffer.writeInt(volume);
         buffer.writeInt(radius);
         buffer.writeInt(x1);
         buffer.writeInt(y1);
@@ -180,7 +194,7 @@ public class PlaybackArea implements Serializable {
 
     public static PlaybackArea deserialize(FriendlyByteBuf buffer) {
         EPlaybackAreaType type = EPlaybackAreaType.getPlaybackAreaTypeByIndex(buffer.readByte());
-        int distance = buffer.readInt();
+        int volume = buffer.readInt();
         int radius = buffer.readInt();
         int x1 = buffer.readInt();
         int y1 = buffer.readInt();
@@ -189,6 +203,6 @@ public class PlaybackArea implements Serializable {
         int y2 = buffer.readInt();
         int z2 = buffer.readInt();
 
-        return new PlaybackArea(type, distance, radius, x1, y1, z1, x2, y2, z2);
+        return new PlaybackArea(type, volume, radius, x1, y1, z1, x2, y2, z2);
     }
 }

@@ -6,7 +6,7 @@ import java.util.function.BiConsumer;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.sound.EPlaybackAreaType;
 import de.mrjulsen.mineify.sound.PlaybackArea;
 import de.mrjulsen.mineify.util.Utils;
@@ -37,7 +37,7 @@ public class PlaybackAreaConfigScreen extends Screen
     // Controls
     protected CycleButton<EPlaybackAreaType> typeButton;
 
-    protected EditBox distanceBox;
+    protected EditBox volumeBox;
     protected EditBox radiusBox;
     protected EditBox x1Box;
     protected EditBox y1Box;
@@ -48,10 +48,10 @@ public class PlaybackAreaConfigScreen extends Screen
 
     private TranslatableComponent textTitle = new TranslatableComponent("gui.mineify.playback_area_config.title");
     private TranslatableComponent textType = new TranslatableComponent("gui.mineify.playback_area_config.type");
-    private TranslatableComponent textRadius = new TranslatableComponent("gui.mineify.playback_area_config.radius", 0, Constants.MAX_PLAYBACK_AREA_DISTANCE);
-    private TranslatableComponent textFrom = new TranslatableComponent("gui.mineify.playback_area_config.area_from", -Constants.MAX_PLAYBACK_AREA_DISTANCE, Constants.MAX_PLAYBACK_AREA_DISTANCE);
-    private TranslatableComponent textTo = new TranslatableComponent("gui.mineify.playback_area_config.area_to", -Constants.MAX_PLAYBACK_AREA_DISTANCE, Constants.MAX_PLAYBACK_AREA_DISTANCE);
-    private TranslatableComponent textDistance = new TranslatableComponent("gui.mineify.playback_area_config.distance", 0, Integer.MAX_VALUE);
+    private TranslatableComponent textRadius = new TranslatableComponent("gui.mineify.playback_area_config.radius", 0, ModCommonConfig.MAX_RADIUS.get());
+    private TranslatableComponent textFrom = new TranslatableComponent("gui.mineify.playback_area_config.area_from", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+    private TranslatableComponent textTo = new TranslatableComponent("gui.mineify.playback_area_config.area_to", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+    private TranslatableComponent textVolume = new TranslatableComponent("gui.mineify.playback_area_config.volume", 0, ModCommonConfig.MAX_VOLUME.get());
 
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
@@ -87,7 +87,7 @@ public class PlaybackAreaConfigScreen extends Screen
                 break;
         }
 
-        this.distanceBox.tick();
+        this.volumeBox.tick();
     }
 
     @Override
@@ -118,84 +118,84 @@ public class PlaybackAreaConfigScreen extends Screen
         /* Radius page */
         this.radiusBox = new EditBox(this.font, this.width / 2 - 25, guiTop + 75, 50, 20, textRadius);
         this.radiusBox.setValue(Integer.toString(this.playbackArea.getRadius()));
-        this.radiusBox.setFilter(this::numberFilterLimitedPositive);
+        this.radiusBox.setFilter(this::radiusNumberFilter);
         this.addRenderableWidget(this.radiusBox);
 
         /* Area page */
         this.x1Box = new EditBox(this.font, this.width / 2 - 75, guiTop + 75, 50, 20, textFrom);
         this.x1Box.setValue(Integer.toString(this.playbackArea.getX1()));
-        this.x1Box.setFilter(this::numberFilterLimited);
+        this.x1Box.setFilter(this::boxNumberFilter);
         this.addRenderableWidget(this.x1Box);
 
         this.y1Box = new EditBox(this.font, this.width / 2 - 25, guiTop + 75, 50, 20, textFrom);
         this.y1Box.setValue(Integer.toString(this.playbackArea.getY1()));
-        this.y1Box.setFilter(this::numberFilterLimited);
+        this.y1Box.setFilter(this::boxNumberFilter);
         this.addRenderableWidget(this.y1Box);
 
         this.z1Box = new EditBox(this.font, this.width / 2 + 25, guiTop + 75, 50, 20, textFrom);
         this.z1Box.setValue(Integer.toString(this.playbackArea.getZ1()));
-        this.z1Box.setFilter(this::numberFilterLimited);
+        this.z1Box.setFilter(this::boxNumberFilter);
         this.addRenderableWidget(this.z1Box);
 
 
         this.x2Box = new EditBox(this.font, this.width / 2 - 75, guiTop + 125, 50, 20, textFrom);
         this.x2Box.setValue(Integer.toString(this.playbackArea.getX2()));
-        this.x2Box.setFilter(this::numberFilterLimited);
+        this.x2Box.setFilter(this::boxNumberFilter);
         this.addRenderableWidget(this.x2Box);
 
         this.y2Box = new EditBox(this.font, this.width / 2 - 25, guiTop + 125, 50, 20, textFrom);
         this.y2Box.setValue(Integer.toString(this.playbackArea.getY2()));
-        this.y2Box.setFilter(this::numberFilterLimited);
+        this.y2Box.setFilter(this::boxNumberFilter);
         this.addRenderableWidget(this.y2Box);
 
         this.z2Box = new EditBox(this.font, this.width / 2 + 25, guiTop + 125, 50, 20, textFrom);
         this.z2Box.setValue(Integer.toString(this.playbackArea.getZ2()));
-        this.z2Box.setFilter(this::numberFilterLimited);
+        this.z2Box.setFilter(this::boxNumberFilter);
         this.addRenderableWidget(this.z2Box);
 
 
-        this.distanceBox = new EditBox(this.font, this.width / 2 - 25, guiTop + 175, 50, 20, textDistance);
-        this.distanceBox.setValue(Integer.toString(this.playbackArea.getDistance()));
-        this.distanceBox.setFilter(this::numberFilterPositive);
-        this.addRenderableWidget(this.distanceBox);
+        this.volumeBox = new EditBox(this.font, this.width / 2 - 25, guiTop + 175, 50, 20, textVolume);
+        this.volumeBox.setValue(Integer.toString(this.playbackArea.getVolume()));
+        this.volumeBox.setFilter(this::volumeNumberFilter);
+        this.addRenderableWidget(this.volumeBox);
         
         this.switchPage();
     }
 
-    private boolean numberFilterPositive(String input) {
+    private boolean boxNumberFilter(String input) {
         if (input.isEmpty())
             return true;
 
-        try {
-            Integer.parseInt(input);
+        if (input.startsWith("-"))
             return true;
+
+        try {
+            int i = Integer.parseInt(input);
+            return i >= -ModCommonConfig.MAX_BOX_SIZE.get() && i <= ModCommonConfig.MAX_BOX_SIZE.get();
         } catch (NumberFormatException e) {
             return false;
         }
     }
 
-    private boolean numberFilterLimited(String input) {
+    private boolean radiusNumberFilter(String input) {
         if (input.isEmpty())
-            return true;
-
-        if (input.equals("-"))
             return true;
 
         try {
             int i = Integer.parseInt(input);
-            return i >= -Constants.MAX_PLAYBACK_AREA_DISTANCE && i <= Constants.MAX_PLAYBACK_AREA_DISTANCE;
+            return i >= 0 && i <= ModCommonConfig.MAX_RADIUS.get();
         } catch (NumberFormatException e) {
             return false;
         }
     }
 
-    private boolean numberFilterLimitedPositive(String input) {
+    private boolean volumeNumberFilter(String input) {
         if (input.isEmpty())
             return true;
 
         try {
             int i = Integer.parseInt(input);
-            return i >= 0 && i <= Constants.MAX_PLAYBACK_AREA_DISTANCE;
+            return i >= 0 && i <= ModCommonConfig.MAX_VOLUME.get();
         } catch (NumberFormatException e) {
             return false;
         }
@@ -213,7 +213,7 @@ public class PlaybackAreaConfigScreen extends Screen
     }
 
     private void onDone() {
-        this.playbackArea.setDistance(Integer.parseInt(this.distanceBox.getValue()));
+        this.playbackArea.setVolume(Integer.parseInt(this.volumeBox.getValue()));
         this.playbackArea.setRadius(Integer.parseInt(this.radiusBox.getValue()));
         this.playbackArea.setX1(Integer.parseInt(this.x1Box.getValue()));
         this.playbackArea.setY1(Integer.parseInt(this.y1Box.getValue()));
@@ -241,7 +241,7 @@ public class PlaybackAreaConfigScreen extends Screen
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
         renderBackground(stack, 0);        
         drawCenteredString(stack, this.font, textTitle, this.width / 2, guiTop, 16777215);
-        drawCenteredString(stack, this.font, textDistance, this.width / 2, guiTop + 150 + 10, 16777215);
+        drawCenteredString(stack, this.font, textVolume, this.width / 2, guiTop + 150 + 10, 16777215);
 
         switch (this.playbackArea.getAreaType()) {
             case ZONE:                
@@ -257,7 +257,7 @@ public class PlaybackAreaConfigScreen extends Screen
 
         super.render(stack, mouseX, mouseY, partialTicks);
 
-        Utils.renderTooltip(this, this.distanceBox, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.playback_area_config.distance.description"), width / 3); }, stack, mouseX, mouseY);
+        Utils.renderTooltip(this, this.volumeBox, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.playback_area_config.volume.description"), width / 3); }, stack, mouseX, mouseY);
         Utils.renderTooltip(this, this.typeButton, () -> { return Utils.getEnumTooltipData(this, EPlaybackAreaType.class, width / 3); }, stack, mouseX, mouseY);        
     }
 
