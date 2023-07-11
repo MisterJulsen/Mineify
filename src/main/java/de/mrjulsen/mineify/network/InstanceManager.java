@@ -10,6 +10,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.PlayerDependDataBuffer;
 import de.mrjulsen.mineify.util.ReadWriteBuffer;
@@ -66,13 +67,34 @@ public class InstanceManager {
         
         public static final class GarbageCollection extends GarbageCollectionBase {
 
-            public static final GarbageCollection INSTANCE = new GarbageCollection();
+            private static GarbageCollection INSTANCE;
+
+            public static final GarbageCollection getInstance() {
+                return INSTANCE;
+            }
+
+            public static final GarbageCollection create() {
+                return new GarbageCollection();
+            }
+
+            public GarbageCollection() {
+                if (getInstance() != null) {
+                    return;
+                }
+
+                ModMain.LOGGER.info("Server-side GarbageCollector has been started.");
+                INSTANCE = this;
+            }
 
             @Override
             protected void check() {
                 Collection<UUID> onlinePlayers = Minecraft.getInstance().getConnection().getOnlinePlayerIds();
                 InstanceManager.Server.fileCache.values().removeIf(x -> {
-                    return x.isDisposed() || Arrays.stream(x.getRegisteredPlayers()).noneMatch(y -> onlinePlayers.contains(y));
+                    boolean b = x.isDisposed() || Arrays.stream(x.getRegisteredPlayers()).noneMatch(y -> onlinePlayers.contains(y));
+                    if (b) {
+                        ModMain.LOGGER.debug("GarbageCollection performed on 'Server.fileCache'.");
+                    }
+                    return b;
                 });
             }
         }
