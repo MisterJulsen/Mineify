@@ -3,6 +3,7 @@ package de.mrjulsen.mineify.util;
 import java.io.IOException;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.packets.NextSoundDataRequestPacket;
@@ -104,6 +105,8 @@ public class ReadWriteBuffer {
         buffer = null;
         InstanceManager.Client.soundStreamCache.remove(id);
         InstanceManager.Client.playingSoundsCache.remove(id);
+
+        ModMain.LOGGER.debug("Client Sound Data Buffer Closed.");
     }
 }
 
