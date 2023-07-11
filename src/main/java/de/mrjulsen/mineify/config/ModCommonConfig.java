@@ -43,7 +43,7 @@ public class ModCommonConfig {
         
 
         STREAMING_MODE = BUILDER.comment("Defines how the data is streamed to clients. ALL_AT_ONCE means that all data is split up into small packets and sent to the client. ON_REQUEST means that a buffer is created on the client and the client must request more data. The last method might improve performance and RAM usage, but might fail on low-bandwidth devices.")
-                .define("streaming_mode", EStreamingMode.ON_REQUEST);
+                .defineEnum("streaming_mode", EStreamingMode.ON_REQUEST);
 
         BUILDER.pop();
         SPEC = BUILDER.build();
