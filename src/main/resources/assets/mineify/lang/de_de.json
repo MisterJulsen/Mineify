@@ -58,8 +58,8 @@
     "gui.mineify.playback_area_config.radius": "Radius (%s - %s)",
     "gui.mineify.playback_area_config.area_from": "Erste Ecke [x, y, z] (%s - %s)",
     "gui.mineify.playback_area_config.area_to": "Zweite Ecke [x, y, z] (%s - %s)",
-    "gui.mineify.playback_area_config.distance": "Distanz (%s - %s)",
-    "gui.mineify.playback_area_config.distance.description": "Gibt an, wie weit der Sound in voller Lautstärke gehört werden kann, bevor er mit zunehmender Entfernung abnimmt.",
+    "gui.mineify.playback_area_config.volume": "Volumen (%s - %s)",
+    "gui.mineify.playback_area_config.volume.description": "Gibt an, wie weit der Sound in voller Lautstärke gehört werden kann, bevor er mit zunehmender Entfernung abnimmt.",
 
     "gui.mineify.upload.title": "Neuen Sound hochladen",
     "gui.mineify.upload.filename": "Sound-Dateiname",

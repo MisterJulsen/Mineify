@@ -58,8 +58,8 @@
     "gui.mineify.playback_area_config.radius": "Radius (%s - %s)",
     "gui.mineify.playback_area_config.area_from": "First Corner [x, y, z] (%s - %s)",
     "gui.mineify.playback_area_config.area_to": "Second Corner [x, y, z] (%s - %s)",
-    "gui.mineify.playback_area_config.distance": "Distance (%s - %s)",
-    "gui.mineify.playback_area_config.distance.description": "Indicates how far a mono channel sound can be heard at full volume before it fades away the farther the player goes.",
+    "gui.mineify.playback_area_config.volume": "Volume (%s - %s)",
+    "gui.mineify.playback_area_config.volume.description": "Indicates how far a mono channel sound can be heard at full volume before it fades away the farther the player goes.",
 
     "gui.mineify.upload.title": "Upload new sound",
     "gui.mineify.upload.filename": "Sound filename",
