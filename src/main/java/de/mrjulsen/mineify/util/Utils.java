@@ -69,7 +69,7 @@ public class Utils {
             String username = player.get("name").getAsString();
             return username;
         } catch (Exception e) {
-            e.printStackTrace();
+            ModMain.LOGGER.warn("Could not get username for player with uuid " + uuid);
             return "Unknown User";
         }
     }

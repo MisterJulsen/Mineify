@@ -97,7 +97,9 @@ public class SoundFile implements Serializable {
         return this.getVisibility() != ESoundVisibility.PRIVATE || this.getOwner().equals(uuid);
     }
 
-    
+    public boolean exists() {
+        return new File(this.buildPath()).exists();
+    }
 
     public final int readDurationInSeconds() {
         return calcDurationSeconds(this.getName(), this.getOwner(), this.getVisibility());

@@ -88,6 +88,9 @@ public class InstanceManager {
 
             @Override
             protected void check() {
+                if (Minecraft.getInstance().getConnection() == null) {
+                    return;
+                }
                 Collection<UUID> onlinePlayers = Minecraft.getInstance().getConnection().getOnlinePlayerIds();
                 InstanceManager.Server.fileCache.values().removeIf(x -> {
                     boolean b = x.isDisposed() || Arrays.stream(x.getRegisteredPlayers()).noneMatch(y -> onlinePlayers.contains(y));

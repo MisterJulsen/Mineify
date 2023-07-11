@@ -1,5 +1,6 @@
 package de.mrjulsen.mineify.blocks.blockentity;
 
+import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.UUID;
 
@@ -276,10 +277,16 @@ public class SoundPlayerBlockEntity extends BlockEntity {
         ModMain.LOGGER.debug("Play new track: " + this.getPlaying());
         new Thread(() -> {
             try {
+                if (!this.getPlaying().exists()) {
+                    throw new FileNotFoundException("The following sound file doesn't exist: " + this.getPlaying());
+                }
+
                 this.setPlaying(true);        
                 this.calcTimeToPlayNext(this.getPlaying().calcDuration() + 1);
                 this.stopPlayingSound();
                 this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getCurrentSoundId(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getVolume()));
+            } catch (Exception e) {
+                ModMain.LOGGER.warn("Unable to play sound file: " + e.getMessage());
             } finally {
                 nextTrackRequested = false;
             }
