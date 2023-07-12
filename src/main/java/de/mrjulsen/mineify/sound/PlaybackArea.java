@@ -168,7 +168,7 @@ public class PlaybackArea implements Serializable {
 
     public static PlaybackArea fromNbt(CompoundTag tag) {
         EPlaybackAreaType type = EPlaybackAreaType.getPlaybackAreaTypeByIndex(tag.getByte("type"));
-        int distance = tag.getInt("volume");
+        int volume = tag.getInt("volume");
         int radius = tag.getInt("radius");
         int x1 = tag.getInt("x1");
         int y1 = tag.getInt("y1");
@@ -177,7 +177,7 @@ public class PlaybackArea implements Serializable {
         int y2 = tag.getInt("y2");
         int z2 = tag.getInt("z2");
 
-        return new PlaybackArea(type, distance, radius, x1, y1, z1, x2, y2, z2);
+        return new PlaybackArea(type, volume, radius, x1, y1, z1, x2, y2, z2);
     }
 
     public void serialize(FriendlyByteBuf buffer) {
