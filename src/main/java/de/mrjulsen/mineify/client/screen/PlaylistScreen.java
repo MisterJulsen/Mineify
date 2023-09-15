@@ -7,7 +7,7 @@ import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.SoundRequest;
-import de.mrjulsen.mineify.sound.PlaylistData;
+import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.Utils;
 import de.mrjulsen.mineify.Constants;
@@ -69,7 +69,7 @@ public class PlaylistScreen extends Screen {
     private TranslatableComponent textLoading = new TranslatableComponent("gui.mineify.soundselection.loading");
 
     @SuppressWarnings("resource")
-    public PlaylistScreen(Screen lastScreen, PlaylistData data, Consumer<PlaylistData> callback) {
+    public PlaylistScreen(Screen lastScreen, SimplePlaylist data, Consumer<SimplePlaylist> callback) {
         super(new TranslatableComponent("gui.mineify.soundselection.title"));
         this.lastScreen = lastScreen;
         this.packDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH);

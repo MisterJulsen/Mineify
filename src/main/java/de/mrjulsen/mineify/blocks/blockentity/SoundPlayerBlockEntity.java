@@ -284,7 +284,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
                 this.setPlaying(true);        
                 this.calcTimeToPlayNext(this.getPlaying().calcDuration() + 1);
                 this.stopPlayingSound();
-                this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getCurrentSoundId(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getVolume()));
+                this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getVolume()));
             } catch (Exception e) {
                 ModMain.LOGGER.warn("Unable to play sound file: " + e.getMessage());
             } finally {

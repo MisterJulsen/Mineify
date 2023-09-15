@@ -120,7 +120,7 @@ public class ClientWrapper {
                     throw new ConfigException(new TranslatableComponent("gui.mineify.soundselection.upload.file_too_large").getString(), new TranslatableComponent("gui.mineify.soundselection.upload.file_too_large.details", IOUtils.formatBytes(maxSize), IOUtils.formatBytes(ModCommonConfig.MAX_FILE_SIZE_BYTES.get())).getString());
                 }
 
-                if (maxSize + usedBytes > ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() && ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() >= 0) {
+                if (usedBytes > -1 && maxSize + usedBytes > ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() && ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() >= 0) {
                     throw new ConfigException(new TranslatableComponent("gui.mineify.soundselection.upload.storage_full").getString(), new TranslatableComponent("gui.mineify.soundselection.upload.storage_full.details", IOUtils.formatBytes(ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get())).getString());
                 }
 

@@ -8,7 +8,7 @@ import de.mrjulsen.mineify.client.screen.PlaylistScreen;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
-import de.mrjulsen.mineify.sound.PlaylistData;
+import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.sound.SoundFile;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SoundSelectionModel {
     
     private final PlaylistScreen parent;
-    private final Consumer<PlaylistData> callback;
+    private final Consumer<SimplePlaylist> callback;
 
     private SoundFile[] pool;
     private final List<SoundFile> selected = new ArrayList<>();
@@ -40,7 +40,7 @@ public class SoundSelectionModel {
 
     private boolean initialized = false;
 
-    public SoundSelectionModel(PlaylistScreen screen, Runnable pOnListChanged, UUID userUUID, PlaylistData data, Consumer<PlaylistData> callback) {
+    public SoundSelectionModel(PlaylistScreen screen, Runnable pOnListChanged, UUID userUUID, SimplePlaylist data, Consumer<SimplePlaylist> callback) {
         this.parent = screen;
         this.onListChanged = pOnListChanged;
         this.callback = callback;
@@ -73,7 +73,7 @@ public class SoundSelectionModel {
 
     @SuppressWarnings("resource") 
     public void commit() {
-        this.callback.accept(new PlaylistData(this.selected.toArray(SoundFile[]::new), this.parent.isLooping(), this.parent.isRandom()));
+        this.callback.accept(new SimplePlaylist(this.selected.toArray(SoundFile[]::new), this.parent.isLooping(), this.parent.isRandom()));
     }
 
     public SoundFile[] getPool() {

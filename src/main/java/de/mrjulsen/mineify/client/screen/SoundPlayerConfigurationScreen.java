@@ -9,7 +9,7 @@ import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
 import de.mrjulsen.mineify.client.ETrigger;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.packets.SoundPlayerBlockEntityPacket;
-import de.mrjulsen.mineify.sound.PlaylistData;
+import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.util.Utils;
 import de.mrjulsen.mineify.sound.PlaybackArea;
 import net.minecraft.client.Minecraft;
@@ -36,7 +36,7 @@ public class SoundPlayerConfigurationScreen extends Screen
     // Settings
     private boolean locked;
     private ETrigger trigger;
-    private PlaylistData playlist;
+    private SimplePlaylist playlist;
     private PlaybackArea playbackArea;
 
     // Controls
@@ -59,7 +59,7 @@ public class SoundPlayerConfigurationScreen extends Screen
 
         this.locked = this.getBlockEntity().isLocked();
         this.trigger = this.getBlockEntity().getTrigger();
-        this.playlist = new PlaylistData(this.getBlockEntity().getPlaylist(), this.getBlockEntity().isLooping(), this.getBlockEntity().isRandom());
+        this.playlist = new SimplePlaylist(this.getBlockEntity().getPlaylist(), this.getBlockEntity().isLooping(), this.getBlockEntity().isRandom());
         this.playbackArea = this.getBlockEntity().getPlaybackArea();
     }
 

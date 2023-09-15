@@ -1,5 +1,6 @@
 package de.mrjulsen.mineify.network;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
@@ -9,10 +10,13 @@ import java.util.function.Consumer;
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.ClientWrapper;
+import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
+import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
+import de.mrjulsen.mineify.network.packets.RefreshSoundListPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.EStreamingMode;
@@ -24,7 +28,7 @@ import net.minecraftforge.network.NetworkDirection;
 
 public class SoundRequest {
 
-    public static long sendRequestFromServer(SoundFile file, long soundId, ServerPlayer[] players, BlockPos pos, float volume) {
+    public static long sendRequestFromServer(SoundFile file, ServerPlayer[] players, BlockPos pos, float volume) {
         final long requestId = System.nanoTime();
         new Thread(() -> {  
             try {
@@ -91,5 +95,35 @@ public class SoundRequest {
 
     public static void stopSoundOnClient(long soundId) {
         ClientWrapper.stopSoundOnClient(soundId);
+    }
+
+    public static void deleteSoundOnServer(String filename, String owner, ESoundVisibility visibility, ServerPlayer player, Runnable andThen) {
+        ModMain.LOGGER.debug("Delete sound '" + filename + "' started.");
+        new Thread(() -> {                
+            if (visibility != ESoundVisibility.SERVER) {
+                int tries = 0;
+                File f = new File(String.format("%s/%s/%s/%s.%s", 
+                    Constants.CUSTOM_SOUNDS_SERVER_PATH,
+                    visibility.getName(),
+                    owner,
+                    filename,
+                    Constants.SOUND_FILE_EXTENSION
+                ));
+
+                while (f.exists() && tries < 10) {
+                    try {
+                        f.delete();
+                    } catch (Exception e) {
+                        tries++;
+                        if (tries >= 10 && player != null) {
+                            NetworkManager.MOD_CHANNEL.sendTo(new ErrorMessagePacket(new ToastMessage("gui.mineify.soundselection.task_fail", "Unable to delete sound file.")), player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                        }
+                    }
+                }
+            }
+
+            andThen.run();
+            ModMain.LOGGER.debug("Sound deleted.");
+        }, "DeleteSound").start();
     }
 }

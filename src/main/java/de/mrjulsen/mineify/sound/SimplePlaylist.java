@@ -2,12 +2,12 @@ package de.mrjulsen.mineify.sound;
 
 import net.minecraft.network.FriendlyByteBuf;
 
-public class PlaylistData {
+public class SimplePlaylist {
     public final SoundFile[] sounds;
     public final boolean loop;
     public final boolean random;
 
-    public PlaylistData(SoundFile[] sounds, boolean loop, boolean random) {
+    public SimplePlaylist(SoundFile[] sounds, boolean loop, boolean random) {
         this.sounds = sounds;
         this.loop = loop;
         this.random = random;
@@ -22,7 +22,7 @@ public class PlaylistData {
         }
     }
 
-    public static PlaylistData deserialize(FriendlyByteBuf buffer) {
+    public static SimplePlaylist deserialize(FriendlyByteBuf buffer) {
         boolean loop = buffer.readBoolean();
         boolean random = buffer.readBoolean();
         int l = buffer.readInt();
@@ -31,6 +31,6 @@ public class PlaylistData {
             sounds[i] = SoundFile.deserialize(buffer);
         }
 
-        return new PlaylistData(sounds, loop, random);
+        return new SimplePlaylist(sounds, loop, random);
     }
 }
