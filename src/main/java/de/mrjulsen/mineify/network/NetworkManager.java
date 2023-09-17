@@ -1,6 +1,7 @@
 package de.mrjulsen.mineify.network;
 
 import de.mrjulsen.mineify.ModMain;
+import de.mrjulsen.mineify.network.packets.DefaultServerResponsePacket;
 import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
 import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
 import de.mrjulsen.mineify.network.packets.NextSoundDataRequestPacket;
@@ -39,6 +40,7 @@ public class NetworkManager {
         register(NextSoundDataRequestPacket.class).encoder(NextSoundDataRequestPacket::encode).decoder(NextSoundDataRequestPacket::decode).consumer(NextSoundDataRequestPacket::handle).add();
         register(NextSoundDataResponsePacket.class).encoder(NextSoundDataResponsePacket::encode).decoder(NextSoundDataResponsePacket::decode).consumer(NextSoundDataResponsePacket::handle).add();
         register(PlaySoundPacket.class).encoder(PlaySoundPacket::encode).decoder(PlaySoundPacket::decode).consumer(PlaySoundPacket::handle).add();
+        register(DefaultServerResponsePacket.class).encoder(DefaultServerResponsePacket::encode).decoder(DefaultServerResponsePacket::decode).consumer(DefaultServerResponsePacket::handle).add();
         
     }
 

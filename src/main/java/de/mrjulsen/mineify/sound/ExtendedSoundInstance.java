@@ -3,7 +3,6 @@ package de.mrjulsen.mineify.sound;
 import java.util.concurrent.CompletableFuture;
 
 import de.mrjulsen.mineify.network.InstanceManager;
-import de.mrjulsen.mineify.util.ReadWriteBuffer;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.client.sounds.AudioStream;
@@ -14,9 +13,9 @@ import net.minecraft.sounds.SoundSource;
 
 public class ExtendedSoundInstance extends AbstractSoundInstance {
 
-    private final ReadWriteBuffer audioData;
+    private final SoundBuffer audioData;
 
-    public ExtendedSoundInstance(ResourceLocation pLocation, ReadWriteBuffer audioData, SoundSource pSource, float volume, BlockPos position) {
+    public ExtendedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, float volume, BlockPos position) {
         super(pLocation, pSource);
         this.volume = volume;
         this.audioData = audioData;

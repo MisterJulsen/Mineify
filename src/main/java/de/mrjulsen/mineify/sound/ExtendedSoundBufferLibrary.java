@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-import de.mrjulsen.mineify.util.ReadWriteBuffer;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.sounds.AudioStream;
@@ -13,9 +12,9 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ExtendedSoundBufferLibrary extends SoundBufferLibrary {
 
-    private ReadWriteBuffer clientInputStream;
+    private SoundBuffer clientInputStream;
 
-    public ExtendedSoundBufferLibrary(ReadWriteBuffer audioStream) {
+    public ExtendedSoundBufferLibrary(SoundBuffer audioStream) {
         super(Minecraft.getInstance().getResourceManager());
         this.clientInputStream = audioStream;
     }

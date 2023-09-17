@@ -12,7 +12,7 @@ import net.minecraftforge.network.NetworkDirection;
 /**
  * This class contains all methods that should only be called on the server side.
  */
-public class MineifyApiServer {
+public class ServerApi {
     /**
      * Play a custom sound stored on the server.
      * @param file The sound file data.

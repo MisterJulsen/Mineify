@@ -9,7 +9,7 @@ import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.util.IOUtils;
-import de.mrjulsen.mineify.util.Utils;
+import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
@@ -102,7 +102,7 @@ public class SoundFile implements Serializable {
     }
 
     public final int readDurationInSeconds() {
-        return calcDurationSeconds(this.getName(), this.getOwner(), this.getVisibility());
+        return calcDurationSeconds();
     }
 
     public final int calcDuration() {
@@ -132,26 +132,13 @@ public class SoundFile implements Serializable {
     }
 
     public String buildPath() {
-        if (this.getVisibility() == ESoundVisibility.SERVER) {
-            return String.format("%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, this.getName());
-        } else {
-            return String.format("%s/%s/%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, this.getVisibility().getName(), this.getOwner(), this.getName());
-        }
+        return SoundUtils.buildPath(filename, ownerUUID, visibility);
     }
 
-    public static String buildPath(String filename, String owner, ESoundVisibility visibility) {
-        if (visibility == ESoundVisibility.SERVER) {
-            return String.format("%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, filename);
-        } else {
-            return String.format("%s/%s/%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, visibility.getName(), owner, filename);
-        }
-    }
-
-    private static int calcDurationSeconds(String filename, String owner, ESoundVisibility visibility) {
-       
+    private int calcDurationSeconds() {
         try {
-            String oggFilePath = buildPath(filename, owner, visibility);
-            return (int)Utils.calculateOggDuration(oggFilePath);
+            String oggFilePath = this.buildPath();
+            return (int)SoundUtils.calculateOggDuration(oggFilePath);
         } catch (Exception e) { return 0;}
     }
 
@@ -179,7 +166,7 @@ public class SoundFile implements Serializable {
         ESoundVisibility visibility = ESoundVisibility.getVisibilityByIndex(tag.getInt("visibility"));
         String owner = tag.getString("owner");
         
-        return new SoundFile(SoundFile.buildPath(filename, owner, visibility), owner, visibility);
+        return new SoundFile(SoundUtils.buildPath(filename, owner, visibility), owner, visibility);
     }
 
     @Override

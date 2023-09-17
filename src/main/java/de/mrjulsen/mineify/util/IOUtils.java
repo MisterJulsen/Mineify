@@ -17,14 +17,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Pattern;
 
-import de.mrjulsen.mineify.Constants;
-import de.mrjulsen.mineify.client.ESoundVisibility;
-import de.mrjulsen.mineify.sound.AudioFileConfig;
+public final class IOUtils {
 
-public class IOUtils {
     public static InputStream readFile(String filePath) throws IOException {
         File file = new File(filePath);
         return new FileInputStream(file);
@@ -68,23 +64,6 @@ public class IOUtils {
 
         buffer.flush();
         return buffer.toByteArray();
-    }
-
-    public static final String getSoundPath(String soundName) {
-        return Constants.CUSTOM_SOUNDS_SERVER_PATH + "/" + soundName + ".ogg";
-    }
-
-    public static final String getSoundPath(String soundName, ESoundVisibility visibility, UUID user) {
-        return String.format("%s/%s.ogg",
-                getSoundDirectoryPath(visibility, user),
-                soundName);
-    }
-
-    public static final String getSoundDirectoryPath(ESoundVisibility visibility, UUID user) {
-        return String.format("%s/%s/%s",
-                Constants.CUSTOM_SOUNDS_SERVER_PATH,
-                visibility.getName(),
-                user.toString());
     }
 
     public static boolean createDirectory(String directoryPath) {
@@ -193,84 +172,6 @@ public class IOUtils {
         return sanitizedFileName;
     }
 
-    public static String getFFMPEGBinPath() {
-        String os = System.getProperty("os.name").toLowerCase();
-        String ffmpegBinary;
-
-        if (os.contains("win")) {
-            ffmpegBinary = Constants.FFMPEG_HOME + "/ffmpeg.exe";
-        } else if (os.contains("mac")) {
-            ffmpegBinary = Constants.FFMPEG_HOME + "/ffmpeg";
-        } else if (os.contains("nix") || os.contains("nux") || os.contains("bsd")) {
-            ffmpegBinary = Constants.FFMPEG_HOME + "/ffmpeg";
-        } else {
-            throw new UnsupportedOperationException("Unsupported operating system: " + os);
-        }
-
-        return ffmpegBinary;
-    }
-
-    public static boolean ffmpegInstalled() {
-        File file = new File(getFFMPEGBinPath());
-        return file.exists();
-    }
-
-    public static InputStream convertToOGGWithFile(String filename, AudioFileConfig config) throws IOException {
-
-        String ffmpegBinary = getFFMPEGBinPath();
-
-        String[] command = new String[] { ffmpegBinary, "-i", filename, "-c:a", "libvorbis", "-q:a",
-                String.valueOf(config.quality), "-f", "ogg", "-vn", "-ac", String.valueOf(config.channels.getCount()),
-                "./" + filename + ".ogg" };
-
-        Process process = Runtime.getRuntime().exec(command);
-        InputHandler errorHandler = new InputHandler(process.getErrorStream(), "Error Stream");
-        errorHandler.start();
-        InputHandler inputHandler = new InputHandler(process.getInputStream(), "Output Stream");
-        inputHandler.start();
-        try {
-            process.waitFor();
-        } catch (InterruptedException e) {
-            throw new IOException("process interrupted");
-        }
-
-        InputStream s = new FileInputStream(new File("./" + filename + ".ogg"));
-        return s;
-    }
-
-    public static InputStream convertToOGG(InputStream inputAudio, AudioFileConfig config) throws IOException {
-
-        String ffmpegBinary = getFFMPEGBinPath();
-
-        Process process = new ProcessBuilder(ffmpegBinary, "-i", "pipe:0", "-loglevel", "quiet", "-c:a", "libvorbis",
-                "-q:a", String.valueOf(config.quality), "-f", "ogg", "-vn", "-ac",
-                String.valueOf(config.channels.getCount()), "pipe:1")
-                .redirectErrorStream(true)
-                .start();
-
-        InputHandler inputHandler = new InputHandler(process.getInputStream(), "Output Stream");
-        inputHandler.start();
-
-        // Schreibe den Eingabestream in den Prozess (ffmpeg)
-        try (OutputStream outputStream = process.getOutputStream()) {
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputAudio.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-        } finally {
-            inputAudio.close();
-        }
-
-        try {
-            process.waitFor();
-        } catch (InterruptedException e) {
-            throw new IOException("Process interrupted", e);
-        }
-
-        return new ByteArrayInputStream(inputHandler.getOutput().toByteArray());
-    }
-
     public static String getFileHash(String filePath) {        
         try {
             File file = new File(filePath);
@@ -294,38 +195,4 @@ public class IOUtils {
             return null;
         }
     }
-
-    private static class InputHandler extends Thread {
-        private InputStream input;
-        private ByteArrayOutputStream output;
-
-        public InputHandler(InputStream input, String name) {
-            super(name);
-            this.input = input;
-            this.output = new ByteArrayOutputStream();
-        }
-
-        public void run() {
-            try {
-                int bytesRead;
-                byte[] buffer = new byte[4096];
-                while ((bytesRead = input.read(buffer)) != -1) {
-                    output.write(buffer, 0, bytesRead);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public ByteArrayOutputStream getOutput() {
-            return output;
-        }
-    }
-
 }

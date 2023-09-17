@@ -59,7 +59,6 @@ public class FFMPEGMissingScreen extends Screen {
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground(pPoseStack);
         drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, 20, 15343905);
-        //drawCenteredString(pPoseStack, this.font, this.message, this.width / 2, 110, 16777215);
         this.messageLabel.renderLeftAligned(pPoseStack, this.width / 2 - 128, 50, 10, 8421504);
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
     }

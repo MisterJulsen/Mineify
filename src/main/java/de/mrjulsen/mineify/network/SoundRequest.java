@@ -16,7 +16,6 @@ import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
 import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
-import de.mrjulsen.mineify.network.packets.RefreshSoundListPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.EStreamingMode;
@@ -84,7 +83,7 @@ public class SoundRequest {
     }
 
     public static void uploadFromClient(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader, long usedBytes) {        
-        ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, usedBytes);
+        ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, usedBytes, null);
     }
 
     public static void getSoundListFromServer(Consumer<SoundFile[]> callback) {

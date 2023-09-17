@@ -1,4 +1,4 @@
-package de.mrjulsen.mineify.util;
+package de.mrjulsen.mineify.sound;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.packets.NextSoundDataRequestPacket;
 
-public class ReadWriteBuffer {
+public class SoundBuffer {
     private byte[] buffer;
     private int readIndex;
     private int writeIndex;
@@ -21,7 +21,7 @@ public class ReadWriteBuffer {
     private int currentIndexRequested = 0;
     private int currentIndexNeeded = 0;
 
-    public ReadWriteBuffer(int bufferSize, long id, boolean streamRequest) {    
+    public SoundBuffer(int bufferSize, long id, boolean streamRequest) {    
         buffer = new byte[bufferSize];
         readIndex = 0;
         writeIndex = 0;

@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.ModMain;
+import de.mrjulsen.mineify.api.ServerApi;
 import de.mrjulsen.mineify.client.ETrigger;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.SoundRequest;
@@ -284,7 +285,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
                 this.setPlaying(true);        
                 this.calcTimeToPlayNext(this.getPlaying().calcDuration() + 1);
                 this.stopPlayingSound();
-                this.setCurrentSoundId(SoundRequest.sendRequestFromServer(this.getPlaying(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getVolume()));
+                this.setCurrentSoundId(ServerApi.playSound(this.getPlaying(), this.getAffectedPlayers(), this.getBlockPos(), this.getPlaybackArea().getVolume()));
             } catch (Exception e) {
                 ModMain.LOGGER.warn("Unable to play sound file: " + e.getMessage());
             } finally {

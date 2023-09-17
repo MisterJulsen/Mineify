@@ -3,6 +3,7 @@ package de.mrjulsen.mineify.client.screen.widgets;
 import com.google.common.collect.Lists;
 
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.api.ClientApi;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.client.screen.PlaylistScreen;
 import de.mrjulsen.mineify.network.NetworkManager;
@@ -70,8 +71,7 @@ public class SoundSelectionModel {
     public boolean playlistContainsFileByOtherUsers() {
         return this.selected.stream().filter(x -> !x.getOwner().equals(Minecraft.getInstance().player.getUUID().toString())).count() > 0;
     }
-
-    @SuppressWarnings("resource") 
+    
     public void commit() {
         this.callback.accept(new SimplePlaylist(this.selected.toArray(SoundFile[]::new), this.parent.isLooping(), this.parent.isRandom()));
     }
@@ -252,7 +252,9 @@ public class SoundSelectionModel {
             if (!canDelete(userUUID))
                 return;
             
-            NetworkManager.MOD_CHANNEL.sendToServer(new SoundDeleteRequestPacket(this.sound.getName(), this.sound.getOwner(), this.sound.getVisibility()));
+            ClientApi.deleteSound(this.sound.getName(), this.sound.getOwner(), this.sound.getVisibility(), () -> {
+                parent.reload();
+            });
         }
     }
 

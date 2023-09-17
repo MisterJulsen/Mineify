@@ -19,7 +19,6 @@ import org.lwjgl.system.MemoryUtil;
 import com.google.common.collect.Lists;
 
 import de.mrjulsen.mineify.Constants;
-import de.mrjulsen.mineify.util.ReadWriteBuffer;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
@@ -29,10 +28,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class ExtendedOggAudioStream implements AudioStream {
    private long handle;
    private final AudioFormat audioFormat;
-   private final ReadWriteBuffer input;
+   private final SoundBuffer input;
    private ByteBuffer buffer = MemoryUtil.memAlloc(Constants.DEFAULT_DATA_BLOCK_SIZE);
 
-   public ExtendedOggAudioStream(ReadWriteBuffer pInput) throws IOException {
+   public ExtendedOggAudioStream(SoundBuffer pInput) throws IOException {
       this.input = pInput;
       this.buffer.limit(0);
       MemoryStack memorystack = MemoryStack.stackPush();

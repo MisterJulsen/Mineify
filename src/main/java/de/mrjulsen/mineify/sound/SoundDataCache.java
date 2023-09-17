@@ -9,8 +9,11 @@ import com.google.gson.Gson;
 
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.util.IOUtils;
-import de.mrjulsen.mineify.util.Utils;
+import de.mrjulsen.mineify.util.SoundUtils;
 
+/**
+ * Stores some sound data, for faster loading.
+ */
 public class SoundDataCache {
     
     private Map<String, CachedSoundData> cache = new HashMap<>();
@@ -84,7 +87,7 @@ public class SoundDataCache {
             this.hash = IOUtils.getFileHash(path);
 
             try {
-                this.duration = (int)Utils.calculateOggDuration(this.getPath());
+                this.duration = (int)SoundUtils.calculateOggDuration(this.getPath());
             } catch (IOException e) {
                 e.printStackTrace();
                 this.duration = 0;

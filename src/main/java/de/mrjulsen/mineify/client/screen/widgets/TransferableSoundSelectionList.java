@@ -161,8 +161,7 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                 }
             }
 
-            this.minecraft.font.drawShadow(pPoseStack, formattedcharsequence, (float) (pLeft + 32 + 2),
-                    (float) (pTop + 1), 16777215);
+            this.minecraft.font.drawShadow(pPoseStack, formattedcharsequence, (float) (pLeft + 32 + 2), (float) (pTop + 1), 16777215);
             multilinelabel.renderLeftAligned(pPoseStack, pLeft + 32 + 2, pTop + 12, 10, 8421504);
         }
 
@@ -184,7 +183,6 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                     if (result) {
                         this.pack.delete(this.minecraft.player.getUUID());
                         Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.delete"), this.pack.getName())); 
-                        ((PlaylistScreen)this.screen).reload();
                     }
 
                     this.minecraft.setScreen(this.screen);

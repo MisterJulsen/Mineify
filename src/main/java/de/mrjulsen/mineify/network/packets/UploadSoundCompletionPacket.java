@@ -13,6 +13,7 @@ import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.ToastMessage;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.util.IOUtils;
+import de.mrjulsen.mineify.util.SoundUtils;
 import de.mrjulsen.mineify.util.Utils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkDirection;
@@ -54,8 +55,8 @@ public class UploadSoundCompletionPacket {
                 
                 ModMain.LOGGER.debug("Sound Upload Finishing...");
                 if (InstanceManager.Server.streamCache.containsKey(packet.requestId)) {
-                    String dirPath = IOUtils.getSoundDirectoryPath(packet.visibility.toESoundVisibility(), packet.uploaderUUID);
-                    String soundPath = IOUtils.getSoundPath(packet.filename, packet.visibility.toESoundVisibility(), packet.uploaderUUID);
+                    String dirPath = SoundUtils.getSoundDirectoryPath(packet.visibility.toESoundVisibility(), packet.uploaderUUID);
+                    String soundPath = SoundUtils.getSoundPath(packet.filename, packet.visibility.toESoundVisibility(), packet.uploaderUUID);
                     IOUtils.createDirectory(dirPath); 
                     try (FileOutputStream outputStream = new FileOutputStream(soundPath)) {
                         InstanceManager.Server.streamCache.get(packet.requestId).writeTo(outputStream);
@@ -78,7 +79,7 @@ public class UploadSoundCompletionPacket {
 
                 Utils.giveAdvancement(context.get().getSender(), "first_upload", "requirement");
 
-                NetworkManager.MOD_CHANNEL.sendTo(new RefreshSoundListPacket(), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                //NetworkManager.MOD_CHANNEL.sendTo(new RefreshSoundListPacket(), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
                 
                 ModMain.LOGGER.debug("Sound Upload filished.");
             }).start();

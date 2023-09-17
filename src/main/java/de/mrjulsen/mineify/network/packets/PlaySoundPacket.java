@@ -46,6 +46,4 @@ public class PlaySoundPacket {
         
         context.get().setPacketHandled(true);      
     }
-
-    
 }

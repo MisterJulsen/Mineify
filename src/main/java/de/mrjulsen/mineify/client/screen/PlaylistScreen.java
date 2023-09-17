@@ -6,11 +6,12 @@ import de.mrjulsen.mineify.client.screen.widgets.TransferableSoundSelectionList;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.InstanceManager;
-import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.util.IOUtils;
+import de.mrjulsen.mineify.util.SoundUtils;
 import de.mrjulsen.mineify.util.Utils;
 import de.mrjulsen.mineify.Constants;
+import de.mrjulsen.mineify.api.ClientApi;
 import de.mrjulsen.mineify.client.screen.widgets.SoundSelectionModel;
 
 import java.io.File;
@@ -202,7 +203,7 @@ public class PlaylistScreen extends Screen {
 
         String firstPath = pPacks.stream().map(Path::toString).findFirst().get();
 
-        if (!IOUtils.ffmpegInstalled()) {
+        if (!SoundUtils.ffmpegInstalled()) {
             this.minecraft.setScreen(new FFMPEGMissingScreen(this));
             return;
         }
@@ -225,8 +226,10 @@ public class PlaylistScreen extends Screen {
 
         this.minecraft.setScreen(new UploadSoundScreen(this, firstPath, ModClientConfig.DEFAULT_VISIBILITY.get(), ModClientConfig.DEFAULT_CHANNELS.get(), ModClientConfig.DEFAULT_QUALITY.get(), (success, settings) -> {
             if (success) {
-                SoundRequest.uploadFromClient(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID(), this.model.storageUsedByUser());
-                this.reload();
+                ClientApi.uploadSound(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID(), () -> {
+                    this.reload();
+                });
+                //SoundRequest.uploadFromClient(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID(), this.model.storageUsedByUser());
             }
         }));
     }

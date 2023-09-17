@@ -10,6 +10,7 @@ import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
+import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.SoundFile;
 import net.minecraft.client.Minecraft;
@@ -19,7 +20,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 /**
  * This class contains all methods that should only be called on the client side.
  */
-public class MineifyApiClient {
+public class ClientApi {
     /**
      * Stop a playing custom sound.
      * @param soundId The ID of the sound you want to stop.
@@ -38,8 +39,8 @@ public class MineifyApiClient {
      * @param uploader The UUID of the player, who ownes the sound file.
      */
     @OnlyIn(Dist.CLIENT) 
-    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader) {        
-        ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, -1);
+    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader, Runnable andThen) {        
+        ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, -1, andThen);
     }
 
     /**
@@ -51,8 +52,8 @@ public class MineifyApiClient {
      */
     @SuppressWarnings("resource")
     @OnlyIn(Dist.CLIENT) 
-    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config) {  
-        uploadSound(srcPath, filename, visibility, config, Minecraft.getInstance().player.getUUID());
+    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, Runnable andThen) {  
+        uploadSound(srcPath, filename, visibility, config, Minecraft.getInstance().player.getUUID(), andThen);
     }
 
     /**
@@ -61,7 +62,9 @@ public class MineifyApiClient {
      */
     @OnlyIn(Dist.CLIENT) 
     public static void getSoundList(Consumer<SoundFile[]> callback) {
-        SoundRequest.getSoundListFromServer(callback);
+        long requestId = Api.genRequestId();
+        InstanceManager.Client.consumerCache.put(requestId, callback);
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId));
     }
 
     /**
@@ -72,23 +75,43 @@ public class MineifyApiClient {
      */
     @SuppressWarnings("resource")
     @OnlyIn(Dist.CLIENT) 
-    public static SoundFile soundFileOf(String filename, ESoundVisibility visibility) {
+    public static SoundFile personalSoundFileOf(String filename, ESoundVisibility visibility) {
         return new SoundFile(filename, Minecraft.getInstance().player.getUUID().toString(), visibility);
     }
 
-    @OnlyIn(Dist.CLIENT) 
+    /**
+     * Determines if a sound with the given ID is currently playing.
+     * @param soundId The ID of the sound you want to check.
+     * @return true, if that sound is playing.
+     */
+    @OnlyIn(Dist.CLIENT)
     public static boolean isSoundPlaying(long soundId) {
         return InstanceManager.Client.playingSoundsCache.containsKey(soundId);
     }
 
+    /**
+     * Delete a sound from the server.
+     * @param filename The name of the sound.
+     * @param visibility The visibility.
+     * @param owner The owner's UUID.
+     * @param andThen This code will be executed after this process has been finished.
+     */
     @OnlyIn(Dist.CLIENT) 
-    public static void deleteSound(String filename, EUserSoundVisibility visibility, UUID owner) {
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundDeleteRequestPacket(filename, owner.toString(), visibility.toESoundVisibility()));
+    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, Runnable andThen) {
+        long requestId = Api.genRequestId();
+        InstanceManager.Client.runnableCache.put(requestId, andThen);
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundDeleteRequestPacket(requestId, filename, owner.toString(), visibility));
     }
 
+    /**
+     * Delete a sound from the server.
+     * @param filename The name of the sound.
+     * @param visibility The visibility.
+     * @param andThen This code will be executed after this process has been finished.
+     */
     @OnlyIn(Dist.CLIENT) 
     @SuppressWarnings("resource")
-    public static void deleteSound(String filename, EUserSoundVisibility visibility) {
-        deleteSound(filename, visibility, Minecraft.getInstance().player.getUUID());
+    public static void deleteSound(String filename, ESoundVisibility visibility, Runnable andThen) {
+        deleteSound(filename, Minecraft.getInstance().player.getUUID().toString(), visibility, andThen);
     }
 }
