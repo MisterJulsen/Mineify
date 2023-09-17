@@ -37,6 +37,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 @OnlyIn(Dist.CLIENT)
@@ -46,7 +47,7 @@ public class PlaylistScreen extends Screen {
     
     private final Screen lastScreen;
     public final SoundSelectionModel model;
-    private final File packDir;
+    private final File soundsDir;
 
     private boolean isLoading;
     
@@ -73,7 +74,7 @@ public class PlaylistScreen extends Screen {
     public PlaylistScreen(Screen lastScreen, SimplePlaylist data, Consumer<SimplePlaylist> callback) {
         super(new TranslatableComponent("gui.mineify.soundselection.title"));
         this.lastScreen = lastScreen;
-        this.packDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH);
+        this.soundsDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH);
         this.model = new SoundSelectionModel(this, this::fillLists, Minecraft.getInstance().player.getUUID(), data, callback);
         this.random = data.random;
         this.loop = data.loop;
@@ -94,13 +95,20 @@ public class PlaylistScreen extends Screen {
         if (b) {
             this.addRenderableWidget(new Button(this.width / 2 - 50, this.height - 30, 100, 20,
             textOpenFolder, (p_100004_) -> {
-                Util.getPlatform().openFile(this.packDir);
+                Util.getPlatform().openFile(this.soundsDir);
             }));
         }
 
         this.addRenderableWidget(new Button(this.width / 2 - 154, this.height - 30, 100 + (b ? 0 : 50), 20, textUpload, (p_100036_) -> {
             this.minecraft.getSoundManager().pause();
-            String s = TinyFileDialogs.tinyfd_openFileDialog(titleOpenFileDialog.getString(), (CharSequence)null, (PointerBuffer)null, filterOpenFileDialog.getString(), false);
+
+            PointerBuffer filterPatterns = MemoryUtil.memAllocPointer(5);
+            for (String s : Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS) {
+                filterPatterns.put(MemoryUtil.memUTF8("*." + s));
+            }
+            filterPatterns.flip();
+
+            String s = TinyFileDialogs.tinyfd_openFileDialog(titleOpenFileDialog.getString(), (CharSequence)null, filterPatterns, filterOpenFileDialog.getString(), false);
             if (s != null) {
                 onFilesDrop(new ArrayList<Path>(List.of(Paths.get(s))));
             }
@@ -158,7 +166,7 @@ public class PlaylistScreen extends Screen {
     @Override
     public void onClose() {
         this.minecraft.setScreen(this.lastScreen);
-        InstanceManager.Client.consumerCache.clear();
+        InstanceManager.Client.soundListConsumerCache.clear();
     }
 
     private void fillLists() {

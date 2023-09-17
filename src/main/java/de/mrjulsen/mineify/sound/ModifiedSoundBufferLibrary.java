@@ -10,11 +10,11 @@ import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.resources.ResourceLocation;
 
-public class ExtendedSoundBufferLibrary extends SoundBufferLibrary {
+public class ModifiedSoundBufferLibrary extends SoundBufferLibrary {
 
     private SoundBuffer clientInputStream;
 
-    public ExtendedSoundBufferLibrary(SoundBuffer audioStream) {
+    public ModifiedSoundBufferLibrary(SoundBuffer audioStream) {
         super(Minecraft.getInstance().getResourceManager());
         this.clientInputStream = audioStream;
     }
@@ -24,7 +24,7 @@ public class ExtendedSoundBufferLibrary extends SoundBufferLibrary {
     public CompletableFuture<AudioStream> getStream(ResourceLocation pResourceLocation, boolean pIsWrapper) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return (AudioStream) new ExtendedOggAudioStream(clientInputStream);
+                return (AudioStream) new ModifiedOggAudioStream(clientInputStream);
             } catch (IOException ioexception) {
                 throw new CompletionException(ioexception);
             }

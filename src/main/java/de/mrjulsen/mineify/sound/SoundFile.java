@@ -97,6 +97,14 @@ public class SoundFile implements Serializable {
         return this.getVisibility() != ESoundVisibility.PRIVATE || this.getOwner().equals(uuid);
     }
 
+    public boolean canModify(UUID uuid) {
+        return this.canModify(uuid.toString());
+    }
+
+    public boolean canModify(String uuid) {
+        return this.getVisibility() == ESoundVisibility.PUBLIC || (this.getVisibility() == ESoundVisibility.PRIVATE && this.getOwner().equals(uuid));
+    }
+
     public boolean exists() {
         return new File(this.buildPath()).exists();
     }
@@ -110,10 +118,10 @@ public class SoundFile implements Serializable {
         this.setCachedDurationInSeconds(cache.get(this.buildPath()).getDuration());
         cache.save(Constants.DEFAULT_SOUND_DATA_CACHE);
 
-        return this.getDurationInSecondsFromCache();
+        return this.getDurationInSeconds();
     }
 
-    public final int getDurationInSecondsFromCache() {
+    public final int getDurationInSeconds() {
         return this.cachedDuration;
     }
 
@@ -123,7 +131,7 @@ public class SoundFile implements Serializable {
 
     @OnlyIn(Dist.CLIENT)
     public final LocalTime getDuration() {
-        int seconds = this.getDurationInSecondsFromCache();
+        int seconds = this.getDurationInSeconds();
         int hours = seconds / 3600;
         int minutes = (seconds % 3600) / 60;
         int secs = seconds % 60;

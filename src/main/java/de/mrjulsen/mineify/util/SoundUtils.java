@@ -10,21 +10,28 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
+import de.mrjulsen.mineify.sound.SoundDataCache;
+import de.mrjulsen.mineify.sound.SoundFile;
 
 public final class SoundUtils {
     public static final String getSoundPath(String soundName) {
-        return Constants.CUSTOM_SOUNDS_SERVER_PATH + "/" + soundName + ".ogg";
+        return String.format("%s/%s.%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, soundName, Constants.SOUND_FILE_EXTENSION);
     }
 
     public static final String getSoundPath(String soundName, ESoundVisibility visibility, UUID user) {
-        return String.format("%s/%s.ogg",
+        return String.format("%s/%s.%s",
                 getSoundDirectoryPath(visibility, user),
-                soundName);
+                soundName,
+                Constants.SOUND_FILE_EXTENSION);
     }
 
     public static final String getSoundDirectoryPath(ESoundVisibility visibility, UUID user) {
@@ -178,9 +185,85 @@ public final class SoundUtils {
 
     public static String buildPath(String name, String owner, ESoundVisibility visibility) {
         if (visibility == ESoundVisibility.SERVER) {
-            return String.format("%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, name);
+            return String.format("%s/%s.%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, name, Constants.SOUND_FILE_EXTENSION);
         } else {
-            return String.format("%s/%s/%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, visibility.getName(), owner, name);
+            return String.format("%s/%s/%s/%s.%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, visibility.getName(), owner, name, Constants.SOUND_FILE_EXTENSION);
+        }
+    }
+
+    public static SoundFile[] readSoundsFromDisk() {
+        List<SoundFile> soundFiles = Collections.synchronizedList(new ArrayList<>()); // Contains all visible sounds for that specific user
+
+        // Add all server sounds
+        searchForOggFiles(Constants.CUSTOM_SOUNDS_SERVER_PATH).forEach(path -> soundFiles.add(new SoundFile(path, Constants.SERVER_USERNAME, ESoundVisibility.SERVER)));
+        
+        // Get all sounds of private folder
+        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PRIVATE.getName()), (userFolderPath, userFolderName) -> { 
+            List<String> oggFiles = searchForOggFiles(userFolderPath);
+            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PRIVATE)));
+        });
+
+        // Get all sounds of shared folder
+        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.SHARED.getName()), (userFolderPath, userFolderName) -> {
+            List<String> oggFiles = searchForOggFiles(userFolderPath);
+            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.SHARED)));
+        });
+
+        // Get all sounds of public folder
+        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PUBLIC.getName()), (userFolderPath, userFolderName) -> {
+            List<String> oggFiles = searchForOggFiles(userFolderPath);
+            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PUBLIC)));
+        });
+
+        applyCacheData(soundFiles);        
+
+        return soundFiles.toArray(SoundFile[]::new);
+    }
+
+    private synchronized static void applyCacheData(List<SoundFile> sounds) {
+        SoundDataCache cache = SoundDataCache.loadOrCreate(Constants.DEFAULT_SOUND_DATA_CACHE);
+        sounds.forEach(x -> x.setCachedDurationInSeconds(cache.get(x.buildPath()).getDuration()));
+        cache.save(Constants.DEFAULT_SOUND_DATA_CACHE);
+    }
+
+    /***** FILE SYSTEM *****/
+    private static List<String> searchForOggFiles(String folder) {
+        List<String> sounds = new ArrayList<>();
+        File file = new File(folder);
+        if (!file.exists() || !file.isDirectory()) {
+            return sounds;
+        }
+
+        File[] files = new File(folder).listFiles();
+        if (files == null) {
+            return sounds;
+        }
+
+        for (File f : files) {
+            if (f.isDirectory() || !IOUtils.getFileExtension(f.getName()).equals(Constants.SOUND_FILE_EXTENSION))
+                continue;
+            
+            sounds.add(f.getPath());            
+        }
+        return sounds;
+    }
+
+    private static void forEachDirectoryInFolder(String folder, BiConsumer<String, String> consumer) {
+        File file = new File(folder);
+        if (!file.exists() || !file.isDirectory()) {
+            return;
+        }
+
+        File[] files = file.listFiles();
+        if (files == null) {
+            return;
+        }
+
+        for (File f : files) {
+            if (!f.isDirectory())
+                continue;
+            
+            consumer.accept(f.getPath(), f.getName());        
         }
     }
 

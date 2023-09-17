@@ -4,11 +4,7 @@ import com.google.common.collect.Lists;
 
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.api.ClientApi;
-import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.client.screen.PlaylistScreen;
-import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.network.SoundRequest;
-import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
 import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.sound.SoundFile;
 import java.util.ArrayList;
@@ -81,7 +77,7 @@ public class SoundSelectionModel {
     }
 
     public void readFromDisk(UUID playerUUID, Runnable andThen) {
-        SoundRequest.getSoundListFromServer((sounds) -> {
+        ClientApi.getSoundList((sounds) -> {
             this.pool = sounds;
             if (this.pool == null) {
                 this.selected.clear();
@@ -102,7 +98,7 @@ public class SoundSelectionModel {
             this.unselected.removeAll(this.selected);
             
             andThen.run();
-        });   
+        });
     }
 
 
@@ -230,21 +226,11 @@ public class SoundSelectionModel {
 
         @Override
         public boolean canDelete(UUID userUUID) {
-            boolean canDelete = true;
-
             if (!this.canSelect()) {
-                canDelete = false;
+                return false;
             }
 
-            if (canDelete && (this.sound.getVisibility() == ESoundVisibility.SERVER)) {
-                canDelete = false;
-            }
-
-            if (canDelete && ((this.sound.getVisibility() == ESoundVisibility.SHARED || this.sound.getVisibility() == ESoundVisibility.PRIVATE) && (this.sound.getOwner() == null || !this.sound.getOwner().equals(userUUID.toString())))) {
-                canDelete = false;
-            }
-
-            return canDelete;
+            return this.sound.canModify(userUUID);
         }
 
         @Override

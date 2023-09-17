@@ -7,8 +7,9 @@ import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
 import de.mrjulsen.mineify.network.packets.NextSoundDataRequestPacket;
 import de.mrjulsen.mineify.network.packets.NextSoundDataResponsePacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
-import de.mrjulsen.mineify.network.packets.RefreshSoundListPacket;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
+import de.mrjulsen.mineify.network.packets.SoundFilesCountRequestPacket;
+import de.mrjulsen.mineify.network.packets.SoundFilesSizeRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundListResponsePacket;
 import de.mrjulsen.mineify.network.packets.SoundPlayerBlockEntityPacket;
@@ -16,6 +17,8 @@ import de.mrjulsen.mineify.network.packets.StopSoundPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundCompletionPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.network.simple.SimpleChannel.MessageBuilder;
@@ -36,11 +39,13 @@ public class NetworkManager {
         register(SoundPlayerBlockEntityPacket.class).encoder(SoundPlayerBlockEntityPacket::encode).decoder(SoundPlayerBlockEntityPacket::decode).consumer(SoundPlayerBlockEntityPacket::handle).add();
         register(StopSoundPacket.class).encoder(StopSoundPacket::encode).decoder(StopSoundPacket::decode).consumer(StopSoundPacket::handle).add();
         register(ErrorMessagePacket.class).encoder(ErrorMessagePacket::encode).decoder(ErrorMessagePacket::decode).consumer(ErrorMessagePacket::handle).add();
-        register(RefreshSoundListPacket.class).encoder(RefreshSoundListPacket::encode).decoder(RefreshSoundListPacket::decode).consumer(RefreshSoundListPacket::handle).add();
         register(NextSoundDataRequestPacket.class).encoder(NextSoundDataRequestPacket::encode).decoder(NextSoundDataRequestPacket::decode).consumer(NextSoundDataRequestPacket::handle).add();
         register(NextSoundDataResponsePacket.class).encoder(NextSoundDataResponsePacket::encode).decoder(NextSoundDataResponsePacket::decode).consumer(NextSoundDataResponsePacket::handle).add();
         register(PlaySoundPacket.class).encoder(PlaySoundPacket::encode).decoder(PlaySoundPacket::decode).consumer(PlaySoundPacket::handle).add();
         register(DefaultServerResponsePacket.class).encoder(DefaultServerResponsePacket::encode).decoder(DefaultServerResponsePacket::decode).consumer(DefaultServerResponsePacket::handle).add();
+        register(SoundFilesCountRequestPacket.class).encoder(SoundFilesCountRequestPacket::encode).decoder(SoundFilesCountRequestPacket::decode).consumer(SoundFilesCountRequestPacket::handle).add();
+        register(SoundFilesCountRequestPacket.class).encoder(SoundFilesCountRequestPacket::encode).decoder(SoundFilesCountRequestPacket::decode).consumer(SoundFilesCountRequestPacket::handle).add();
+        register(SoundFilesSizeRequestPacket.class).encoder(SoundFilesSizeRequestPacket::encode).decoder(SoundFilesSizeRequestPacket::decode).consumer(SoundFilesSizeRequestPacket::handle).add();
         
     }
 
@@ -52,5 +57,9 @@ public class NetworkManager {
         MessageBuilder<T> mb = MOD_CHANNEL.messageBuilder(clazz, currentId);
         currentId++;
         return mb;
+    }
+
+    public static void sendToClient(Object o, ServerPlayer player) {
+        NetworkManager.MOD_CHANNEL.sendTo(o, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
     }
 }

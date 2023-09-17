@@ -4,36 +4,35 @@ import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundListRequestPacket {
+public class SoundFilesCountRequestPacket {
     private final long requestID;
 
-    public SoundListRequestPacket(long requestId) {
+    public SoundFilesCountRequestPacket(long requestId) {
         this.requestID = requestId;
     }
 
-    public static void encode(SoundListRequestPacket packet, FriendlyByteBuf buffer) {
+    public static void encode(SoundFilesCountRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestID);
     }
 
-    public static SoundListRequestPacket decode(FriendlyByteBuf buffer) {
+    public static SoundFilesCountRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
 
-        SoundListRequestPacket instance = new SoundListRequestPacket(requestId);
+        SoundFilesCountRequestPacket instance = new SoundFilesCountRequestPacket(requestId);
         return instance;
     }
 
-    public static void handle(SoundListRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
+    public static void handle(SoundFilesCountRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             new Thread(() -> {
                 
                 ModMain.LOGGER.debug("Reading sound files...");
-                SoundFile[] soundFiles = SoundUtils.readSoundsFromDisk();
-                NetworkManager.sendToClient(new SoundListResponsePacket(packet.requestID, soundFiles), context.get().getSender());
+                long count = SoundUtils.readSoundsFromDisk().length;
+                NetworkManager.sendToClient(new SoundFilesCountResponsePacket(packet.requestID, count), context.get().getSender());
                 
                 ModMain.LOGGER.debug("Sound file list created.");
             }, "SoundFileListReader").start();

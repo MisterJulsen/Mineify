@@ -2,17 +2,18 @@ package de.mrjulsen.mineify.api;
 
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.network.SoundRequest;
+import de.mrjulsen.mineify.network.ServerWrapper;
+import de.mrjulsen.mineify.network.packets.DefaultServerResponsePacket;
 import de.mrjulsen.mineify.network.packets.StopSoundPacket;
 import de.mrjulsen.mineify.sound.SoundFile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraftforge.network.NetworkDirection;
 
 /**
  * This class contains all methods that should only be called on the server side.
  */
 public class ServerApi {
+    
     /**
      * Play a custom sound stored on the server.
      * @param file The sound file data.
@@ -22,7 +23,7 @@ public class ServerApi {
      * @return The ID of the sound, which can be used to stop or modify the sound while it's playing. This ID is invalid after the sound playback has been finished.
      */
     public static long playSound(SoundFile file, ServerPlayer[] players, BlockPos pos, float volume) {
-        return SoundRequest.sendRequestFromServer(file, players, pos, volume);
+        return ServerWrapper.sendPlaySoundRequest(file, players, pos, volume);
     }
     
     /**
@@ -32,7 +33,7 @@ public class ServerApi {
      */
     public static void stopSound(long soundId, ServerPlayer[] players) {
         for (ServerPlayer p : players) {
-            NetworkManager.MOD_CHANNEL.sendTo(new StopSoundPacket(soundId), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);                
+            NetworkManager.sendToClient(new StopSoundPacket(soundId), p);             
         }
     }
 
@@ -45,7 +46,7 @@ public class ServerApi {
      * @param andThen This code will be executed after the process has been finished.
      */
     public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ServerPlayer player, Runnable andThen) {
-        SoundRequest.deleteSoundOnServer(filename, owner, visibility, player, andThen);
+        ServerWrapper.deleteSound(filename, owner, visibility, player, andThen);
     }
 
     /**
@@ -56,7 +57,7 @@ public class ServerApi {
      * @param andThen This code will be executed after the process has been finished.
      */
     public static void deleteSound(String filename, String owner, ESoundVisibility visibility, Runnable andThen) {
-        SoundRequest.deleteSoundOnServer(filename, owner, visibility, null, andThen);
+        deleteSound(filename, owner, visibility, null, andThen);
     }
 
     /**
@@ -66,6 +67,15 @@ public class ServerApi {
      * @param visibility The visibility.
      */
     public static void deleteSound(String filename, String owner, ESoundVisibility visibility) {
-        SoundRequest.deleteSoundOnServer(filename, owner, visibility, null, null);
+        deleteSound(filename, owner, visibility, null, null);
+    }
+
+    /**
+     * Sends a response to the client and executes the next code block if available.
+     * @param player The player the server should respond to.
+     * @param requestId The ID of the Runnable object which should be executed after receiving the packet.
+     */
+    public static void sendResponse(ServerPlayer player, long requestId) {
+        NetworkManager.sendToClient(new DefaultServerResponsePacket(requestId), player);
     }
 }

@@ -2,12 +2,10 @@ package de.mrjulsen.mineify.network.packets;
 
 import java.util.function.Supplier;
 
+import de.mrjulsen.mineify.api.ServerApi;
 import de.mrjulsen.mineify.client.ESoundVisibility;
-import de.mrjulsen.mineify.network.InstanceManager;
-import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.network.SoundRequest;
+import de.mrjulsen.mineify.network.ServerWrapper;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SoundDeleteRequestPacket {
@@ -42,9 +40,8 @@ public class SoundDeleteRequestPacket {
 
     public static void handle(SoundDeleteRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
-            SoundRequest.deleteSoundOnServer(packet.filename, packet.fileOwner, packet.visibility, context.get().getSender(), () -> {
-                NetworkManager.MOD_CHANNEL.sendTo(new DefaultServerResponsePacket(packet.requestId), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
-                //NetworkManager.MOD_CHANNEL.sendTo(new RefreshSoundListPacket(), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+            ServerWrapper.deleteSound(packet.filename, packet.fileOwner, packet.visibility, context.get().getSender(), () -> {
+                ServerApi.sendResponse(context.get().getSender(), packet.requestId);
             });
         });
         

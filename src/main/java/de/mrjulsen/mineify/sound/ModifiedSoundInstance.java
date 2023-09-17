@@ -11,11 +11,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 
-public class ExtendedSoundInstance extends AbstractSoundInstance {
+public class ModifiedSoundInstance extends AbstractSoundInstance {
 
     private final SoundBuffer audioData;
 
-    public ExtendedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, float volume, BlockPos position) {
+    public ModifiedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, float volume, BlockPos position) {
         super(pLocation, pSource);
         this.volume = volume;
         this.audioData = audioData;
@@ -23,7 +23,7 @@ public class ExtendedSoundInstance extends AbstractSoundInstance {
         this.y = position.getY() + 0.5D;
         this.z = position.getZ() + 0.5D;
 
-        if (!InstanceManager.Client.playingSoundsCache.containsKey(this.audioData.getId())) {
+        if (!InstanceManager.Client.playingSoundsCache.contains(this.audioData.getId())) {
             InstanceManager.Client.playingSoundsCache.put(this.audioData.getId(), this);
         }
     }   
@@ -31,7 +31,7 @@ public class ExtendedSoundInstance extends AbstractSoundInstance {
    
     @Override
     public CompletableFuture<AudioStream> getStream(SoundBufferLibrary soundBuffers, Sound sound, boolean looping) {
-        return new ExtendedSoundBufferLibrary(audioData).getStream(null, looping);
+        return new ModifiedSoundBufferLibrary(audioData).getStream(null, looping);
     }
     
 

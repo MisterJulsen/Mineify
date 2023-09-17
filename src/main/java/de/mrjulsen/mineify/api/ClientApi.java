@@ -8,8 +8,9 @@ import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
+import de.mrjulsen.mineify.network.packets.SoundFilesCountRequestPacket;
+import de.mrjulsen.mineify.network.packets.SoundFilesSizeRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.SoundFile;
@@ -21,13 +22,14 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * This class contains all methods that should only be called on the client side.
  */
 public class ClientApi {
+
     /**
      * Stop a playing custom sound.
      * @param soundId The ID of the sound you want to stop.
      */
     @OnlyIn(Dist.CLIENT) 
     public static void stopSound(long soundId) {
-        SoundRequest.stopSoundOnClient(soundId);
+        ClientWrapper.stopSoundOnClient(soundId);
     }
 
     /**
@@ -57,14 +59,36 @@ public class ClientApi {
     }
 
     /**
-     * Get a list of sounds the client can use.
+     * Get a list of sounds available to the client. Returns null, if no sounds are available.
      * @param callback A consumer which will be executed after the server sent back the data to the client.
      */
     @OnlyIn(Dist.CLIENT) 
     public static void getSoundList(Consumer<SoundFile[]> callback) {
         long requestId = Api.genRequestId();
-        InstanceManager.Client.consumerCache.put(requestId, callback);
+        InstanceManager.Client.soundListConsumerCache.put(requestId, callback);
         NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId));
+    }
+
+    /**
+     * Get the count of all sounds available to the client.
+     * @param callback A consumer which contains the response data.
+     */
+    @OnlyIn(Dist.CLIENT) 
+    public static void getAvailableSoundsCount(Consumer<Long> callback) {
+        long requestId = Api.genRequestId();
+        InstanceManager.Client.longConsumerCache.put(requestId, callback);
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesCountRequestPacket(requestId));
+    }
+
+    /**
+     * Get the size of all sounds available to the client.
+     * @param callback A consumer which contains the response data.
+     */
+    @OnlyIn(Dist.CLIENT) 
+    public static void getAvailableSoundsSize(Consumer<Long> callback) {
+        long requestId = Api.genRequestId();
+        InstanceManager.Client.longConsumerCache.put(requestId, callback);
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesSizeRequestPacket(requestId));
     }
 
     /**
@@ -86,7 +110,7 @@ public class ClientApi {
      */
     @OnlyIn(Dist.CLIENT)
     public static boolean isSoundPlaying(long soundId) {
-        return InstanceManager.Client.playingSoundsCache.containsKey(soundId);
+        return InstanceManager.Client.playingSoundsCache.contains(soundId);
     }
 
     /**

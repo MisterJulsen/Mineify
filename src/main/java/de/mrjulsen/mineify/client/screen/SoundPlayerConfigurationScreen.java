@@ -24,7 +24,7 @@ import net.minecraftforge.api.distmarker.Dist;
 @OnlyIn(Dist.CLIENT)
 public class SoundPlayerConfigurationScreen extends Screen
 {
-    public static final Component title = new TextComponent("soundconfig");
+    public static final Component title = new TextComponent("gui.mineify.sound_player_config.title");
     private final Screen lastScreen;
     
     private int guiTop = 50;
@@ -43,7 +43,6 @@ public class SoundPlayerConfigurationScreen extends Screen
     protected CycleButton<Boolean> lockButton;
     protected CycleButton<ETrigger> triggerButton;
 
-    private TranslatableComponent textTitle = new TranslatableComponent("gui.mineify.sound_player_config.title");
     private TranslatableComponent textPlaylist = new TranslatableComponent("gui.mineify.sound_player_config.playlist");
     private TranslatableComponent textLock = new TranslatableComponent("gui.mineify.sound_player_config.lock");
     private TranslatableComponent textTrigger = new TranslatableComponent("gui.mineify.sound_player_config.trigger");
@@ -136,7 +135,7 @@ public class SoundPlayerConfigurationScreen extends Screen
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
         renderBackground(stack, 0);        
-        drawCenteredString(stack, this.font, textTitle, this.width / 2, guiTop, 16777215);
+        drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
         
         Utils.renderTooltip(this, this.lockButton, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.sound_player_config.info.lock"), width / 3); }, stack, mouseX, mouseY);
         Utils.renderTooltip(this, this.triggerButton, () -> { return Utils.getEnumTooltipData(this, ETrigger.class, width / 3); }, stack, mouseX, mouseY);
@@ -144,6 +143,7 @@ public class SoundPlayerConfigurationScreen extends Screen
         super.render(stack, mouseX, mouseY, partialTicks);
     }
 
+    @Override
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
         if(this.shouldCloseOnEsc() && p_keyPressed_1_ == 256 || this.minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(p_keyPressed_1_, p_keyPressed_2_))) {
             this.onCancel();

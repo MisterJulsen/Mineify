@@ -11,7 +11,6 @@ import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.api.ServerApi;
 import de.mrjulsen.mineify.client.ETrigger;
 import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.network.SoundRequest;
 import de.mrjulsen.mineify.network.packets.StopSoundPacket;
 import de.mrjulsen.mineify.sound.PlaybackArea;
 import de.mrjulsen.mineify.sound.SoundFile;
@@ -26,7 +25,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.network.NetworkDirection;
 
 public class SoundPlayerBlockEntity extends BlockEntity {
 
@@ -371,7 +369,7 @@ public class SoundPlayerBlockEntity extends BlockEntity {
     public void stopPlayingSound() {
         if (!this.level.isClientSide) {
             for (ServerPlayer p : this.getLevel().players().stream().filter(p -> p instanceof ServerPlayer).toArray(ServerPlayer[]::new)) {
-                NetworkManager.MOD_CHANNEL.sendTo(new StopSoundPacket(this.getCurrentSoundId()), p.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);                
+                NetworkManager.sendToClient(new StopSoundPacket(this.getCurrentSoundId()), p);
             }
         }
         

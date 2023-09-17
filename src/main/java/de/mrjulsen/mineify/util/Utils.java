@@ -5,8 +5,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.util.TriConsumer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -103,5 +107,24 @@ public class Utils {
             runnable.run();
         }
     }
+
+    public static <T> void executeIfNotNull(Consumer<T> consumer, T object) {
+        if (consumer != null) {
+            consumer.accept(object);
+        }
+    }
+
+    public static <A, B> void executeIfNotNull(BiConsumer<A, B> consumer, A objectA, B objectB) {
+        if (consumer != null) {
+            consumer.accept(objectA, objectB);
+        }
+    }
+
+    public static <A, B, C> void executeIfNotNull(TriConsumer<A, B, C> consumer, A objectA, B objectB, C objectC) {
+        if (consumer != null) {
+            consumer.accept(objectA, objectB, objectC);
+        }
+    }
+
 
 }

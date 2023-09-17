@@ -1,4 +1,4 @@
-package de.mrjulsen.mineify.network;
+package de.mrjulsen.mineify.client;
 
 import net.minecraft.network.FriendlyByteBuf;
 

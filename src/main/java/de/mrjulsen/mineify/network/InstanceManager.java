@@ -105,13 +105,51 @@ public class InstanceManager {
     }
 
     public static final class Client {
-        public static Map<Long, Consumer<SoundFile[]>> consumerCache = new HashMap<>();
-        public static Map<Long, SoundBuffer> soundStreamCache = new HashMap<>();        
-        public static Map<Long, AbstractSoundInstance> playingSoundsCache = new HashMap<>();
-        public static Map<Long, Runnable> runnableCache = new HashMap<>();
+        public static Cache<Consumer<SoundFile[]>> soundListConsumerCache = new Cache<>();
+        public static Cache<Consumer<Long>> longConsumerCache = new Cache<>();
+        public static Cache<SoundBuffer> soundStreamCache = new Cache<>();
+        public static Cache<AbstractSoundInstance> playingSoundsCache = new Cache<>();
+        public static Cache<Runnable> runnableCache = new Cache<>();
 
         public static final class GarbageCollection {
 
+        }
+
+        public static final class Cache<T> {
+            private final Map<Long, T> cache = new HashMap<>();
+
+            public void put(long id, T t) {
+                cache.put(id, t);
+            }
+
+            public boolean contains(long id) {
+                return cache.containsKey(id);
+            }
+
+            public T get(long id) {
+                if (!contains(id)) {
+                    return null;
+                }
+
+                return cache.get(id);
+            }
+
+            public T remove(long id) {
+                return cache.remove(id);
+            }
+
+            public T getAndRemove(long id) {
+                if (!contains(id)) {
+                    return null;
+                }
+
+                return remove(id);
+            }
+
+            public void clear() {
+                cache.clear();
+            }
+            
         }
     }
 

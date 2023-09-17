@@ -11,7 +11,6 @@ import net.minecraftforge.network.NetworkEvent;
 public class DefaultServerResponsePacket {
     public long requestId;
     
-
     public DefaultServerResponsePacket(long requestId) {
         this.requestId = requestId;
     }

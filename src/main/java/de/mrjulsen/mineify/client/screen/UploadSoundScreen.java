@@ -28,7 +28,7 @@ import net.minecraftforge.client.gui.widget.ForgeSlider;
 @OnlyIn(Dist.CLIENT)
 public class UploadSoundScreen extends Screen
 {
-    public static final Component title = new TextComponent("soundupload");
+    public static final Component title = new TextComponent("gui.mineify.upload.title");
     private final PlaylistScreen lastScreen;
     
     private int guiTop = 50;
@@ -50,7 +50,6 @@ public class UploadSoundScreen extends Screen
     protected ForgeSlider qualitySlider; 
     protected Button doneButton;
 
-    private TranslatableComponent textTitle = new TranslatableComponent("gui.mineify.upload.title");
     private TranslatableComponent textFilename = new TranslatableComponent("gui.mineify.upload.filename");
     private TranslatableComponent textVisibility = new TranslatableComponent("gui.mineify.upload.visibility");
     private TranslatableComponent textChannels = new TranslatableComponent("gui.mineify.upload.channels");
@@ -92,9 +91,8 @@ public class UploadSoundScreen extends Screen
         this.filenameBox.setMaxLength(ModCommonConfig.MAX_FILENAME_LENGTH.get());
         this.filenameBox.setValue(IOUtils.sanitizeFileName(filename).substring(0, Math.min(filename.length(), ModCommonConfig.MAX_FILENAME_LENGTH.get())));
         this.filenameBox.setFilter(input -> {
-                return IOUtils.isValidFileName(input);
-            }
-        );
+            return IOUtils.isValidFileName(input);
+        });
         this.filenameBox.setResponder((text) -> {
             this.checkFilename();
         });
@@ -102,7 +100,7 @@ public class UploadSoundScreen extends Screen
 
         this.visibilityButton = this.addRenderableWidget(CycleButton.<EUserSoundVisibility>builder((p) -> {            
             return new TranslatableComponent(p.getTranslationKey());
-            })
+        })
             .withValues(EUserSoundVisibility.values()).withInitialValue(this.visibility)
             .create(this.width / 2 - 100, guiTop + 75, 200, 20, textVisibility, (pCycleButton, pValue) -> {
                 this.visibility = pValue;
@@ -165,7 +163,7 @@ public class UploadSoundScreen extends Screen
     @SuppressWarnings("resource")
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
         renderBackground(stack, 0);        
-        drawCenteredString(stack, this.font, textTitle, this.width / 2, guiTop, 16777215);    
+        drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);    
         drawCenteredString(stack, this.font, textFilename, this.width / 2, guiTop + 25, 16777215);      
         
         String qualitySuffix = this.getQualitySuffix((byte)this.qualitySlider.getValueInt());
