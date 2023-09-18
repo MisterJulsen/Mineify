@@ -15,14 +15,13 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 
 @OnlyIn(Dist.CLIENT)
 public class PlaybackAreaConfigScreen extends Screen
 {
-    public static final Component title = new TextComponent("playbackconfig");
+    public static final Component title = new TranslatableComponent("gui.mineify.playback_area_config.title");
     private final Screen lastScreen;
     
     private int guiTop = 50;
@@ -46,7 +45,6 @@ public class PlaybackAreaConfigScreen extends Screen
     protected EditBox y2Box;
     protected EditBox z2Box;
 
-    private TranslatableComponent textTitle = new TranslatableComponent("gui.mineify.playback_area_config.title");
     private TranslatableComponent textType = new TranslatableComponent("gui.mineify.playback_area_config.type");
     private TranslatableComponent textRadius = new TranslatableComponent("gui.mineify.playback_area_config.radius", 0, ModCommonConfig.MAX_RADIUS.get());
     private TranslatableComponent textFrom = new TranslatableComponent("gui.mineify.playback_area_config.area_from", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
@@ -240,7 +238,7 @@ public class PlaybackAreaConfigScreen extends Screen
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
         renderBackground(stack, 0);        
-        drawCenteredString(stack, this.font, textTitle, this.width / 2, guiTop, 16777215);
+        drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
         drawCenteredString(stack, this.font, textVolume, this.width / 2, guiTop + 150 + 10, 16777215);
 
         switch (this.playbackArea.getAreaType()) {

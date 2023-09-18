@@ -54,10 +54,10 @@ public class SoundPlayerBlockEntityPacket {
                 return;
 
             if (level.getBlockEntity(packet.pos) instanceof SoundPlayerBlockEntity blockEntity) {
-                blockEntity.setPlaylist(packet.playlist.sounds);
-                blockEntity.setLooping(packet.playlist.loop);
-                blockEntity.setRandom(packet.playlist.random);
-                blockEntity.setPlaybackArea(packet.playbackArea);
+                blockEntity.getPlaylist().setPlaylist(packet.playlist.getSounds());
+                blockEntity.getPlaylist().setLoop(packet.playlist.isLoop());
+                blockEntity.getPlaylist().setRandom(packet.playlist.isRandom());
+                blockEntity.getPlaylist().setPlaybackArea(packet.playbackArea);
                 blockEntity.setTrigger(packet.trigger);
                 if (packet.locked) {
                     blockEntity.lock(context.get().getSender().getUUID());

@@ -17,14 +17,13 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 
 @OnlyIn(Dist.CLIENT)
 public class SoundPlayerConfigurationScreen extends Screen
 {
-    public static final Component title = new TextComponent("gui.mineify.sound_player_config.title");
+    public static final Component title = new TranslatableComponent("gui.mineify.sound_player_config.title");
     private final Screen lastScreen;
     
     private int guiTop = 50;
@@ -58,8 +57,8 @@ public class SoundPlayerConfigurationScreen extends Screen
 
         this.locked = this.getBlockEntity().isLocked();
         this.trigger = this.getBlockEntity().getTrigger();
-        this.playlist = new SimplePlaylist(this.getBlockEntity().getPlaylist(), this.getBlockEntity().isLooping(), this.getBlockEntity().isRandom());
-        this.playbackArea = this.getBlockEntity().getPlaybackArea();
+        this.playlist = new SimplePlaylist(this.getBlockEntity().getPlaylist().getSounds(), this.getBlockEntity().getPlaylist().isLoop(), this.getBlockEntity().getPlaylist().isRandom());
+        this.playbackArea = this.getBlockEntity().getPlaylist().getPlaybackArea();
     }
 
     public SoundPlayerBlockEntity getBlockEntity() {

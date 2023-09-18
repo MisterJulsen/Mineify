@@ -76,8 +76,8 @@ public class PlaylistScreen extends Screen {
         this.lastScreen = lastScreen;
         this.soundsDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH);
         this.model = new SoundSelectionModel(this, this::fillLists, Minecraft.getInstance().player.getUUID(), data, callback);
-        this.random = data.random;
-        this.loop = data.loop;
+        this.random = data.isRandom();
+        this.loop = data.isLoop();
     }
 
     protected void init() {
@@ -102,7 +102,7 @@ public class PlaylistScreen extends Screen {
         this.addRenderableWidget(new Button(this.width / 2 - 154, this.height - 30, 100 + (b ? 0 : 50), 20, textUpload, (p_100036_) -> {
             this.minecraft.getSoundManager().pause();
 
-            PointerBuffer filterPatterns = MemoryUtil.memAllocPointer(5);
+            PointerBuffer filterPatterns = MemoryUtil.memAllocPointer(Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS.length);
             for (String s : Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS) {
                 filterPatterns.put(MemoryUtil.memUTF8("*." + s));
             }

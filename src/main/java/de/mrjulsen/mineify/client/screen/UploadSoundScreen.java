@@ -28,7 +28,7 @@ import net.minecraftforge.client.gui.widget.ForgeSlider;
 @OnlyIn(Dist.CLIENT)
 public class UploadSoundScreen extends Screen
 {
-    public static final Component title = new TextComponent("gui.mineify.upload.title");
+    public static final Component title = new TranslatableComponent("gui.mineify.upload.title");
     private final PlaylistScreen lastScreen;
     
     private int guiTop = 50;

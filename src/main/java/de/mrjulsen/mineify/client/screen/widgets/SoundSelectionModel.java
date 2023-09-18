@@ -41,7 +41,7 @@ public class SoundSelectionModel {
         this.parent = screen;
         this.onListChanged = pOnListChanged;
         this.callback = callback;
-        this.playlist = data.sounds;       
+        this.playlist = data.getSounds();       
     }
 
     public Stream<SoundSelectionModel.Entry> getUnselected() {

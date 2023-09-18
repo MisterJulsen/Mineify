@@ -35,6 +35,7 @@ import de.mrjulsen.mineify.util.exceptions.ConfigException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -66,7 +67,7 @@ public class ClientWrapper {
             return;
 
         if (InstanceManager.Client.soundStreamCache.contains(packet.requestId)) {
-            final SoundBuffer buff = InstanceManager.Client.soundStreamCache.getAndRemove(packet.requestId);
+            final SoundBuffer buff = InstanceManager.Client.soundStreamCache.get(packet.requestId);
             Minecraft.getInstance().getSoundManager().play(new ModifiedSoundInstance(new ResourceLocation("minecraft:ambient.cave"), buff, SoundSource.MASTER, packet.volume, packet.pos));
         }
     }

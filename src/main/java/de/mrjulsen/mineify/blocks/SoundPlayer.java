@@ -38,7 +38,7 @@ public class SoundPlayer extends BaseEntityBlock {
     @SuppressWarnings("deprecation")
     public void onRemove(BlockState pState, Level pLevel, BlockPos pPos, BlockState pNewState, boolean pIsMoving) {
         if (pLevel.getBlockEntity(pPos) instanceof SoundPlayerBlockEntity blockEntity) { 
-            blockEntity.stopPlayingSound();
+            blockEntity.getPlaylist().stop(pLevel);
         }
 
         super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving);
@@ -68,10 +68,10 @@ public class SoundPlayer extends BaseEntityBlock {
             if (blockEntity.getTrigger() == ETrigger.NONE && player.isShiftKeyDown()) {
                 
                 ModMain.LOGGER.debug(player.getName().getString() + " interacted with SoundPlayer.");
-                if (blockEntity.isPlaying()) {
-                    blockEntity.stop();
+                if (blockEntity.getPlaylist().isPlaying()) {
+                    blockEntity.getPlaylist().stop(level);
                 } else {
-                    blockEntity.start();
+                    blockEntity.getPlaylist().play(level, pos);
                 }
                 return InteractionResult.SUCCESS;
             }

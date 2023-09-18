@@ -1,5 +1,7 @@
 package de.mrjulsen.mineify;
 
+import java.util.Random;
+
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.ESoundChannels;
@@ -30,5 +32,6 @@ public class Constants {
             "m4a", "m4b", "m4p", "mka", "mp2", "mp3", "oga", "ogg", "oma", "opus", "ra",
             "ram", "sln", "tta", "voc", "wav", "wma", "wv"
         };
+    public static final Random RANDOM = new Random();
 
 }

@@ -3,9 +3,9 @@ package de.mrjulsen.mineify.sound;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class SimplePlaylist {
-    public final SoundFile[] sounds;
-    public final boolean loop;
-    public final boolean random;
+    protected SoundFile[] sounds;
+    protected boolean loop;
+    protected boolean random;
 
     public SimplePlaylist(SoundFile[] sounds, boolean loop, boolean random) {
         this.sounds = sounds;
@@ -32,5 +32,17 @@ public class SimplePlaylist {
         }
 
         return new SimplePlaylist(sounds, loop, random);
+    }
+
+    public boolean isLoop() {
+        return this.loop;
+    }
+
+    public boolean isRandom() {
+        return this.random;
+    }
+
+    public SoundFile[] getSounds() {
+        return this.sounds;
     }
 }
