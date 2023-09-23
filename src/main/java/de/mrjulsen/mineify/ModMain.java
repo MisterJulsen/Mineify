@@ -7,7 +7,6 @@ import de.mrjulsen.mineify.blocks.blockentity.ModBlockEntities;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.items.ModItems;
-import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.proxy.ClientProxy;
@@ -47,8 +46,6 @@ public class ModMain {
 
         UploaderUsercache.loadOrCreate(Constants.DEFAULT_USERCACHE_PATH);
         UploaderUsercache.INSTANCE.recacheNamesAsync();
-
-        InstanceManager.Server.GarbageCollection.create();
     }
 
     private void setup(final FMLCommonSetupEvent event) {
