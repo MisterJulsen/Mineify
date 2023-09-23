@@ -5,6 +5,10 @@ import java.io.InputStream;
 import java.util.UUID;
 import java.util.function.Supplier;
 
+import javax.annotation.Nullable;
+
+import com.mojang.datafixers.kinds.Const.Instance;
+
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.api.Api;
@@ -21,7 +25,10 @@ import de.mrjulsen.mineify.network.packets.NextSoundDataResponsePacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.SoundFilesCountResponsePacket;
 import de.mrjulsen.mineify.network.packets.SoundListResponsePacket;
+import de.mrjulsen.mineify.network.packets.SoundModificationPacket;
+import de.mrjulsen.mineify.network.packets.SoundModificationWithPathPacket;
 import de.mrjulsen.mineify.network.packets.StopSoundPacket;
+import de.mrjulsen.mineify.network.packets.StopSoundWithPathPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundCompletionPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
@@ -67,7 +74,7 @@ public class ClientWrapper {
 
         if (InstanceManager.Client.soundStreamCache.contains(packet.requestId)) {
             final SoundBuffer buff = InstanceManager.Client.soundStreamCache.get(packet.requestId);
-            Minecraft.getInstance().getSoundManager().play(new ModifiedSoundInstance(new ResourceLocation("minecraft:ambient.cave"), buff, SoundSource.MASTER, packet.volume, packet.pos));
+            Minecraft.getInstance().getSoundManager().play(new ModifiedSoundInstance(new ResourceLocation("minecraft:ambient.cave"), buff, SoundSource.MASTER, packet.volume, packet.pitch, packet.pos, packet.path));
         }
     }
 
@@ -82,7 +89,7 @@ public class ClientWrapper {
     }
 
     public static void handleSoundFilesCountResponsePacket(SoundFilesCountResponsePacket packet, Supplier<NetworkEvent.Context> ctx) { 
-        if (InstanceManager.Client.soundListConsumerCache.contains(packet.requestId)) {
+        if (InstanceManager.Client.longConsumerCache.contains(packet.requestId)) {
             InstanceManager.Client.longConsumerCache.getAndRemove(packet.requestId).accept(packet.count);
         }
     }
@@ -110,6 +117,18 @@ public class ClientWrapper {
         stopSoundOnClient(packet.soundId);
     }
 
+    public static void handleStopSoundWithPathPacket(StopSoundWithPathPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        stopSoundOnClient(packet.shortPath);
+    }
+
+    public static void handleSoundModificationPacket(SoundModificationPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        modifySoundOnClient(packet.soundId, packet.volume, packet.pitch, packet.x, packet.y, packet.z);
+    }
+
+    public static void handleSoundModificationWithPathPacket(SoundModificationWithPathPacket packet, Supplier<NetworkEvent.Context> ctx) {
+        modifySoundOnClient(packet.shortPath, packet.volume, packet.pitch, packet.x, packet.y, packet.z);
+    }
+
     public static void uploadFromClient(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader, long usedBytes, Runnable andThen) {        
         Thread sendThread = new Thread(() -> { 
             final long requestId = Api.genRequestId();
@@ -134,12 +153,14 @@ public class ClientWrapper {
                 }
                 stream.reset();
 
-                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.started"), new TextComponent(filename)));
+                //Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.started"), new TextComponent(filename)));
                 byte[] buffer = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
                 while (stream.read(buffer) != -1) {                    
                     NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundPacket(requestId, buffer, maxSize));
-                }
-                NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename));                
+                }            
+
+                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.completed"), new TextComponent(filename)));
+                NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename));
             } catch (ConfigException e) {
                 Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TextComponent(e.getMessage()), new TextComponent(e.getDetails())));
                 InstanceManager.Client.runnableCache.remove(requestId);
@@ -159,6 +180,24 @@ public class ClientWrapper {
         if (InstanceManager.Client.playingSoundsCache.contains(soundId)) {
             Minecraft.getInstance().getSoundManager().stop(InstanceManager.Client.playingSoundsCache.getAndRemove(soundId));
         }
+    }
+
+    public static void stopSoundOnClient(String shortPath) {
+        InstanceManager.Client.playingSoundsCache.forEach(x -> shortPath == null || shortPath.isBlank() || x.getPath().equals(shortPath), (id, soundFile) -> {
+            Minecraft.getInstance().getSoundManager().stop(InstanceManager.Client.playingSoundsCache.getAndRemove(id));
+        });
+    }
+
+    public static void modifySoundOnClient(long soundId, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+        if (InstanceManager.Client.playingSoundsCache.contains(soundId)) {
+            InstanceManager.Client.playingSoundsCache.getAndRemove(soundId).modify(volume, pitch, x, y, z);
+        }
+    }
+
+    public static void modifySoundOnClient(String shortPath, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+        InstanceManager.Client.playingSoundsCache.forEach(a -> shortPath == null || shortPath.isBlank() || a.getPath().equals(shortPath), (id, soundFile) -> {
+            InstanceManager.Client.playingSoundsCache.get(id).modify(volume, pitch, x, y, z);
+        });
     }
 
     public static void handleRunnablePacket(DefaultServerResponsePacket packet, Supplier<NetworkEvent.Context> ctx) { 

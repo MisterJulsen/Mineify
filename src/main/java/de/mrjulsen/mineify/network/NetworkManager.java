@@ -9,11 +9,15 @@ import de.mrjulsen.mineify.network.packets.NextSoundDataResponsePacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundFilesCountRequestPacket;
+import de.mrjulsen.mineify.network.packets.SoundFilesCountResponsePacket;
 import de.mrjulsen.mineify.network.packets.SoundFilesSizeRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundListResponsePacket;
+import de.mrjulsen.mineify.network.packets.SoundModificationPacket;
+import de.mrjulsen.mineify.network.packets.SoundModificationWithPathPacket;
 import de.mrjulsen.mineify.network.packets.SoundPlayerBlockEntityPacket;
 import de.mrjulsen.mineify.network.packets.StopSoundPacket;
+import de.mrjulsen.mineify.network.packets.StopSoundWithPathPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundCompletionPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundPacket;
 import net.minecraft.resources.ResourceLocation;
@@ -44,8 +48,11 @@ public class NetworkManager {
         register(PlaySoundPacket.class).encoder(PlaySoundPacket::encode).decoder(PlaySoundPacket::decode).consumer(PlaySoundPacket::handle).add();
         register(DefaultServerResponsePacket.class).encoder(DefaultServerResponsePacket::encode).decoder(DefaultServerResponsePacket::decode).consumer(DefaultServerResponsePacket::handle).add();
         register(SoundFilesCountRequestPacket.class).encoder(SoundFilesCountRequestPacket::encode).decoder(SoundFilesCountRequestPacket::decode).consumer(SoundFilesCountRequestPacket::handle).add();
-        register(SoundFilesCountRequestPacket.class).encoder(SoundFilesCountRequestPacket::encode).decoder(SoundFilesCountRequestPacket::decode).consumer(SoundFilesCountRequestPacket::handle).add();
+        register(SoundFilesCountResponsePacket.class).encoder(SoundFilesCountResponsePacket::encode).decoder(SoundFilesCountResponsePacket::decode).consumer(SoundFilesCountResponsePacket::handle).add();
         register(SoundFilesSizeRequestPacket.class).encoder(SoundFilesSizeRequestPacket::encode).decoder(SoundFilesSizeRequestPacket::decode).consumer(SoundFilesSizeRequestPacket::handle).add();
+        register(StopSoundWithPathPacket.class).encoder(StopSoundWithPathPacket::encode).decoder(StopSoundWithPathPacket::decode).consumer(StopSoundWithPathPacket::handle).add();
+        register(SoundModificationPacket.class).encoder(SoundModificationPacket::encode).decoder(SoundModificationPacket::decode).consumer(SoundModificationPacket::handle).add();
+        register(SoundModificationWithPathPacket.class).encoder(SoundModificationWithPathPacket::encode).decoder(SoundModificationWithPathPacket::decode).consumer(SoundModificationWithPathPacket::handle).add();
         
     }
 

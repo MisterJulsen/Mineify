@@ -170,7 +170,7 @@ public class Playlist extends SimplePlaylist {
                 this.setPlaying(true);        
                 this.calcAndSetTimeToPlayNext(playingSound.calcDuration() + 1);
                 this.stopPlayingSound(level);
-                this.setCurrentSoundId(ServerApi.playSound(playingSound, this.getAffectedPlayers(level, pos), pos, this.getPlaybackArea().getVolume()));
+                this.setCurrentSoundId(ServerApi.playSound(playingSound, this.getAffectedPlayers(level, pos), pos, this.getPlaybackArea().getVolume(), 1));
             } catch (Exception e) {
                 ModMain.LOGGER.warn("Unable to play sound file: " + e.getMessage());
             } finally {

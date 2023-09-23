@@ -3,7 +3,6 @@ package de.mrjulsen.mineify.client.screen;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
@@ -26,10 +25,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
 
 @OnlyIn(Dist.CLIENT)
-public class UploadSoundScreen extends Screen
+public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Screen
 {
     public static final Component title = new TranslatableComponent("gui.mineify.upload.title");
-    private final PlaylistScreen lastScreen;
+    private final T lastScreen;
     
     private int guiTop = 50;
     
@@ -58,7 +57,7 @@ public class UploadSoundScreen extends Screen
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
 
-    public UploadSoundScreen(PlaylistScreen last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
+    public UploadSoundScreen(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
         super(title);
         this.lastScreen = last;
         this.callback = callback;
@@ -122,7 +121,7 @@ public class UploadSoundScreen extends Screen
 
     @SuppressWarnings("resources")
     private void checkFilename() {
-        this.doneButton.active = !Arrays.stream(this.lastScreen.model.getPool()).filter(x -> 
+        this.doneButton.active = !Arrays.stream(this.lastScreen.getPool()).filter(x -> 
             x.getVisibility() == this.visibility.toESoundVisibility() &&
             x.getOwner().equals(this.minecraft.player.getUUID().toString())
         ).anyMatch(x -> x.getName().equals(this.filenameBox.getValue())) && !this.filenameBox.getValue().isBlank();
@@ -181,7 +180,7 @@ public class UploadSoundScreen extends Screen
     }
 
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
-        if(this.shouldCloseOnEsc() && p_keyPressed_1_ == 256 || this.minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(p_keyPressed_1_, p_keyPressed_2_))) {
+        if(this.shouldCloseOnEsc() && p_keyPressed_1_ == 256) {
             this.onCancel();
             return true;
         } else {

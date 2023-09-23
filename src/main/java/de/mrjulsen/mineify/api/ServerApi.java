@@ -1,10 +1,16 @@
 package de.mrjulsen.mineify.api;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.ServerWrapper;
 import de.mrjulsen.mineify.network.packets.DefaultServerResponsePacket;
+import de.mrjulsen.mineify.network.packets.SoundModificationPacket;
+import de.mrjulsen.mineify.network.packets.SoundModificationWithPathPacket;
 import de.mrjulsen.mineify.network.packets.StopSoundPacket;
+import de.mrjulsen.mineify.network.packets.StopSoundWithPathPacket;
 import de.mrjulsen.mineify.sound.SoundFile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,10 +26,11 @@ public class ServerApi {
      * @param players An array of player which should hear that sound.
      * @param pos The position at which the sound should be played.
      * @param volume The volume of the sound.
-     * @return The ID of the sound, which can be used to stop or modify the sound while it's playing. This ID is invalid after the sound playback has been finished.
+     * @return The ID of the sound, which can be used to stop or modify the sound while it's playing, or 0 if no players are given. This ID is invalid after the sound playback has been finished.
      */
-    public static long playSound(SoundFile file, ServerPlayer[] players, BlockPos pos, float volume) {
-        return ServerWrapper.sendPlaySoundRequest(file, players, pos, volume);
+    @Nonnull
+    public static long playSound(SoundFile file, ServerPlayer[] players, BlockPos pos, float volume, float pitch) {
+        return ServerWrapper.sendPlaySoundRequest(file, players, pos, volume, pitch);
     }
     
     /**
@@ -34,6 +41,29 @@ public class ServerApi {
     public static void stopSound(long soundId, ServerPlayer[] players) {
         for (ServerPlayer p : players) {
             NetworkManager.sendToClient(new StopSoundPacket(soundId), p);             
+        }
+    }
+
+    /**
+     * Stop a playing custom sound.
+     * @param shortPath The sound's location or null for all sounds.
+     * @param players The players which should be affected by this action.
+     */
+    public static void stopSound(String shortPath, ServerPlayer[] players) {
+        for (ServerPlayer p : players) {
+            NetworkManager.sendToClient(new StopSoundWithPathPacket(shortPath), p);             
+        }
+    }
+
+    public static void modifySound(long soundId, ServerPlayer[] players, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+        for (ServerPlayer p : players) {
+            NetworkManager.sendToClient(new SoundModificationPacket(soundId, volume, pitch, x, y, z), p);             
+        }
+    }
+    
+    public static void modifySound(String shortPath, ServerPlayer[] players, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+        for (ServerPlayer p : players) {
+            NetworkManager.sendToClient(new SoundModificationWithPathPacket(shortPath, volume, pitch, x, y, z), p);             
         }
     }
 

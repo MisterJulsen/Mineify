@@ -1,8 +1,12 @@
 package de.mrjulsen.mineify.network.packets;
 
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+import org.jetbrains.annotations.NotNull;
+
 import de.mrjulsen.mineify.ModMain;
+import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.SoundUtils;
@@ -11,19 +15,44 @@ import net.minecraftforge.network.NetworkEvent;
 
 public class SoundListRequestPacket {
     private final long requestID;
+    private final @NotNull ESoundVisibility[] visibilityWhitelist;
+    private final @NotNull String[] usersWhitelist;
 
-    public SoundListRequestPacket(long requestId) {
+    public SoundListRequestPacket(long requestId, @NotNull ESoundVisibility[] visibilityWhitelist, @NotNull String[] usersWhitelist) {
         this.requestID = requestId;
+        this.visibilityWhitelist = visibilityWhitelist == null ? new ESoundVisibility[0] : visibilityWhitelist;
+        this.usersWhitelist = usersWhitelist == null ? new String[0] : usersWhitelist;
     }
 
     public static void encode(SoundListRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestID);
+        buffer.writeInt(packet.visibilityWhitelist.length);
+        for (int i = 0; i < packet.visibilityWhitelist.length; i++) {
+            buffer.writeInt(packet.visibilityWhitelist[i].getIndex());
+        }
+        buffer.writeInt(packet.usersWhitelist.length);
+        for (int i = 0; i < packet.usersWhitelist.length; i++) {
+            int l = packet.usersWhitelist[i].getBytes(StandardCharsets.UTF_8).length;
+            buffer.writeInt(l);
+            buffer.writeUtf(packet.usersWhitelist[i], l);
+        }
     }
 
     public static SoundListRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
+        int n = buffer.readInt();
+        ESoundVisibility[] visibilityWhitelist = new ESoundVisibility[n];
+        for (int i = 0; i < n; i++) {
+            visibilityWhitelist[i] = ESoundVisibility.getVisibilityByIndex(buffer.readInt());
+        }
+        int o = buffer.readInt();
+        String[] usersWhitelist = new String[o];
+        for (int i = 0; i < o; i++) {
+            int l = buffer.readInt();
+            usersWhitelist[i] = buffer.readUtf(l);
+        }
 
-        SoundListRequestPacket instance = new SoundListRequestPacket(requestId);
+        SoundListRequestPacket instance = new SoundListRequestPacket(requestId, visibilityWhitelist, usersWhitelist);
         return instance;
     }
 
@@ -32,7 +61,7 @@ public class SoundListRequestPacket {
             new Thread(() -> {
                 
                 ModMain.LOGGER.debug("Reading sound files...");
-                SoundFile[] soundFiles = SoundUtils.readSoundsFromDisk();
+                SoundFile[] soundFiles = SoundUtils.readSoundsFromDisk(packet.visibilityWhitelist, packet.usersWhitelist);
                 NetworkManager.sendToClient(new SoundListResponsePacket(packet.requestID, soundFiles), context.get().getSender());
                 
                 ModMain.LOGGER.debug("Sound file list created.");

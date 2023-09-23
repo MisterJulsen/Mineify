@@ -2,6 +2,10 @@ package de.mrjulsen.mineify.sound;
 
 import java.util.concurrent.CompletableFuture;
 
+import javax.annotation.Nullable;
+
+import com.mojang.blaze3d.audio.Channel;
+
 import de.mrjulsen.mineify.network.InstanceManager;
 import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 import net.minecraft.client.resources.sounds.Sound;
@@ -10,15 +14,22 @@ import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.Vec3;
 
 public class ModifiedSoundInstance extends AbstractSoundInstance {
 
     private final SoundBuffer audioData;
+    private final String path; // for accessibility only
+    private Channel channel;
 
-    public ModifiedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, float volume, BlockPos position) {
+    public ModifiedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, float volume, float pitch, BlockPos position, String path) {
         super(pLocation, pSource);
+        this.path = path;
         this.volume = volume;
+        this.pitch = pitch;
         this.audioData = audioData;
+        this.volume = volume;
+        this.pitch = pitch;
         this.x = position.getX() + 0.5D;
         this.y = position.getY() + 0.5D;
         this.z = position.getZ() + 0.5D;
@@ -26,7 +37,38 @@ public class ModifiedSoundInstance extends AbstractSoundInstance {
         if (!InstanceManager.Client.playingSoundsCache.contains(this.audioData.getId())) {
             InstanceManager.Client.playingSoundsCache.put(this.audioData.getId(), this);
         }
-    }   
+    }
+
+    public void setSoundChannel(Channel channel) {
+        this.channel = channel;
+    }
+
+    /**
+     * 
+     * @return A short path of the sound
+     */
+    public String getPath() {
+        return path;
+    }
+
+    public void modify(@Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+        if (channel == null) {
+            return;
+        }
+
+        if (volume != null) {
+            channel.setVolume(volume);
+            channel.linearAttenuation(Math.max(volume, 1.0F) * (float)sound.getAttenuationDistance());
+        }
+        if (pitch != null) channel.setPitch(pitch);
+
+        if (x != null && y != null && z != null) {
+            double x1 = x == null ? this.x : x;
+            double y1 = y == null ? this.y : y;
+            double z1 = z == null ? this.z : z;
+            channel.setSelfPosition(new Vec3(x1, y1, z1));
+        }
+    }
 
    
     @Override
@@ -36,8 +78,7 @@ public class ModifiedSoundInstance extends AbstractSoundInstance {
     
 
     @Override
-    public Sound getSound() {
-        
+    public Sound getSound() {        
         return new Sound(this.sound.getPath().getPath(), this.sound.getVolume(), this.sound.getPitch(), this.sound.getWeight(), Sound.Type.FILE, true, false, this.sound.getAttenuationDistance());
     }
     

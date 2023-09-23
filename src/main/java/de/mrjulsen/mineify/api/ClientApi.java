@@ -1,5 +1,6 @@
 package de.mrjulsen.mineify.api;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -33,6 +34,15 @@ public class ClientApi {
     }
 
     /**
+     * Stops any playing sound at the given location.
+     * @param soundId The ID of the sound you want to stop.
+     */
+    @OnlyIn(Dist.CLIENT) 
+    public static void stopSound(String shortPath) {
+        ClientWrapper.stopSoundOnClient(shortPath);
+    }
+
+    /**
      * Upload a custom sound.
      * @param srcPath The source path of the sound on the client's pc.
      * @param filename The filename of the sound on the server.
@@ -41,8 +51,11 @@ public class ClientApi {
      * @param uploader The UUID of the player, who ownes the sound file.
      */
     @OnlyIn(Dist.CLIENT) 
+    @SuppressWarnings("resource")
     public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader, Runnable andThen) {        
-        ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, -1, andThen);
+        getPlayerSoundsSize(new String[] { Minecraft.getInstance().player.getStringUUID() }, (size) -> {
+            ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, size, andThen);
+        });
     }
 
     /**
@@ -60,35 +73,67 @@ public class ClientApi {
 
     /**
      * Get a list of sounds available to the client. Returns null, if no sounds are available.
-     * @param callback A consumer which will be executed after the server sent back the data to the client.
+     * @param visibilityWhitelist an array of allowed repositories or {@code null} for everything.
+     * @param usersWhitelist an array of allowed users or {@code null} for everything.
+     * @param callback A consumer which contains the response data.
      */
     @OnlyIn(Dist.CLIENT) 
-    public static void getSoundList(Consumer<SoundFile[]> callback) {
+    public static void getSoundList(ESoundVisibility[] visibilityWhitelist, String[] usersWhitelist, Consumer<SoundFile[]> callback) {
         long requestId = Api.genRequestId();
         InstanceManager.Client.soundListConsumerCache.put(requestId, callback);
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId));
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId, visibilityWhitelist, usersWhitelist));
     }
 
     /**
      * Get the count of all sounds available to the client.
+     * @param visibilityWhitelist an array of allowed repositories or {@code null} for everything.
+     * @param usersWhitelist an array of allowed users or {@code null} for everything.
      * @param callback A consumer which contains the response data.
      */
     @OnlyIn(Dist.CLIENT) 
-    public static void getAvailableSoundsCount(Consumer<Long> callback) {
+    public static void getAvailableSoundsCount(ESoundVisibility[] visibilityWhitelist, String[] usersWhitelist, Consumer<Long> callback) {
         long requestId = Api.genRequestId();
         InstanceManager.Client.longConsumerCache.put(requestId, callback);
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesCountRequestPacket(requestId));
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesCountRequestPacket(requestId, visibilityWhitelist, usersWhitelist));
     }
 
     /**
      * Get the size of all sounds available to the client.
+     * @param visibilityWhitelist an array of allowed repositories or {@code null} for everything.
+     * @param usersWhitelist an array of allowed users or {@code null} for everything.
      * @param callback A consumer which contains the response data.
      */
     @OnlyIn(Dist.CLIENT) 
-    public static void getAvailableSoundsSize(Consumer<Long> callback) {
+    public static void getAvailableSoundsSize(ESoundVisibility[] visibilityWhitelist, String[] usersWhitelist, Consumer<Long> callback) {
         long requestId = Api.genRequestId();
         InstanceManager.Client.longConsumerCache.put(requestId, callback);
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesSizeRequestPacket(requestId));
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesSizeRequestPacket(requestId, visibilityWhitelist, usersWhitelist));
+    }
+
+    /**
+     * Get the count of all sounds available to the client.
+     * @param visibilityWhitelist an array of allowed repositories or {@code null} for everything.
+     * @param usersWhitelist an array of allowed users or {@code null} for everything.
+     * @param callback A consumer which contains the response data.
+     */
+    @OnlyIn(Dist.CLIENT) 
+    public static void getPlayerSoundsCount(String[] usersWhitelist, Consumer<Long> callback) {
+        long requestId = Api.genRequestId();
+        InstanceManager.Client.longConsumerCache.put(requestId, callback);
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesCountRequestPacket(requestId, Arrays.stream(EUserSoundVisibility.values()).map(x -> x.toESoundVisibility()).toArray(ESoundVisibility[]::new), usersWhitelist));
+    }
+
+    /**
+     * Get the size of all sounds available to the client.
+     * @param visibilityWhitelist an array of allowed repositories or {@code null} for everything.
+     * @param usersWhitelist an array of allowed users or {@code null} for everything.
+     * @param callback A consumer which contains the response data.
+     */
+    @OnlyIn(Dist.CLIENT) 
+    public static void getPlayerSoundsSize(String[] usersWhitelist, Consumer<Long> callback) {
+        long requestId = Api.genRequestId();
+        InstanceManager.Client.longConsumerCache.put(requestId, callback);
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundFilesSizeRequestPacket(requestId, Arrays.stream(EUserSoundVisibility.values()).map(x -> x.toESoundVisibility()).toArray(ESoundVisibility[]::new), usersWhitelist));
     }
 
     /**

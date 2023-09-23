@@ -143,6 +143,10 @@ public class SoundFile implements Serializable {
         return SoundUtils.buildPath(filename, ownerUUID, visibility);
     }
 
+    public String buildShortPath() {
+        return SoundUtils.buildShortPath(filename, ownerUUID, visibility);
+    }
+
     private int calcDurationSeconds() {
         try {
             String oggFilePath = this.buildPath();
@@ -175,6 +179,23 @@ public class SoundFile implements Serializable {
         String owner = tag.getString("owner");
         
         return new SoundFile(SoundUtils.buildPath(filename, owner, visibility), owner, visibility);
+    }
+
+    public static SoundFile fromShortPath(String shortPath) {
+        String[] data = shortPath.split("/");
+
+        if (data.length < 2) {
+            return null;
+        }
+
+        SoundFile file = null;
+        if (data.length == 2) {
+            file = new SoundFile(data[1], data[0], ESoundVisibility.SERVER);
+        } else {
+            file = new SoundFile(data[2], data[0], ESoundVisibility.getVisibilityByName(data[1]));
+        }
+
+        return file;
     }
 
     @Override

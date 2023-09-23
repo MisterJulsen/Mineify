@@ -11,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -191,29 +192,47 @@ public final class SoundUtils {
         }
     }
 
-    public static SoundFile[] readSoundsFromDisk() {
+    public static String buildShortPath(String name, String owner, ESoundVisibility visibility) {
+        if (visibility == ESoundVisibility.SERVER) {
+            return String.format("%s/%s", visibility.getName(), name);
+        } else {
+            return String.format("%s/%s/%s", owner, visibility.getName(), name);
+        }
+    }
+
+    public static SoundFile[] readSoundsFromDisk(ESoundVisibility[] visibilities, String[] usersWhitelist) {
         List<SoundFile> soundFiles = Collections.synchronizedList(new ArrayList<>()); // Contains all visible sounds for that specific user
 
-        // Add all server sounds
-        searchForOggFiles(Constants.CUSTOM_SOUNDS_SERVER_PATH).forEach(path -> soundFiles.add(new SoundFile(path, Constants.SERVER_USERNAME, ESoundVisibility.SERVER)));
+        boolean all = visibilities == null || visibilities.length <= 0;
+        if (all || Arrays.stream(visibilities).anyMatch(x -> x == ESoundVisibility.SERVER) ) {
+            // Add all server sounds
+            searchForOggFiles(Constants.CUSTOM_SOUNDS_SERVER_PATH).forEach(path -> soundFiles.add(new SoundFile(path, Constants.SERVER_USERNAME, ESoundVisibility.SERVER)));
+        }
+
+        if (all || Arrays.stream(visibilities).anyMatch(x -> x == ESoundVisibility.PRIVATE) ) {
+            // Get all sounds of private folder
+            forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PRIVATE.getName()), usersWhitelist, (userFolderPath, userFolderName) -> { 
+                List<String> oggFiles = searchForOggFiles(userFolderPath);
+                oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PRIVATE)));
+            });
+        }
         
-        // Get all sounds of private folder
-        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PRIVATE.getName()), (userFolderPath, userFolderName) -> { 
-            List<String> oggFiles = searchForOggFiles(userFolderPath);
-            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PRIVATE)));
-        });
+        if (all || Arrays.stream(visibilities).anyMatch(x -> x == ESoundVisibility.SHARED) ) {
+            // Get all sounds of shared folder
+            forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.SHARED.getName()), usersWhitelist, (userFolderPath, userFolderName) -> {
+                List<String> oggFiles = searchForOggFiles(userFolderPath);
+                oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.SHARED)));
+            });
+        }
+        
 
-        // Get all sounds of shared folder
-        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.SHARED.getName()), (userFolderPath, userFolderName) -> {
-            List<String> oggFiles = searchForOggFiles(userFolderPath);
-            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.SHARED)));
-        });
-
-        // Get all sounds of public folder
-        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PUBLIC.getName()), (userFolderPath, userFolderName) -> {
-            List<String> oggFiles = searchForOggFiles(userFolderPath);
-            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PUBLIC)));
-        });
+        if (all || Arrays.stream(visibilities).anyMatch(x -> x == ESoundVisibility.PUBLIC) ) {
+            // Get all sounds of public folder
+            forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PUBLIC.getName()), usersWhitelist, (userFolderPath, userFolderName) -> {
+                List<String> oggFiles = searchForOggFiles(userFolderPath);
+                oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PUBLIC)));
+            });
+        }        
 
         applyCacheData(soundFiles);        
 
@@ -248,7 +267,7 @@ public final class SoundUtils {
         return sounds;
     }
 
-    private static void forEachDirectoryInFolder(String folder, BiConsumer<String, String> consumer) {
+    private static void forEachDirectoryInFolder(String folder, String[] whitelist, BiConsumer<String, String> consumer) {
         File file = new File(folder);
         if (!file.exists() || !file.isDirectory()) {
             return;
@@ -260,7 +279,7 @@ public final class SoundUtils {
         }
 
         for (File f : files) {
-            if (!f.isDirectory())
+            if (!f.isDirectory() || (whitelist != null && whitelist.length > 0 && Arrays.stream(whitelist).noneMatch(x -> x.equals(f.getName()))))
                 continue;
             
             consumer.accept(f.getPath(), f.getName());        

@@ -7,6 +7,7 @@ import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.sound.SimplePlaylist;
+import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.SoundUtils;
 import de.mrjulsen.mineify.util.Utils;
@@ -41,7 +42,7 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 @OnlyIn(Dist.CLIENT)
-public class PlaylistScreen extends Screen {
+public class PlaylistScreen extends Screen implements IPlaylistScreen {
     private static final int LIST_WIDTH = 200;
     private static final Component DRAG_AND_DROP = (new TranslatableComponent("gui.mineify.soundselection.drag_and_drop")).withStyle(ChatFormatting.GRAY);
     
@@ -232,13 +233,19 @@ public class PlaylistScreen extends Screen {
             return;
         }
 
-        this.minecraft.setScreen(new UploadSoundScreen(this, firstPath, ModClientConfig.DEFAULT_VISIBILITY.get(), ModClientConfig.DEFAULT_CHANNELS.get(), ModClientConfig.DEFAULT_QUALITY.get(), (success, settings) -> {
+        this.minecraft.setScreen(new UploadSoundScreen<PlaylistScreen>(this, firstPath, ModClientConfig.DEFAULT_VISIBILITY.get(), ModClientConfig.DEFAULT_CHANNELS.get(), ModClientConfig.DEFAULT_QUALITY.get(), (success, settings) -> {
             if (success) {
+                System.out.println("Size: " + this.model.storageUsedByUser());
                 ClientApi.uploadSound(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID(), () -> {
                     this.reload();
                 });
                 //SoundRequest.uploadFromClient(firstPath, settings.filename, settings.visibility, settings.config, this.minecraft.player.getUUID(), this.model.storageUsedByUser());
             }
         }));
+    }
+
+    @Override
+    public SoundFile[] getPool() {
+        return this.model.getPool();
     }
 }
