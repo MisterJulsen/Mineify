@@ -7,6 +7,8 @@ import de.mrjulsen.mineify.api.ClientApi;
 import de.mrjulsen.mineify.client.screen.PlaylistScreen;
 import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.sound.SoundFile;
+
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -77,7 +79,7 @@ public class SoundSelectionModel {
     }
 
     public void readFromDisk(UUID playerUUID, Runnable andThen) {
-        ClientApi.getSoundList((sounds) -> {
+        ClientApi.getSoundList(null, null, (sounds) -> {
             this.pool = sounds;
             if (this.pool == null) {
                 this.selected.clear();
@@ -182,7 +184,7 @@ public class SoundSelectionModel {
         }
 
         public Component getInfo() {
-            return new TextComponent(this.sound.getNameOfOwner(true) + " (" + new TranslatableComponent(this.sound.getVisibility().getTranslationKey()).getString() + ")\n" + this.sound.getDuration().toString() + " / " + this.sound.getSizeFormatted());
+            return new TextComponent(this.sound.getNameOfOwner(true) + " (" + new TranslatableComponent(this.sound.getVisibility().getTranslationKey()).getString() + ")\n" + this.sound.getDuration().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " / " + this.sound.getSizeFormatted());
         }
 
         protected void toggleSelection(boolean sort) {
