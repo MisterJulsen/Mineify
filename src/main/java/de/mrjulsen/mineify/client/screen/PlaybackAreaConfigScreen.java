@@ -3,7 +3,6 @@ package de.mrjulsen.mineify.client.screen;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.BiConsumer;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.config.ModCommonConfig;
@@ -260,7 +259,7 @@ public class PlaybackAreaConfigScreen extends Screen
     }
 
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
-        if(this.shouldCloseOnEsc() && p_keyPressed_1_ == 256 || this.minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(p_keyPressed_1_, p_keyPressed_2_))) {
+        if(this.shouldCloseOnEsc() && p_keyPressed_1_ == 256) {
             this.onCancel();
             return true;
         } else {
