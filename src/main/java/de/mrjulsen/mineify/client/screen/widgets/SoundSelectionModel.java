@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.api.ClientApi;
 import de.mrjulsen.mineify.client.screen.PlaylistScreen;
+import de.mrjulsen.mineify.sound.ESoundCategory;
 import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.sound.SoundFile;
 
@@ -79,7 +80,7 @@ public class SoundSelectionModel {
     }
 
     public void readFromDisk(UUID playerUUID, Runnable andThen) {
-        ClientApi.getSoundList(null, null, (sounds) -> {
+        ClientApi.getSoundList(new ESoundCategory[] { ESoundCategory.DEFAULT }, null, null, (sounds) -> {
             this.pool = sounds;
             if (this.pool == null) {
                 this.selected.clear();
@@ -240,7 +241,7 @@ public class SoundSelectionModel {
             if (!canDelete(userUUID))
                 return;
             
-            ClientApi.deleteSound(this.sound.getName(), this.sound.getOwner(), this.sound.getVisibility(), () -> {
+            ClientApi.deleteSound(this.sound.getName(), this.sound.getOwner(), this.sound.getVisibility(), this.sound.getCategory(), () -> {
                 parent.reload();
             });
         }

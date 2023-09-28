@@ -11,10 +11,14 @@ import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.ESoundChannels;
 import de.mrjulsen.mineify.util.IOUtils;
+import de.mrjulsen.mineify.util.SoundUtils;
 import de.mrjulsen.mineify.util.Utils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -57,7 +61,7 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
 
-    public UploadSoundScreen(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
+    private UploadSoundScreen(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
         super(title);
         this.lastScreen = last;
         this.callback = callback;
@@ -65,6 +69,24 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
         this.quality = (byte)quality;
         this.filename = IOUtils.getFileNameWithoutExtension(path);
         this.visibility = visibility;
+
+        int i = SoundUtils.getAudioDuration(path);
+        if (i > ModCommonConfig.MAX_SOUND_BOARD_DURATION.get()) {      
+            last.getMinecraft().setScreen(last);
+        }
+    }
+
+    public static <T extends Screen & IPlaylistScreen> void show(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
+        int i = SoundUtils.getAudioDuration(path);
+        if (i > ModCommonConfig.MAX_SOUND_BOARD_DURATION.get()) {
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.upload.duration_too_long"), 
+                new TranslatableComponent("gui.mineify.upload.duration_too_long.details",
+                SoundUtils.getDurationFormatted(i),
+                SoundUtils.getDurationFormatted(ModCommonConfig.MAX_SOUND_BOARD_DURATION.get())
+            )));
+        } else {     
+            last.getMinecraft().setScreen(new UploadSoundScreen<T>(last, path, visibility, channels, quality, callback));
+        }
     }
 
     @Override

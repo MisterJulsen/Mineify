@@ -60,7 +60,7 @@ public class SoundFilesSizeRequestPacket {
         context.get().enqueueWork(() -> {
             new Thread(() -> {                
                 ModMain.LOGGER.debug("Reading sound files size...");
-                long count = Arrays.stream(SoundUtils.readSoundsFromDisk(packet.visibilityWhitelist, packet.usersWhitelist)).mapToLong(x -> x.getSize()).sum();
+                long count = Arrays.stream(SoundUtils.readSoundsFromDisk(null, packet.visibilityWhitelist, packet.usersWhitelist)).mapToLong(x -> x.getSize()).sum();
                 NetworkManager.sendToClient(new SoundFilesCountResponsePacket(packet.requestID, count), context.get().getSender());
                 
                 ModMain.LOGGER.debug("Finished reading sound files size.");

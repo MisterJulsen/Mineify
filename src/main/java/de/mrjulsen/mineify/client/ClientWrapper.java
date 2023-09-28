@@ -7,12 +7,11 @@ import java.util.function.Supplier;
 
 import javax.annotation.Nullable;
 
-import com.mojang.datafixers.kinds.Const.Instance;
-
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.api.Api;
 import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
+import de.mrjulsen.mineify.client.screen.SoundBoardScreen;
 import de.mrjulsen.mineify.client.screen.SoundPlayerConfigurationScreen;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
@@ -32,6 +31,7 @@ import de.mrjulsen.mineify.network.packets.StopSoundWithPathPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundCompletionPacket;
 import de.mrjulsen.mineify.network.packets.UploadSoundPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
+import de.mrjulsen.mineify.sound.ESoundCategory;
 import de.mrjulsen.mineify.sound.EStreamingMode;
 import de.mrjulsen.mineify.sound.ModifiedSoundInstance;
 import de.mrjulsen.mineify.sound.SoundBuffer;
@@ -56,6 +56,14 @@ public class ClientWrapper {
     public static void showSoundSelectionScreen(SoundPlayerBlockEntity entity) {
         Minecraft.getInstance().setScreen(new SoundPlayerConfigurationScreen(entity));
     }
+
+    public static void showSoundBoardScreen() {
+        Minecraft.getInstance().setScreen(new SoundBoardScreen());
+    }
+
+
+
+
 
     public static void handleDownloadSoundPacket(DownloadSoundPacket packet, Supplier<NetworkEvent.Context> ctx) {
         if (!ModClientConfig.ACTIVATION.get())
@@ -129,7 +137,7 @@ public class ClientWrapper {
         modifySoundOnClient(packet.shortPath, packet.volume, packet.pitch, packet.x, packet.y, packet.z);
     }
 
-    public static void uploadFromClient(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader, long usedBytes, Runnable andThen) {        
+    public static void uploadFromClient(String srcPath, String filename, EUserSoundVisibility visibility, ESoundCategory category, AudioFileConfig config, UUID uploader, long usedBytes, Runnable andThen) {        
         Thread sendThread = new Thread(() -> { 
             final long requestId = Api.genRequestId();
             InstanceManager.Client.runnableCache.put(requestId, andThen);
@@ -160,7 +168,7 @@ public class ClientWrapper {
                 }            
 
                 Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.completed"), new TextComponent(filename)));
-                NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename));
+                NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename, category));
             } catch (ConfigException e) {
                 Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TextComponent(e.getMessage()), new TextComponent(e.getDetails())));
                 InstanceManager.Client.runnableCache.remove(requestId);

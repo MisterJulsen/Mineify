@@ -13,6 +13,7 @@ import de.mrjulsen.mineify.client.ToastMessage;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.UploaderUsercache;
+import de.mrjulsen.mineify.sound.ESoundCategory;
 import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.SoundUtils;
 import de.mrjulsen.mineify.util.Utils;
@@ -23,19 +24,22 @@ public class UploadSoundCompletionPacket {
     private final long requestId;
     private final UUID uploaderUUID;
     private final EUserSoundVisibility visibility;
+    private final ESoundCategory category;
     private final String filename;
 
-    public UploadSoundCompletionPacket(long requestId, UUID uploader, EUserSoundVisibility visibility, String filename) {
+    public UploadSoundCompletionPacket(long requestId, UUID uploader, EUserSoundVisibility visibility, String filename, ESoundCategory category) {
         this.uploaderUUID = uploader;
         this.visibility = visibility;
         this.filename = filename;
         this.requestId = requestId;
+        this.category = category;
     }
 
     public static void encode(UploadSoundCompletionPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeUUID(packet.uploaderUUID);
         buffer.writeEnum(packet.visibility);
+        buffer.writeEnum(packet.category);
         buffer.writeUtf(packet.filename);
     }
 
@@ -43,9 +47,10 @@ public class UploadSoundCompletionPacket {
         long requestId = buffer.readLong();
         UUID uploader = buffer.readUUID();
         EUserSoundVisibility visibility = buffer.readEnum(EUserSoundVisibility.class);
+        ESoundCategory category = buffer.readEnum(ESoundCategory.class);
         String filename = buffer.readUtf();
 
-        UploadSoundCompletionPacket instance = new UploadSoundCompletionPacket(requestId, uploader, visibility, filename);
+        UploadSoundCompletionPacket instance = new UploadSoundCompletionPacket(requestId, uploader, visibility, filename, category);
         return instance;
     }
 
@@ -55,8 +60,8 @@ public class UploadSoundCompletionPacket {
                 
                 ModMain.LOGGER.debug("Finishing sound upload...");
                 if (InstanceManager.Server.streamCache.containsKey(packet.requestId)) {
-                    String dirPath = SoundUtils.getSoundDirectoryPath(packet.visibility.toESoundVisibility(), packet.uploaderUUID);
-                    String soundPath = SoundUtils.getSoundPath(packet.filename, packet.visibility.toESoundVisibility(), packet.uploaderUUID);
+                    String dirPath = SoundUtils.getSoundDirectoryPath(packet.visibility.toESoundVisibility(), packet.uploaderUUID, packet.category);
+                    String soundPath = SoundUtils.getSoundPath(packet.filename, packet.visibility.toESoundVisibility(), packet.uploaderUUID, packet.category);
                     IOUtils.createDirectory(dirPath); 
                     try (FileOutputStream outputStream = new FileOutputStream(soundPath)) {
                         InstanceManager.Server.streamCache.get(packet.requestId).writeTo(outputStream);

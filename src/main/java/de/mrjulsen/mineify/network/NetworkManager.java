@@ -7,6 +7,8 @@ import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
 import de.mrjulsen.mineify.network.packets.NextSoundDataRequestPacket;
 import de.mrjulsen.mineify.network.packets.NextSoundDataResponsePacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
+import de.mrjulsen.mineify.network.packets.PlaySoundRequestPacket;
+import de.mrjulsen.mineify.network.packets.SetCooldownPacket;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundFilesCountRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundFilesCountResponsePacket;
@@ -53,6 +55,8 @@ public class NetworkManager {
         register(StopSoundWithPathPacket.class).encoder(StopSoundWithPathPacket::encode).decoder(StopSoundWithPathPacket::decode).consumer(StopSoundWithPathPacket::handle).add();
         register(SoundModificationPacket.class).encoder(SoundModificationPacket::encode).decoder(SoundModificationPacket::decode).consumer(SoundModificationPacket::handle).add();
         register(SoundModificationWithPathPacket.class).encoder(SoundModificationWithPathPacket::encode).decoder(SoundModificationWithPathPacket::decode).consumer(SoundModificationWithPathPacket::handle).add();
+        register(PlaySoundRequestPacket.class).encoder(PlaySoundRequestPacket::encode).decoder(PlaySoundRequestPacket::decode).consumer(PlaySoundRequestPacket::handle).add();
+        register(SetCooldownPacket.class).encoder(SetCooldownPacket::encode).decoder(SetCooldownPacket::decode).consumer(SetCooldownPacket::handle).add();
         
     }
 

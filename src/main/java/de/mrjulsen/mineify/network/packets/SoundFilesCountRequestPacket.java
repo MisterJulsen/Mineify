@@ -60,7 +60,7 @@ public class SoundFilesCountRequestPacket {
             new Thread(() -> {
                 
                 ModMain.LOGGER.debug("Reading sound files...");
-                long count = SoundUtils.readSoundsFromDisk(packet.visibilityWhitelist, packet.usersWhitelist).length;
+                long count = SoundUtils.readSoundsFromDisk(null, packet.visibilityWhitelist, packet.usersWhitelist).length;
                 NetworkManager.sendToClient(new SoundFilesCountResponsePacket(packet.requestID, count), context.get().getSender());
                 
                 ModMain.LOGGER.debug("Sound file list created.");

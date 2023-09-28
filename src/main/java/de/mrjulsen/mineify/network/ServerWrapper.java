@@ -17,6 +17,7 @@ import de.mrjulsen.mineify.network.packets.DownloadSoundPacket;
 import de.mrjulsen.mineify.network.packets.ErrorMessagePacket;
 import de.mrjulsen.mineify.network.packets.PlaySoundPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
+import de.mrjulsen.mineify.sound.ESoundCategory;
 import de.mrjulsen.mineify.sound.EStreamingMode;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.PlayerDependDataBuffer;
@@ -84,24 +85,18 @@ public class ServerWrapper {
         return requestId;
     }
 
-    public static void getSoundList(ESoundVisibility[] visibilityWhitelist, String[] usersWhitelist, Consumer<SoundFile[]> callback) {
-        long requestId = System.nanoTime();
+    public static void getSoundList(ESoundCategory[] categories, ESoundVisibility[] visibilityWhitelist, String[] usersWhitelist, Consumer<SoundFile[]> callback) {
+        long requestId = Api.genRequestId();
         InstanceManager.Client.soundListConsumerCache.put(requestId, callback);
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId, visibilityWhitelist == null ? new ESoundVisibility[0] : visibilityWhitelist, usersWhitelist == null ? new String[0] : usersWhitelist));
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId, visibilityWhitelist == null ? new ESoundVisibility[0] : visibilityWhitelist, usersWhitelist == null ? new String[0] : usersWhitelist, categories == null ? new ESoundCategory[0] : categories));
     }
 
-    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ServerPlayer player, Runnable andThen) {
+    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ESoundCategory category, ServerPlayer player, Runnable andThen) {
         ModMain.LOGGER.debug("Delete sound '" + filename + "' started.");
         new Thread(() -> {                
             if (visibility != ESoundVisibility.SERVER) {
                 int tries = 0;
-                File f = new File(String.format("%s/%s/%s/%s.%s", 
-                    Constants.CUSTOM_SOUNDS_SERVER_PATH,
-                    visibility.getName(),
-                    owner,
-                    filename,
-                    Constants.SOUND_FILE_EXTENSION
-                ));
+                File f = new File(new SoundFile(filename, owner, visibility, category).buildPath());
 
                 while (f.exists() && tries < 10) {
                     try {

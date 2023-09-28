@@ -2,12 +2,14 @@ package de.mrjulsen.mineify.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import de.mrjulsen.mineify.client.screen.widgets.TransferableSoundSelectionList;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
+import de.mrjulsen.mineify.items.ModItems;
 import de.mrjulsen.mineify.network.InstanceManager;
+import de.mrjulsen.mineify.network.NetworkManager;
+import de.mrjulsen.mineify.network.packets.SetCooldownPacket;
 import de.mrjulsen.mineify.sound.ESoundCategory;
-import de.mrjulsen.mineify.sound.SimplePlaylist;
+import de.mrjulsen.mineify.sound.PlaybackArea;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.SoundUtils;
@@ -15,69 +17,75 @@ import de.mrjulsen.mineify.util.Utils;
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.api.ClientApi;
 import de.mrjulsen.mineify.client.screen.widgets.ControlCollection;
-import de.mrjulsen.mineify.client.screen.widgets.SoundSelectionModel;
-
+import de.mrjulsen.mineify.client.screen.widgets.SoundBoardList;
+import de.mrjulsen.mineify.client.screen.widgets.SoundBoardModel;
 import java.io.File;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.gui.widget.ForgeSlider;
 
 @OnlyIn(Dist.CLIENT)
-public class PlaylistScreen extends Screen implements IPlaylistScreen {
-    private static final int LIST_WIDTH = 200;
+public class SoundBoardScreen extends Screen implements IPlaylistScreen {
     private static final Component DRAG_AND_DROP = (new TranslatableComponent("gui.mineify.soundselection.drag_and_drop")).withStyle(ChatFormatting.GRAY);
-    
-    private final Screen lastScreen;
-    public final SoundSelectionModel model;
+    private static final DecimalFormat formatter = new DecimalFormat("#0.00"); 
+
+    public final SoundBoardModel model;
     private final File soundsDir;
 
     private boolean isLoading;
     
     //Properties
-    private boolean loop;
-    private boolean random;
+    private int distance = 1;
+    private float pitch = 1.0f;
 
     // Controls
     private final ControlCollection defaultControls = new ControlCollection();
     private final ControlCollection loadingScreenControls = new ControlCollection();
 
-    private TransferableSoundSelectionList availablePackList;
-    private TransferableSoundSelectionList selectedPackList;
+    private SoundBoardList availablePackList;
     private EditBox searchAvailable; 
-    private EditBox searchPlaylist; 
     private Button cancelButton;
+    private ForgeSlider distanceSlider;
+    private ForgeSlider pitchSlider;
 
+    private TranslatableComponent textClose = new TranslatableComponent("gui.mineify.button.close");
     private TranslatableComponent textOpenFolder = new TranslatableComponent("gui.mineify.soundselection.open_folder");
     private TranslatableComponent textUpload = new TranslatableComponent("gui.mineify.soundselection.upload");
-    private TranslatableComponent textLoop = new TranslatableComponent("gui.mineify.soundselection.loop");
-    private TranslatableComponent textRandom = new TranslatableComponent("gui.mineify.soundselection.random");
     private TranslatableComponent textLoading = new TranslatableComponent("gui.mineify.soundselection.loading");
+    private TranslatableComponent textDistance = new TranslatableComponent("gui.mineify.audio.distance");
+    private TranslatableComponent textPitch = new TranslatableComponent("gui.mineify.audio.pitch");
 
     @SuppressWarnings("resource")
-    public PlaylistScreen(Screen lastScreen, SimplePlaylist data, Consumer<SimplePlaylist> callback) {
+    public SoundBoardScreen() {
         super(new TranslatableComponent("gui.mineify.soundselection.title"));
-        this.lastScreen = lastScreen;
-        this.soundsDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH);
-        this.model = new SoundSelectionModel(this, this::fillLists, Minecraft.getInstance().player.getUUID(), data, callback);
-        this.random = data.isRandom();
-        this.loop = data.isLoop();
+        this.soundsDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH + ESoundCategory.SOUND_BOARD.getPathWithSeparatorPrefix());
+        this.model = new SoundBoardModel(this, this::fillLists, Minecraft.getInstance().player.getUUID());
+    }
+
+    public int getDistance() {
+        return distanceSlider != null ? distanceSlider.getValueInt() : 1;
+    }
+
+    public double getPitch() {
+        return pitchSlider != null ? pitchSlider.getValue() : 1;
     }
 
     protected void init() {
@@ -91,8 +99,8 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
             this.onClose();
         }));
 
-        this.defaultControls.add(new Button(this.width / 2 + 4 + (b ? 50 : 0), this.height - 30, 100 + (b ? 0 : 50), 20, CommonComponents.GUI_DONE, (p_100036_) -> {
-            this.onDone();
+        this.defaultControls.add(new Button(this.width / 2 + 4 + (b ? 50 : 0), this.height - 30, 100 + (b ? 0 : 50), 20, textClose, (p_100036_) -> {
+            this.onClose();
         }));
 
         if (b) {
@@ -111,37 +119,19 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
             });
         }));
 
-        this.defaultControls.add(CycleButton.onOffBuilder(this.loop)
-            .withInitialValue(this.loop)
-            .create(this.width / 2 - 154, this.height - 55, 150, 20, textLoop, (pCycleButton, pValue) -> {
-                this.loop = pValue;
-        }));
+        this.distanceSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 154, this.height - 55, 150, 20, textDistance, new TextComponent(""), 0, 16, this.distance, 1, 1, true));
+        this.pitchSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 + 4, this.height - 55, 150, 20, textPitch, new TextComponent(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01f, 4, true));
 
-        this.defaultControls.add(CycleButton.onOffBuilder(this.random)
-            .withInitialValue(this.random)
-            .create(this.width / 2 + 4, this.height - 55, 150, 20, textRandom, (pCycleButton, pValue) -> {
-                this.random = pValue;
-        }));
-
-        this.availablePackList = new TransferableSoundSelectionList(this.minecraft, LIST_WIDTH, this.height - 10, new TranslatableComponent("gui.mineify.soundselection.available"));
-        this.availablePackList.setLeftPos(this.width / 2 - 4 - 200);
+        this.availablePackList = new SoundBoardList(this.minecraft, this, width, this.height, new TranslatableComponent("gui.mineify.soundselection.available"));
+        this.availablePackList.setLeftPos(0);
+        this.availablePackList.setRenderBackground(false);
         this.addWidget(this.availablePackList);
 
-        this.selectedPackList = new TransferableSoundSelectionList(this.minecraft, LIST_WIDTH, this.height - 10, new TranslatableComponent("gui.mineify.soundselection.playlist"));
-        this.selectedPackList.setLeftPos(this.width / 2 + 4);
-        this.addWidget(this.selectedPackList);
-
-        this.searchAvailable = new EditBox(this.font, this.width / 2 - 4 - 200, 32, 200, 20, new TranslatableComponent("gui.mineify.soundselection.search"));
+        this.searchAvailable = new EditBox(this.font, this.width / 2 - 100, 32, 200, 20, new TranslatableComponent("gui.mineify.soundselection.search"));
         this.searchAvailable.setResponder((text) -> {
-            this.availablePackList.updateList(this, text, this.model.getUnselected());
+            this.availablePackList.updateList(this, text, this.model.getAvailable());
         });
         this.defaultControls.add(this.searchAvailable); 
-
-        this.searchPlaylist = new EditBox(this.font, this.width / 2 + 4, 32, 200, 20, new TranslatableComponent("gui.mineify.soundselection.search"));
-        this.searchPlaylist.setResponder((text) -> {
-            this.selectedPackList.updateList(this, text, this.model.getSelected());
-        });
-        this.defaultControls.add(this.searchPlaylist); 
 
         for (AbstractWidget w : this.defaultControls.components) {
             this.addRenderableWidget(w);
@@ -154,28 +144,23 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
         this.reload();
     }
 
-    public boolean isLooping() {
-        return this.loop;
-    }
-
-    public boolean isRandom() {
-        return this.random;
-    }
-
-    public void onDone() {
-        this.model.commit();
+    public void onDone(SoundFile file) {
+        ClientApi.playSound(file, new PlaybackArea(this.getDistance(), this.getDistance()), this.minecraft.player.blockPosition(), this.getDistance(), (float)this.getPitch());
+        int cooldown = ModCommonConfig.SOUND_BOARD_COOLDOWN.get();
+        if (cooldown != 0 ) {
+            NetworkManager.MOD_CHANNEL.sendToServer(new SetCooldownPacket(ModItems.SOUND_BOARD.get().getDefaultInstance(), (int)((cooldown < 0 ? file.getDurationInSeconds() / this.getPitch() : cooldown) * 20.0D)));
+        }
         this.onClose();
     }
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(this.lastScreen);
+        this.minecraft.setScreen(null);
         InstanceManager.Client.soundListConsumerCache.clear();
     }
 
     private void fillLists() {
-        this.availablePackList.updateList(this, this.searchAvailable.getValue(), this.model.getUnselected());
-        this.selectedPackList.updateList(this, this.searchPlaylist.getValue(), this.model.getSelected());
+        this.availablePackList.updateList(this, this.searchAvailable.getValue(), this.model.getAvailable());
     }
 
     public void reload() {
@@ -189,21 +174,22 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
 
-        this.renderDirtBackground(0);
+        this.renderBackground(pPoseStack);
 
         if (this.isLoading()) {
             drawCenteredString(pPoseStack, this.font, textLoading, this.width / 2, 100, 16777215);
         }
         this.cancelButton.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
+        this.pitchSlider.setMessage(new TextComponent(new TranslatableComponent("gui.mineify.audio.pitch", formatter.format(pitchSlider.getValue())).getString()));
+
         this.availablePackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        this.selectedPackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, 8, 16777215);
         drawCenteredString(pPoseStack, this.font, DRAG_AND_DROP, this.width / 2, 20, 16777215);
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
         Utils.renderTooltip(this, this.searchAvailable, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.soundselection.search.tooltip", Constants.INVERSE_PREFIX, Constants.USER_PREFIX, Constants.VISIBILITY_PREFIX), width / 3); }, pPoseStack, pMouseX, pMouseY);
-        Utils.renderTooltip(this, this.searchPlaylist, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.soundselection.search.tooltip", Constants.INVERSE_PREFIX, Constants.USER_PREFIX, Constants.VISIBILITY_PREFIX), width / 3); }, pPoseStack, pMouseX, pMouseY);
+        
     }
 
     @Override
@@ -236,8 +222,8 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
         }
 
         UploadSoundScreen.show(this, firstPath, ModClientConfig.DEFAULT_VISIBILITY.get(), ModClientConfig.DEFAULT_CHANNELS.get(), ModClientConfig.DEFAULT_QUALITY.get(), (success, settings) -> {
-            if (success) {
-                ClientApi.uploadSound(firstPath, settings.filename, settings.visibility, ESoundCategory.DEFAULT, settings.config, this.minecraft.player.getUUID(), () -> {
+            if (success) {                
+                ClientApi.uploadSound(firstPath, settings.filename, settings.visibility, ESoundCategory.SOUND_BOARD, settings.config, this.minecraft.player.getUUID(), () -> {
                     this.reload();
                 });
             }

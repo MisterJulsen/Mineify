@@ -1,0 +1,44 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "  K",
+        "BSG",
+        "IRI"
+    ],
+    "key": {
+        "K": [
+            {
+                "item": "minecraft:comparator"
+            }
+        ],
+        "B": [
+            {
+                "tag": "minecraft:buttons"
+            }
+        ],
+        "S": [
+            {
+                "item": "mineify:sound_player"
+            }
+        ],
+        "G": [
+            {
+                "tag": "forge:glass_panes"
+            }
+        ],
+        "I": [
+            {
+                "item": "minecraft:iron_ingot"
+            }
+        ],
+        "R": [
+            {
+                "item": "minecraft:redstone"
+            }
+        ]
+    },
+    "result": {
+        "item": "mineify:sound_board",
+        "count": 1
+    }
+}

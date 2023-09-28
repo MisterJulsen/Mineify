@@ -21,23 +21,26 @@ public class SoundFile implements Serializable {
     private final String path;
     private final long size;
     private final ESoundVisibility visibility;
+    private final ESoundCategory category;
 
     private int cachedDuration = 0;
 
-    public SoundFile(String path, String ownerUUID, ESoundVisibility visibility) {
+    public SoundFile(String path, String ownerUUID, ESoundVisibility visibility, ESoundCategory category) {
         this.path = path;
         this.filename = IOUtils.getFileNameWithoutExtension(path);
         this.ownerUUID = ownerUUID;  
         this.size = new File(path).length();
         this.visibility = visibility;
+        this.category = category;
     }
 
-    private SoundFile(String path, String ownerUUID, ESoundVisibility visibility, String filename, long size, int cachedDuration) {
+    private SoundFile(String path, String ownerUUID, ESoundVisibility visibility, String filename, long size, int cachedDuration, ESoundCategory category) {
         this.path = path;
         this.filename = filename;
         this.ownerUUID = ownerUUID;  
         this.size = size;
         this.visibility = visibility;
+        this.category = category;
         this.cachedDuration = cachedDuration;
     } 
 
@@ -47,6 +50,7 @@ public class SoundFile implements Serializable {
         buffer.writeUtf(path);
         buffer.writeLong(size);
         buffer.writeInt(visibility.getIndex());
+        buffer.writeInt(category.getIndex());
         buffer.writeInt(cachedDuration);
     }
 
@@ -56,9 +60,10 @@ public class SoundFile implements Serializable {
         String path = buffer.readUtf();
         long size = buffer.readLong();
         ESoundVisibility visibility = ESoundVisibility.getVisibilityByIndex(buffer.readInt());
+        ESoundCategory category = ESoundCategory.getCategoryByIndex(buffer.readInt());
         int cachedDuration = buffer.readInt();
 
-        return new SoundFile(path, ownerUUID, visibility, filename, size, cachedDuration);
+        return new SoundFile(path, ownerUUID, visibility, filename, size, cachedDuration, category);
     }
 
     public final String getName() {
@@ -71,6 +76,10 @@ public class SoundFile implements Serializable {
 
     public final ESoundVisibility getVisibility() {
         return this.visibility;
+    }
+
+    public final ESoundCategory getCategory() {
+        return this.category;
     }
 
     public final String getNameOfOwner(boolean pullMissing) {
@@ -140,11 +149,11 @@ public class SoundFile implements Serializable {
     }
 
     public String buildPath() {
-        return SoundUtils.buildPath(filename, ownerUUID, visibility);
+        return SoundUtils.buildPath(filename, ownerUUID, visibility, category);
     }
 
     public String buildShortPath() {
-        return SoundUtils.buildShortPath(filename, ownerUUID, visibility);
+        return SoundUtils.buildShortPath(filename, ownerUUID, visibility, category);
     }
 
     private int calcDurationSeconds() {
@@ -169,6 +178,7 @@ public class SoundFile implements Serializable {
         CompoundTag tag = new CompoundTag();
         tag.putString("filename", this.getName());
         tag.putInt("visibility", this.getVisibility().getIndex());
+        tag.putInt("category", this.getCategory().getIndex());
         tag.putString("owner", this.getOwner());
         return tag;
     }
@@ -176,23 +186,24 @@ public class SoundFile implements Serializable {
     public static SoundFile fromNbt(CompoundTag tag) {
         String filename = tag.getString("filename");
         ESoundVisibility visibility = ESoundVisibility.getVisibilityByIndex(tag.getInt("visibility"));
+        ESoundCategory category = ESoundCategory.getCategoryByIndex(tag.getInt("category"));
         String owner = tag.getString("owner");
         
-        return new SoundFile(SoundUtils.buildPath(filename, owner, visibility), owner, visibility);
+        return new SoundFile(SoundUtils.buildPath(filename, owner, visibility, category), owner, visibility, category);
     }
 
     public static SoundFile fromShortPath(String shortPath) {
         String[] data = shortPath.split("/");
 
-        if (data.length < 2) {
+        if (data.length < 3) {
             return null;
         }
 
         SoundFile file = null;
-        if (data.length == 2) {
-            file = new SoundFile(data[1], data[0], ESoundVisibility.SERVER);
+        if (data.length == 3) {
+            file = new SoundFile(data[2], data[1], ESoundVisibility.SERVER, ESoundCategory.getCategoryByName(data[0]));
         } else {
-            file = new SoundFile(data[2], data[0], ESoundVisibility.getVisibilityByName(data[1]));
+            file = new SoundFile(data[3], data[1], ESoundVisibility.getVisibilityByName(data[2]), ESoundCategory.getCategoryByName(data[0]));
         }
 
         return file;
