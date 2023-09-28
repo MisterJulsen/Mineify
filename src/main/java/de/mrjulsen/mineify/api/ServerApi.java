@@ -11,9 +11,13 @@ import de.mrjulsen.mineify.network.packets.SoundModificationPacket;
 import de.mrjulsen.mineify.network.packets.SoundModificationWithPathPacket;
 import de.mrjulsen.mineify.network.packets.StopSoundPacket;
 import de.mrjulsen.mineify.network.packets.StopSoundWithPathPacket;
+import de.mrjulsen.mineify.sound.ESoundCategory;
+import de.mrjulsen.mineify.sound.PlaybackArea;
 import de.mrjulsen.mineify.sound.SoundFile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * This class contains all methods that should only be called on the server side.
@@ -31,6 +35,21 @@ public class ServerApi {
     @Nonnull
     public static long playSound(SoundFile file, ServerPlayer[] players, BlockPos pos, float volume, float pitch) {
         return ServerWrapper.sendPlaySoundRequest(file, players, pos, volume, pitch);
+    }
+
+    @Nonnull
+    public static long playSound(SoundFile file, PlaybackArea area, Level level, BlockPos pos, float volume, float pitch) {
+        return ServerWrapper.sendPlaySoundRequest(file, getAffectedPlayers(area, level, pos), pos, volume, pitch);
+    }
+
+    public static ServerPlayer[] getAffectedPlayers(PlaybackArea areaDefinition, Level level, BlockPos pos) {
+        switch (areaDefinition.getAreaType()) {
+            case ZONE:
+                return level.players().stream().filter(p -> p instanceof ServerPlayer && areaDefinition.isInZone(pos.getX(), pos.getY(), pos.getZ(), p.position().x(), p.position().y(), p.position().z())).toArray(ServerPlayer[]::new);
+            case RADIUS:
+            default:
+                return level.players().stream().filter(p -> p instanceof ServerPlayer && p.position().distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) <= areaDefinition.getRadius()).toArray(ServerPlayer[]::new);
+        }
     }
     
     /**
@@ -75,8 +94,8 @@ public class ServerApi {
      * @param player Notifies this player if an error occurs.
      * @param andThen This code will be executed after the process has been finished.
      */
-    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ServerPlayer player, Runnable andThen) {
-        ServerWrapper.deleteSound(filename, owner, visibility, player, andThen);
+    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ESoundCategory category, ServerPlayer player, Runnable andThen) {
+        ServerWrapper.deleteSound(filename, owner, visibility, category, player, andThen);
     }
 
     /**
@@ -86,8 +105,8 @@ public class ServerApi {
      * @param visibility The visibility.
      * @param andThen This code will be executed after the process has been finished.
      */
-    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, Runnable andThen) {
-        deleteSound(filename, owner, visibility, null, andThen);
+    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ESoundCategory category, Runnable andThen) {
+        deleteSound(filename, owner, visibility, category, null, andThen);
     }
 
     /**
@@ -96,8 +115,8 @@ public class ServerApi {
      * @param owner The owner of the sound.
      * @param visibility The visibility.
      */
-    public static void deleteSound(String filename, String owner, ESoundVisibility visibility) {
-        deleteSound(filename, owner, visibility, null, null);
+    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ESoundCategory category) {
+        deleteSound(filename, owner, visibility, category, null);
     }
 
     /**

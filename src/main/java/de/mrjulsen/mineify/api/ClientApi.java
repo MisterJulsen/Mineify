@@ -1,21 +1,35 @@
 package de.mrjulsen.mineify.api;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
+
+import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.ClientWrapper;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
+import de.mrjulsen.mineify.network.packets.PlaySoundRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundFilesCountRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundFilesSizeRequestPacket;
 import de.mrjulsen.mineify.network.packets.SoundListRequestPacket;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
+import de.mrjulsen.mineify.sound.ESoundCategory;
+import de.mrjulsen.mineify.sound.PlaybackArea;
 import de.mrjulsen.mineify.sound.SoundFile;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -42,6 +56,14 @@ public class ClientApi {
         ClientWrapper.stopSoundOnClient(shortPath);
     }
 
+    @Nonnull
+    @OnlyIn(Dist.CLIENT) 
+    public static long playSound(SoundFile file, PlaybackArea area, BlockPos pos, float volume, float pitch) {
+        long requestId = Api.genRequestId();
+        NetworkManager.MOD_CHANNEL.sendToServer(new PlaySoundRequestPacket(requestId, area, pos, volume, pitch, file.buildShortPath()));
+        return requestId;
+    }
+
     /**
      * Upload a custom sound.
      * @param srcPath The source path of the sound on the client's pc.
@@ -52,9 +74,9 @@ public class ClientApi {
      */
     @OnlyIn(Dist.CLIENT) 
     @SuppressWarnings("resource")
-    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, UUID uploader, Runnable andThen) {        
+    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, ESoundCategory category, AudioFileConfig config, UUID uploader, Runnable andThen) {        
         getPlayerSoundsSize(new String[] { Minecraft.getInstance().player.getStringUUID() }, (size) -> {
-            ClientWrapper.uploadFromClient(srcPath, filename, visibility, config, uploader, size, andThen);
+            ClientWrapper.uploadFromClient(srcPath, filename, visibility, category, config, uploader, size, andThen);
         });
     }
 
@@ -67,8 +89,8 @@ public class ClientApi {
      */
     @SuppressWarnings("resource")
     @OnlyIn(Dist.CLIENT) 
-    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, AudioFileConfig config, Runnable andThen) {  
-        uploadSound(srcPath, filename, visibility, config, Minecraft.getInstance().player.getUUID(), andThen);
+    public static void uploadSound(String srcPath, String filename, EUserSoundVisibility visibility, ESoundCategory category, AudioFileConfig config, Runnable andThen) {  
+        uploadSound(srcPath, filename, visibility, category, config, Minecraft.getInstance().player.getUUID(), andThen);
     }
 
     /**
@@ -78,10 +100,10 @@ public class ClientApi {
      * @param callback A consumer which contains the response data.
      */
     @OnlyIn(Dist.CLIENT) 
-    public static void getSoundList(ESoundVisibility[] visibilityWhitelist, String[] usersWhitelist, Consumer<SoundFile[]> callback) {
+    public static void getSoundList(ESoundCategory[] category, ESoundVisibility[] visibilityWhitelist, String[] usersWhitelist, Consumer<SoundFile[]> callback) {
         long requestId = Api.genRequestId();
         InstanceManager.Client.soundListConsumerCache.put(requestId, callback);
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId, visibilityWhitelist, usersWhitelist));
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundListRequestPacket(requestId, visibilityWhitelist, usersWhitelist, category));
     }
 
     /**
@@ -144,8 +166,8 @@ public class ClientApi {
      */
     @SuppressWarnings("resource")
     @OnlyIn(Dist.CLIENT) 
-    public static SoundFile personalSoundFileOf(String filename, ESoundVisibility visibility) {
-        return new SoundFile(filename, Minecraft.getInstance().player.getUUID().toString(), visibility);
+    public static SoundFile personalSoundFileOf(String filename, ESoundVisibility visibility, ESoundCategory category) {
+        return new SoundFile(filename, Minecraft.getInstance().player.getUUID().toString(), visibility, category);
     }
 
     /**
@@ -166,10 +188,10 @@ public class ClientApi {
      * @param andThen This code will be executed after this process has been finished.
      */
     @OnlyIn(Dist.CLIENT) 
-    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, Runnable andThen) {
+    public static void deleteSound(String filename, String owner, ESoundVisibility visibility, ESoundCategory category, Runnable andThen) {
         long requestId = Api.genRequestId();
         InstanceManager.Client.runnableCache.put(requestId, andThen);
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundDeleteRequestPacket(requestId, filename, owner.toString(), visibility));
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundDeleteRequestPacket(requestId, filename, owner.toString(), visibility, category));
     }
 
     /**
@@ -180,7 +202,27 @@ public class ClientApi {
      */
     @OnlyIn(Dist.CLIENT) 
     @SuppressWarnings("resource")
-    public static void deleteSound(String filename, ESoundVisibility visibility, Runnable andThen) {
-        deleteSound(filename, Minecraft.getInstance().player.getUUID().toString(), visibility, andThen);
+    public static void deleteSound(String filename, ESoundVisibility visibility, ESoundCategory category, Runnable andThen) {
+        deleteSound(filename, Minecraft.getInstance().player.getUUID().toString(), visibility, category, andThen);
+    }
+
+    @OnlyIn(Dist.CLIENT) 
+    public static void showUploadDialog(Consumer<Path> result) {        
+        TranslatableComponent titleOpenFileDialog = new TranslatableComponent("gui.mineify.soundselection.openfiledialog.title");
+        TranslatableComponent filterOpenFileDialog = new TranslatableComponent("gui.mineify.soundselection.openfiledialog.filter");
+        Minecraft.getInstance().getSoundManager().pause();
+        PointerBuffer filterPatterns = MemoryUtil.memAllocPointer(Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS.length);
+        for (String s : Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS) {
+            filterPatterns.put(MemoryUtil.memUTF8("*." + s));
+        }
+        filterPatterns.flip();
+
+        String s = TinyFileDialogs.tinyfd_openFileDialog(titleOpenFileDialog.getString(), (CharSequence)null, filterPatterns, filterOpenFileDialog.getString(), false);
+        if (s != null) {
+            result.accept(Paths.get(s));
+        } else {
+            result.accept(null);
+        }
+        Minecraft.getInstance().getSoundManager().resume();
     }
 }
