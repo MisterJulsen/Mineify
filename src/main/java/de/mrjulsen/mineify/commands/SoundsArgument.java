@@ -13,6 +13,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 
 import de.mrjulsen.mineify.client.ESoundVisibility;
+import de.mrjulsen.mineify.sound.ESoundCategory;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -49,10 +50,10 @@ public class SoundsArgument implements ArgumentType<SoundFile> {
         }
 
         SoundFile file = null;
-        if (data.length == 2) {
-            file = new SoundFile(data[1], data[0], ESoundVisibility.SERVER);
+        if (data.length == 3) {
+            file = new SoundFile(data[2], data[1], ESoundVisibility.SERVER, ESoundCategory.getCategoryByName(data[0]));
         } else {
-            file = new SoundFile(data[2], data[0], ESoundVisibility.getVisibilityByName(data[1]));
+            file = new SoundFile(data[3], data[1], ESoundVisibility.getVisibilityByName(data[2]), ESoundCategory.getCategoryByName(data[0]));
         }
 
         if (!file.exists()) {
@@ -66,12 +67,8 @@ public class SoundsArgument implements ArgumentType<SoundFile> {
         if (!(pContext.getSource() instanceof SharedSuggestionProvider)) {
             return Suggestions.empty();
         } else {
-            return SharedSuggestionProvider.suggest(Arrays.stream(SoundUtils.readSoundsFromDisk(null, null)).map(x -> {
-                if (x.getVisibility() == ESoundVisibility.SERVER) {
-                    return String.format("\"%s/%s\"", x.getOwner(), x.getName());
-                }
-
-                return String.format("\"%s/%s/%s\"", x.getOwner(), x.getVisibility().getName(), x.getName());
+            return SharedSuggestionProvider.suggest(Arrays.stream(SoundUtils.readSoundsFromDisk(null, null, null)).map(x -> {
+                return String.format("\"%s\"", x.buildShortPath());
             }), pBuilder);
         }
     }
