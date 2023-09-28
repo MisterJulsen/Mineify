@@ -19,11 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import de.mrjulsen.mineify.Constants;
+
 public final class IOUtils {
 
     public static InputStream readFile(String filePath) throws IOException {
         File file = new File(filePath);
         return new FileInputStream(file);
+    }
+
+    public static void createDefaultConfigDirectory() {
+        IOUtils.createDirectory(Constants.CUSTOM_SOUNDS_SERVER_PATH);
     }
 
     public static void saveInputStreamToFile(InputStream inputStream, String filePath) throws IOException {

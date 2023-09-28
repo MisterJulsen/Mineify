@@ -14,6 +14,8 @@ public class ModCommonConfig {
     public static final ForgeConfigSpec.ConfigValue<Integer> MAX_AUDIO_DURATION;    
     public static final ForgeConfigSpec.ConfigValue<Integer> MAX_RADIUS;
     public static final ForgeConfigSpec.ConfigValue<Integer> MAX_VOLUME;
+    public static final ForgeConfigSpec.ConfigValue<Integer> MAX_SOUND_BOARD_DURATION;
+    public static final ForgeConfigSpec.ConfigValue<Integer> SOUND_BOARD_COOLDOWN;
     public static final ForgeConfigSpec.ConfigValue<Integer> MAX_BOX_SIZE;
     public static final ForgeConfigSpec.ConfigValue<EStreamingMode> STREAMING_MODE;
 
@@ -35,14 +37,19 @@ public class ModCommonConfig {
         
 
         MAX_RADIUS = BUILDER.comment("Max possible radius.")
-                .defineInRange("range.max_radius", 256, 1, 1024);                
+                .defineInRange("range.max_radius", 256, 1, 1024);
         MAX_BOX_SIZE = BUILDER.comment("Max possible box size.")
-                .defineInRange("range.max_box_size", 256, 1, 1024);                
+                .defineInRange("range.max_box_size", 256, 1, 1024);
         MAX_VOLUME = BUILDER.comment("Max possible volume.")
-                .defineInRange("range.max_volume", 64, 0, 256);                
+                .defineInRange("range.max_volume", 64, 0, 256);
+                
+        MAX_SOUND_BOARD_DURATION = BUILDER.comment("Max duration (in seconds) of audio files playable via Sound Boards. <= 0: Unlimited (Default: 10)")
+                .define("sound_board.max_sound_board_duration", 15);                
+        SOUND_BOARD_COOLDOWN = BUILDER.comment("Set a cooldown when using the Sound Board. < 0: Auto; = 0: Disabled; > 0: Constant value (Default: -1)")
+                .define("sound_board.sound_board_cooldown", -1);
         
 
-        STREAMING_MODE = BUILDER.comment("Defines how the data is streamed to clients. ALL_AT_ONCE means that all data is split up into small packets and sent to the client. ON_REQUEST means that a buffer is created on the client and the client must request more data. The last method might improve performance and RAM usage, but might fail on low-bandwidth devices.")
+        STREAMING_MODE = BUILDER.comment("Defines how the data is streamed to clients. ALL_AT_ONCE means that all data is split up into small packets and sent to the client. ON_REQUEST means that a buffer is created on the client side and the client must request more data. The last method might improve performance and RAM usage, but might fail on low-bandwidth devices.")
                 .defineEnum("streaming_mode", EStreamingMode.ON_REQUEST);
 
         BUILDER.pop();

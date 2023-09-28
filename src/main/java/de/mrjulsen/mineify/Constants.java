@@ -32,6 +32,10 @@ public class Constants {
             "m4a", "m4b", "m4p", "mka", "mp2", "mp3", "oga", "ogg", "oma", "opus", "ra",
             "ram", "sln", "tta", "voc", "wav", "wma", "wv"
         };
-    public static final Random RANDOM = new Random();
+    public static final Random RANDOM = new Random();    
+    public static final float PITCH_MIN = 0.5F;
+    public static final float PITCH_MAX = 2.0F;
+    public static final float VOLUME_MIN = 0.0F;
+    public static final float VOLUME_MAX = 1.0F;
 
 }

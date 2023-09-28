@@ -4,6 +4,12 @@
     "block.mineify.sound_player": "Sound Player",
     "block.mineify.sound_player.locked": "§cThis block has been locked by its owner.",
     
+    "item.mineify.sound_board": "Sound Board",
+
+    
+    "key.mineify.category.mineify": "Mineify",
+    "key.mineify.sound_board": "Open Sound Board",
+
     "advancement.mineify.root": "Mineify",
     "advancement.mineify.root.description": "Welcome to the Mineify Mod by MrJulsen.",    
     "advancement.mineify.sound_player": "DJ",
@@ -11,6 +17,9 @@
     "advancement.mineify.first_upload": "Music Publisher",
     "advancement.mineify.first_upload.description": "Upload your first sound file.",  
     
+    "gui.mineify.button.close": "Close",
+    "gui.mineify.audio.distance": "Distance: %s",
+    "gui.mineify.audio.pitch": "Pitch: %s",
     "gui.mineify.soundselection.task_fail": "Task failed!",
     "gui.mineify.soundselection.task_success": "Task success!",
     "gui.mineify.soundselection.title": "Sound Selection",
@@ -67,7 +76,9 @@
     "gui.mineify.upload.file_duplicate": "§cThe given filename is already in use.",
     "gui.mineify.upload.visibility": "Sound visibility",
     "gui.mineify.upload.channels": "Audio Channels",
-    "gui.mineify.upload.quality": "Audio Quality: %s",
+    "gui.mineify.upload.quality": "Audio Quality: %s",    
+    "gui.mineify.upload.duration_too_long": "Play time too long.",
+    "gui.mineify.upload.duration_too_long.details": "Current: %s, Max: %s",    
     
     "gui.mineify.quality.best": "Best",    
     "gui.mineify.quality.default": "Default",    

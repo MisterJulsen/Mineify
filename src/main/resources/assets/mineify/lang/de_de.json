@@ -3,6 +3,8 @@
 
     "block.mineify.sound_player": "Audiospieler",
     "block.mineify.sound_player.locked": "§cDieser Block wurde von seinem Besitzer gesperrt.",
+    
+    "item.mineify.sound_board": "Soundboard",
    
     "advancement.mineify.root": "Mineify",
     "advancement.mineify.root.description": "Willkommen bei der Mineify Mod von MrJulsen.",    
@@ -11,6 +13,7 @@
     "advancement.mineify.first_upload": "Musikproduzent",
     "advancement.mineify.first_upload.description": "Lade deine erste Sounddatei hoch.",  
     
+    "gui.mineify.button.close": "Schließen",
     "gui.mineify.soundselection.task_fail": "Aufgabe fehlgeschlagen!",
     "gui.mineify.soundselection.task_success": "Aufgabe erfolgreich!",
     "gui.mineify.soundselection.title": "Soundauswahl",

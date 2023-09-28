@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.SoundUtils;
 
@@ -65,7 +64,7 @@ public class SoundDataCache {
     public synchronized boolean save(String filename) {
         try {
             String json = new Gson().toJson(this);
-            IOUtils.createDirectory(Constants.CUSTOM_SOUNDS_SERVER_PATH);
+            IOUtils.createDefaultConfigDirectory();
             IOUtils.writeTextFile(filename, json);
             return true;
         } catch (IOException e) {

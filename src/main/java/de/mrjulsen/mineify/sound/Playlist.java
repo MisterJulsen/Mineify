@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 public class Playlist extends SimplePlaylist {
 
@@ -170,7 +169,7 @@ public class Playlist extends SimplePlaylist {
                 this.setPlaying(true);        
                 this.calcAndSetTimeToPlayNext(playingSound.calcDuration() + 1);
                 this.stopPlayingSound(level);
-                this.setCurrentSoundId(ServerApi.playSound(playingSound, this.getAffectedPlayers(level, pos), pos, this.getPlaybackArea().getVolume(), 1));
+                this.setCurrentSoundId(ServerApi.playSound(playingSound, ServerApi.getAffectedPlayers(this.getPlaybackArea(), level, pos), pos, this.getPlaybackArea().getVolume(), 1));
             } catch (Exception e) {
                 ModMain.LOGGER.warn("Unable to play sound file: " + e.getMessage());
             } finally {
@@ -267,16 +266,6 @@ public class Playlist extends SimplePlaylist {
     public void stop(Level level) {
         this.setPlaying(false);
         this.stopPlayingSound(level);
-    }
-
-    public ServerPlayer[] getAffectedPlayers(Level level, BlockPos pos) {
-        switch (this.getPlaybackArea().getAreaType()) {
-            case ZONE:
-                return level.players().stream().filter(p -> p instanceof ServerPlayer && this.getPlaybackArea().isInZone(pos.getX(), pos.getY(), pos.getZ(), p.position().x(), p.position().y(), p.position().z())).toArray(ServerPlayer[]::new);
-            case RADIUS:
-            default:
-                return level.players().stream().filter(p -> p instanceof ServerPlayer && p.position().distanceTo(new Vec3(pos.getX(), pos.getY(), pos.getZ())) <= this.getPlaybackArea().getRadius()).toArray(ServerPlayer[]::new);
-        }
     }
 
 
