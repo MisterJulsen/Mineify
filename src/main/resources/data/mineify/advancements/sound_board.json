@@ -1,0 +1,32 @@
+{
+    "display": {
+      "icon": {
+        "item": "mineify:sound_board"
+      },
+      "title": {
+        "translate": "advancement.mineify.sound_board"
+      },
+      "description": {
+        "translate": "advancement.mineify.sound_board.description"
+      },
+      "frame": "task",
+      "show_toast": true,
+      "announce_to_chat": true
+    },
+    "parent": "mineify:first_upload",
+    "criteria": {
+      "requirement": {
+        "trigger": "minecraft:inventory_changed",
+        "conditions": {
+          "items": [
+            {
+              "items": [
+                "mineify:sound_board"
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+  

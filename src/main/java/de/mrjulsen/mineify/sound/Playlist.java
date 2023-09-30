@@ -11,6 +11,7 @@ import de.mrjulsen.mineify.util.Utils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 
 public class Playlist extends SimplePlaylist {
@@ -19,6 +20,8 @@ public class Playlist extends SimplePlaylist {
 
     private boolean isPlaying = false;
     private PlaybackArea playbackArea = new PlaybackArea(Constants.DEFAULT_PLAYBACK_AREA_RADIUS, Constants.DEFAULT_PLAYBACK_AREA_DISTANCE);
+    private float volume = Constants.VOLUME_MAX;
+    private float pitch = 1.0F;
     
     // ticking
     private short currentTrack = 0;
@@ -43,6 +46,8 @@ public class Playlist extends SimplePlaylist {
         boolean random = compound.getBoolean("random");
         
         Playlist playlist = new Playlist(sounds, loop, random);
+        playlist.setVolume(compound.getFloat("volume"));
+        playlist.setPitch(compound.getFloat("pitch"));
         playlist.setPlaying(compound.getBoolean("playing"));
         playlist.setCurrentTrack(compound.getShort("currentTrackIndex"));
         playlist.setTimeToPlayNext(compound.getLong("playNextAt"));
@@ -66,6 +71,8 @@ public class Playlist extends SimplePlaylist {
         tag.putLong("playNextAt", this.playNextAt);
         tag.putLong("currentSoundId", this.getCurrentSoundId());
         tag.put("playbackArea", this.getPlaybackArea().toNbt());
+        tag.putFloat("volume", this.getVolume());
+        tag.putFloat("pitch", this.getPitch());
     }
 
     public Playlist withSyncFunc(Runnable syncFunc) {
@@ -77,6 +84,24 @@ public class Playlist extends SimplePlaylist {
     public void setSyncFunc(Runnable syncFunc) {
         this.syncFunc = syncFunc;
     }    
+
+    public float getVolume() {
+        return this.volume;
+    }
+
+    public float getPitch() {
+        return this.pitch;
+    }
+
+    public void setVolume(float f) {
+        this.volume = Mth.clamp(f, Constants.VOLUME_MIN, Constants.VOLUME_MAX);
+        Utils.executeIfNotNull(syncFunc);
+    }
+
+    public void setPitch(float f) {
+        this.pitch = Mth.clamp(f, Constants.PITCH_MIN, Constants.PITCH_MAX);
+        Utils.executeIfNotNull(syncFunc);
+    }
 
     public SoundFile getSoundAt(short index) {
         return index < 0 || index >= this.getSounds().length ? null : this.getSounds()[index];
@@ -169,7 +194,7 @@ public class Playlist extends SimplePlaylist {
                 this.setPlaying(true);        
                 this.calcAndSetTimeToPlayNext(playingSound.calcDuration() + 1);
                 this.stopPlayingSound(level);
-                this.setCurrentSoundId(ServerApi.playSound(playingSound, ServerApi.getAffectedPlayers(this.getPlaybackArea(), level, pos), pos, this.getPlaybackArea().getVolume(), 1));
+                this.setCurrentSoundId(ServerApi.playSound(playingSound, ServerApi.getAffectedPlayers(this.getPlaybackArea(), level, pos), pos, this.getPlaybackArea().getAttenuationDistance(), this.getVolume(), this.getPitch()));
             } catch (Exception e) {
                 ModMain.LOGGER.warn("Unable to play sound file: " + e.getMessage());
             } finally {

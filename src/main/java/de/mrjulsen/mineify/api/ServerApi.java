@@ -33,13 +33,13 @@ public class ServerApi {
      * @return The ID of the sound, which can be used to stop or modify the sound while it's playing, or 0 if no players are given. This ID is invalid after the sound playback has been finished.
      */
     @Nonnull
-    public static long playSound(SoundFile file, ServerPlayer[] players, BlockPos pos, float volume, float pitch) {
-        return ServerWrapper.sendPlaySoundRequest(file, players, pos, volume, pitch);
+    public static long playSound(SoundFile file, ServerPlayer[] players, BlockPos pos, int attenuationDistance, float volume, float pitch) {
+        return ServerWrapper.sendPlaySoundRequest(file, players, pos, attenuationDistance, volume, pitch);
     }
 
     @Nonnull
-    public static long playSound(SoundFile file, PlaybackArea area, Level level, BlockPos pos, float volume, float pitch) {
-        return ServerWrapper.sendPlaySoundRequest(file, getAffectedPlayers(area, level, pos), pos, volume, pitch);
+    public static long playSound(SoundFile file, PlaybackArea area, Level level, BlockPos pos, int attenuationDistance, float volume, float pitch) {
+        return ServerWrapper.sendPlaySoundRequest(file, getAffectedPlayers(area, level, pos), pos, attenuationDistance, volume, pitch);
     }
 
     public static ServerPlayer[] getAffectedPlayers(PlaybackArea areaDefinition, Level level, BlockPos pos) {
@@ -74,15 +74,15 @@ public class ServerApi {
         }
     }
 
-    public static void modifySound(long soundId, ServerPlayer[] players, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+    public static void modifySound(long soundId, ServerPlayer[] players, @Nullable Integer attenuationDistance, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         for (ServerPlayer p : players) {
-            NetworkManager.sendToClient(new SoundModificationPacket(soundId, volume, pitch, x, y, z), p);             
+            NetworkManager.sendToClient(new SoundModificationPacket(soundId, attenuationDistance, pitch, x, y, z), p);             
         }
     }
     
-    public static void modifySound(String shortPath, ServerPlayer[] players, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+    public static void modifySound(String shortPath, ServerPlayer[] players, @Nullable Integer attenuationDistance, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         for (ServerPlayer p : players) {
-            NetworkManager.sendToClient(new SoundModificationWithPathPacket(shortPath, volume, pitch, x, y, z), p);             
+            NetworkManager.sendToClient(new SoundModificationWithPathPacket(shortPath, attenuationDistance, volume, pitch, x, y, z), p);             
         }
     }
 

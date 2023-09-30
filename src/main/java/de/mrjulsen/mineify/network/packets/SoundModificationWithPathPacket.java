@@ -13,14 +13,16 @@ import net.minecraftforge.network.NetworkEvent;
 
 public class SoundModificationWithPathPacket {
     public final String shortPath;
-    public final @Nullable Float volume;
+    public final @Nullable Integer attenuationDistance;
     public final @Nullable Float pitch;
+    public final @Nullable Float volume;
     public final @Nullable Double x;
     public final @Nullable Double y;
     public final @Nullable Double z;
 
-    public SoundModificationWithPathPacket(String shortPath, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+    public SoundModificationWithPathPacket(String shortPath, @Nullable Integer attenuationDistance, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         this.shortPath = shortPath;
+        this.attenuationDistance = attenuationDistance;
         this.volume = volume;
         this.pitch = pitch;
         this.x = x;
@@ -37,6 +39,10 @@ public class SoundModificationWithPathPacket {
         }
 
         boolean b;
+        b = packet.attenuationDistance != null;
+        buffer.writeBoolean(b);
+        if (b) buffer.writeInt(packet.attenuationDistance);
+
         b = packet.volume != null;
         buffer.writeBoolean(b);
         if (b) buffer.writeFloat(packet.volume);
@@ -65,19 +71,21 @@ public class SoundModificationWithPathPacket {
             shortPath = buffer.readUtf(l);
         }
 
+        @Nullable Integer attenuationDistance = null;
         @Nullable Float volume = null;
         @Nullable Float pitch = null;
         @Nullable Double x = null;
         @Nullable Double y = null;
         @Nullable Double z = null;
 
+        if (buffer.readBoolean()) attenuationDistance = buffer.readInt();
         if (buffer.readBoolean()) volume = buffer.readFloat();
         if (buffer.readBoolean()) pitch = buffer.readFloat();
         if (buffer.readBoolean()) x = buffer.readDouble();
         if (buffer.readBoolean()) y = buffer.readDouble();
         if (buffer.readBoolean()) z = buffer.readDouble();
 
-        SoundModificationWithPathPacket instance = new SoundModificationWithPathPacket(shortPath, volume, pitch, x, y, z);
+        SoundModificationWithPathPacket instance = new SoundModificationWithPathPacket(shortPath, attenuationDistance, volume, pitch, x, y, z);
         return instance;
     }
 

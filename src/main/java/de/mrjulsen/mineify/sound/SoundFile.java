@@ -153,7 +153,7 @@ public class SoundFile implements Serializable {
     }
 
     public String buildShortPath() {
-        return SoundUtils.buildShortPath(filename, ownerUUID, visibility, category);
+        return SoundUtils.buildShortPath(filename, ownerUUID, visibility);
     }
 
     private int calcDurationSeconds() {
@@ -192,7 +192,7 @@ public class SoundFile implements Serializable {
         return new SoundFile(SoundUtils.buildPath(filename, owner, visibility, category), owner, visibility, category);
     }
 
-    public static SoundFile fromShortPath(String shortPath) {
+    public static SoundFile fromShortPath(String shortPath, ESoundCategory category) {
         String[] data = shortPath.split("/");
 
         if (data.length < 3) {
@@ -200,10 +200,10 @@ public class SoundFile implements Serializable {
         }
 
         SoundFile file = null;
-        if (data.length == 3) {
-            file = new SoundFile(data[2], data[1], ESoundVisibility.SERVER, ESoundCategory.getCategoryByName(data[0]));
+        if (data.length == 2) {
+            file = new SoundFile(data[1], data[0], ESoundVisibility.SERVER, category);
         } else {
-            file = new SoundFile(data[3], data[1], ESoundVisibility.getVisibilityByName(data[2]), ESoundCategory.getCategoryByName(data[0]));
+            file = new SoundFile(data[2], data[0], ESoundVisibility.getVisibilityByName(data[1]), category);
         }
 
         return file;

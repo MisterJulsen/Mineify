@@ -35,7 +35,7 @@ public class PlaybackAreaConfigScreen extends Screen
     // Controls
     protected CycleButton<EPlaybackAreaType> typeButton;
 
-    protected EditBox volumeBox;
+    protected EditBox attenuationDistanceBox;
     protected EditBox radiusBox;
     protected EditBox x1Box;
     protected EditBox y1Box;
@@ -48,7 +48,7 @@ public class PlaybackAreaConfigScreen extends Screen
     private TranslatableComponent textRadius = new TranslatableComponent("gui.mineify.playback_area_config.radius", 0, ModCommonConfig.MAX_RADIUS.get());
     private TranslatableComponent textFrom = new TranslatableComponent("gui.mineify.playback_area_config.area_from", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
     private TranslatableComponent textTo = new TranslatableComponent("gui.mineify.playback_area_config.area_to", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
-    private TranslatableComponent textVolume = new TranslatableComponent("gui.mineify.playback_area_config.volume", 0, ModCommonConfig.MAX_VOLUME.get());
+    private TranslatableComponent textAttenuationDistance = new TranslatableComponent("gui.mineify.playback_area_config.attenuation_distance", 0, ModCommonConfig.MAX_ATTENUATION_DISTANCE.get());
 
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
@@ -84,7 +84,7 @@ public class PlaybackAreaConfigScreen extends Screen
                 break;
         }
 
-        this.volumeBox.tick();
+        this.attenuationDistanceBox.tick();
     }
 
     @Override
@@ -151,10 +151,10 @@ public class PlaybackAreaConfigScreen extends Screen
         this.addRenderableWidget(this.z2Box);
 
 
-        this.volumeBox = new EditBox(this.font, this.width / 2 - 25, guiTop + 175, 50, 20, textVolume);
-        this.volumeBox.setValue(Integer.toString(this.playbackArea.getVolume()));
-        this.volumeBox.setFilter(this::volumeNumberFilter);
-        this.addRenderableWidget(this.volumeBox);
+        this.attenuationDistanceBox = new EditBox(this.font, this.width / 2 - 25, guiTop + 175, 50, 20, textAttenuationDistance);
+        this.attenuationDistanceBox.setValue(Integer.toString(this.playbackArea.getAttenuationDistance()));
+        this.attenuationDistanceBox.setFilter(this::attenuationDistanceBoxNumberFilter);
+        this.addRenderableWidget(this.attenuationDistanceBox);
         
         this.switchPage();
     }
@@ -186,13 +186,13 @@ public class PlaybackAreaConfigScreen extends Screen
         }
     }
 
-    private boolean volumeNumberFilter(String input) {
+    private boolean attenuationDistanceBoxNumberFilter(String input) {
         if (input.isEmpty())
             return true;
 
         try {
             int i = Integer.parseInt(input);
-            return i >= 0 && i <= ModCommonConfig.MAX_VOLUME.get();
+            return i >= 0 && i <= ModCommonConfig.MAX_ATTENUATION_DISTANCE.get();
         } catch (NumberFormatException e) {
             return false;
         }
@@ -210,7 +210,7 @@ public class PlaybackAreaConfigScreen extends Screen
     }
 
     private void onDone() {
-        this.playbackArea.setVolume(Integer.parseInt(this.volumeBox.getValue()));
+        this.playbackArea.setAttenuationDistance(Integer.parseInt(this.attenuationDistanceBox.getValue()));
         this.playbackArea.setRadius(Integer.parseInt(this.radiusBox.getValue()));
         this.playbackArea.setX1(Integer.parseInt(this.x1Box.getValue()));
         this.playbackArea.setY1(Integer.parseInt(this.y1Box.getValue()));
@@ -229,7 +229,7 @@ public class PlaybackAreaConfigScreen extends Screen
 
     @Override
     public void onClose() {
-        super.onClose();
+        //super.onClose();
         this.minecraft.setScreen(lastScreen);
     }
     
@@ -238,7 +238,7 @@ public class PlaybackAreaConfigScreen extends Screen
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
         renderBackground(stack, 0);        
         drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
-        drawCenteredString(stack, this.font, textVolume, this.width / 2, guiTop + 150 + 10, 16777215);
+        drawCenteredString(stack, this.font, textAttenuationDistance, this.width / 2, guiTop + 150 + 10, 16777215);
 
         switch (this.playbackArea.getAreaType()) {
             case ZONE:                
@@ -254,7 +254,7 @@ public class PlaybackAreaConfigScreen extends Screen
 
         super.render(stack, mouseX, mouseY, partialTicks);
 
-        Utils.renderTooltip(this, this.volumeBox, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.playback_area_config.volume.description"), width / 3); }, stack, mouseX, mouseY);
+        Utils.renderTooltip(this, this.attenuationDistanceBox, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.playback_area_config.volume.description"), width / 3); }, stack, mouseX, mouseY);
         Utils.renderTooltip(this, this.typeButton, () -> { return Utils.getEnumTooltipData(this, EPlaybackAreaType.class, width / 3); }, stack, mouseX, mouseY);        
     }
 

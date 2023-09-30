@@ -5,15 +5,24 @@
     "block.mineify.sound_player.locked": "§cDieser Block wurde von seinem Besitzer gesperrt.",
     
     "item.mineify.sound_board": "Soundboard",
-   
+    
+    "key.mineify.category.mineify": "Mineify",
+    "key.mineify.sound_board": "Soundboard öffnen",   
+    
+    "commands.mineify.sound.modify": "Geräusch %s modifiziert",
+
     "advancement.mineify.root": "Mineify",
     "advancement.mineify.root.description": "Willkommen bei der Mineify Mod von MrJulsen.",    
     "advancement.mineify.sound_player": "DJ",
     "advancement.mineify.sound_player.description": "Erstelle einen Audiospieler.",    
     "advancement.mineify.first_upload": "Musikproduzent",
-    "advancement.mineify.first_upload.description": "Lade deine erste Sounddatei hoch.",  
+    "advancement.mineify.first_upload.description": "Lade deine erste Sounddatei hoch.",    
+    "advancement.mineify.sound_board": "Der Walkman 3000",
+    "advancement.mineify.sound_board.description": "Erstelle ein Soundboard.",
     
     "gui.mineify.button.close": "Schließen",
+    "gui.mineify.audio.distance": "Distanz: %s",
+    "gui.mineify.audio.pitch": "Tonhöhe: %s",
     "gui.mineify.soundselection.task_fail": "Aufgabe fehlgeschlagen!",
     "gui.mineify.soundselection.task_success": "Aufgabe erfolgreich!",
     "gui.mineify.soundselection.title": "Soundauswahl",
@@ -56,14 +65,18 @@
     "gui.mineify.sound_player_config.lock": "Gesperrt",
     "gui.mineify.sound_player_config.trigger": "Auslöser",
     "gui.mineify.sound_player_config.zone": "Abspielbereich konfigurieren...",
+    "gui.mineify.sound_player_config.sound_config": "Erweiterte Soundeinstellungen...",
     "gui.mineify.sound_player_config.info.lock": "Wenn gesperrt, kannst nur du (der Besitzer) den Block ansehen und bearbeiten.",
     "gui.mineify.playback_area_config.title": "Abspielbereich Konfiguration",
     "gui.mineify.playback_area_config.type": "Bereichdefinition",
     "gui.mineify.playback_area_config.radius": "Radius (%s - %s)",
     "gui.mineify.playback_area_config.area_from": "Erste Ecke [x, y, z] (%s - %s)",
     "gui.mineify.playback_area_config.area_to": "Zweite Ecke [x, y, z] (%s - %s)",
-    "gui.mineify.playback_area_config.volume": "Volumen (%s - %s)",
-    "gui.mineify.playback_area_config.volume.description": "Gibt an, wie weit der Sound in voller Lautstärke gehört werden kann, bevor er mit zunehmender Entfernung abnimmt.",
+    "gui.mineify.playback_area_config.attenuation_distance": "Dämpfungsdistanz (%s - %s)",
+    "gui.mineify.playback_area_config.volume.description": "Gibt die Entfernung an, über die ein Monokanalton gedämpft wird, bis er nach mehr als dem angegebenen Wert in Blöcken nicht mehr gehört werden kann.",
+    "gui.mineify.sound_config.title": "Erweiterte Soundeinstellungen",
+    "gui.mineify.sound_config.volume": "Lautstärke",
+    "gui.mineify.sound_config.pitch": "Tonhöhe",
 
     "gui.mineify.upload.title": "Neuen Sound hochladen",
     "gui.mineify.upload.filename": "Sound-Dateiname",
@@ -71,6 +84,8 @@
     "gui.mineify.upload.visibility": "Sound-Sichtbarkeit",
     "gui.mineify.upload.channels": "Audiokanäle",
     "gui.mineify.upload.quality": "Audio Qualität: %s",
+    "gui.mineify.upload.duration_too_long": "Abspieldauer zu lange.",
+    "gui.mineify.upload.duration_too_long.details": "Aktuell: %s, Max: %s",
     
     "gui.mineify.quality.best": "Beste",    
     "gui.mineify.quality.default": "Standard",    

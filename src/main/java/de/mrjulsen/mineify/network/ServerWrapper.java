@@ -26,7 +26,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class ServerWrapper {
 
-    public static long sendPlaySoundRequest(SoundFile file, ServerPlayer[] players, BlockPos pos, float volume, float pitch) {
+    public static long sendPlaySoundRequest(SoundFile file, ServerPlayer[] players, BlockPos pos, int attenuationDistance, float volume, float pitch) {
         if (players == null || players.length <= 0) {
             return 0;
         }
@@ -48,7 +48,7 @@ public class ServerWrapper {
                     for (ServerPlayer p : players) {
                         NetworkManager.sendToClient(new DownloadSoundPacket(requestId, 0, buffer, maxLength, ModCommonConfig.STREAMING_MODE.get()), p);
                         if (part == Constants.PRE_BUFFER_MULTIPLIER) {
-                            NetworkManager.sendToClient(new PlaySoundPacket(requestId, pos, volume, pitch, shortPath), p);
+                            NetworkManager.sendToClient(new PlaySoundPacket(requestId, pos, attenuationDistance, volume, pitch, shortPath), p);
                         }
                     }                    
 
@@ -69,7 +69,7 @@ public class ServerWrapper {
 
                 for (ServerPlayer p : players) {
                     if (bytesRead == -1 && part < Constants.PRE_BUFFER_MULTIPLIER) {
-                        NetworkManager.sendToClient(new PlaySoundPacket(requestId, pos, volume, pitch, shortPath), p);
+                        NetworkManager.sendToClient(new PlaySoundPacket(requestId, pos, attenuationDistance, volume, pitch, shortPath), p);
                     }
                 }
                 InstanceManager.Server.closeFileStream(requestId);

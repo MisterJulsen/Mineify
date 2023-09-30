@@ -29,11 +29,14 @@ public class SoundsArgument implements ArgumentType<SoundFile> {
         return new TextComponent("Invalid path. File does not exist.");
     });
 
-    private SoundsArgument() {
+    private final ESoundCategory category;
+
+    private SoundsArgument(ESoundCategory category) {
+        this.category = category;
     }
 
-    public static SoundsArgument soundsArg() {
-        return new SoundsArgument();
+    public static SoundsArgument soundsArg(ESoundCategory category) {
+        return new SoundsArgument(category);
     }
 
     public static SoundFile getSound(final CommandContext<?> context, final String name) {
@@ -50,10 +53,10 @@ public class SoundsArgument implements ArgumentType<SoundFile> {
         }
 
         SoundFile file = null;
-        if (data.length == 3) {
-            file = new SoundFile(data[2], data[1], ESoundVisibility.SERVER, ESoundCategory.getCategoryByName(data[0]));
+        if (data.length == 2) {
+            file = new SoundFile(data[1], data[0], ESoundVisibility.SERVER, category);
         } else {
-            file = new SoundFile(data[3], data[1], ESoundVisibility.getVisibilityByName(data[2]), ESoundCategory.getCategoryByName(data[0]));
+            file = new SoundFile(data[2], data[0], ESoundVisibility.getVisibilityByName(data[1]), category);
         }
 
         if (!file.exists()) {
@@ -67,7 +70,7 @@ public class SoundsArgument implements ArgumentType<SoundFile> {
         if (!(pContext.getSource() instanceof SharedSuggestionProvider)) {
             return Suggestions.empty();
         } else {
-            return SharedSuggestionProvider.suggest(Arrays.stream(SoundUtils.readSoundsFromDisk(null, null, null)).map(x -> {
+            return SharedSuggestionProvider.suggest(Arrays.stream(SoundUtils.readSoundsFromDisk(new ESoundCategory[] { category }, null, null)).map(x -> {
                 return String.format("\"%s\"", x.buildShortPath());
             }), pBuilder);
         }

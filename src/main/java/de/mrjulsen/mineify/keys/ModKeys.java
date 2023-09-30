@@ -1,7 +1,5 @@
 package de.mrjulsen.mineify.keys;
 
-import com.mojang.blaze3d.platform.InputConstants;
-
 import de.mrjulsen.mineify.ModMain;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.client.ClientRegistry;
@@ -20,6 +18,6 @@ public class ModKeys {
     }
 
     public static void init() {
-        soundBoardKeyMapping = registerKey("sound_board", "mineify", InputConstants.KEY_Y);
+        soundBoardKeyMapping = registerKey("sound_board", "mineify", -1);
     }
 }

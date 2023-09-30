@@ -53,7 +53,7 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
     private boolean isLoading;
     
     //Properties
-    private int distance = 1;
+    private int distance = Math.min(ModCommonConfig.SOUND_BOARD_MAX_DISTANCE.get(), ModClientConfig.DEFAULT_SOUND_BOARD_DISTANCE.get());
     private float pitch = 1.0f;
 
     // Controls
@@ -119,8 +119,8 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
             });
         }));
 
-        this.distanceSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 154, this.height - 55, 150, 20, textDistance, new TextComponent(""), 0, 16, this.distance, 1, 1, true));
-        this.pitchSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 + 4, this.height - 55, 150, 20, textPitch, new TextComponent(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01f, 4, true));
+        this.distanceSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 154, this.height - 55, 150, 20, textDistance, new TextComponent(""), 1, ModCommonConfig.SOUND_BOARD_MAX_DISTANCE.get(), this.distance, 1, 1, true));
+        this.pitchSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 + 4, this.height - 55, 150, 20, textPitch, new TextComponent(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01D, 4, true));
 
         this.availablePackList = new SoundBoardList(this.minecraft, this, width, this.height, new TranslatableComponent("gui.mineify.soundselection.available"));
         this.availablePackList.setLeftPos(0);
@@ -145,7 +145,7 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
     }
 
     public void onDone(SoundFile file) {
-        ClientApi.playSound(file, new PlaybackArea(this.getDistance(), this.getDistance()), this.minecraft.player.blockPosition(), this.getDistance(), (float)this.getPitch());
+        ClientApi.playSound(file, new PlaybackArea(this.getDistance(), this.getDistance() * 4), this.minecraft.player.blockPosition(), this.getDistance() * 4, 1, (float)this.getPitch());
         int cooldown = ModCommonConfig.SOUND_BOARD_COOLDOWN.get();
         if (cooldown != 0 ) {
             NetworkManager.MOD_CHANNEL.sendToServer(new SetCooldownPacket(ModItems.SOUND_BOARD.get().getDefaultInstance(), (int)((cooldown < 0 ? file.getDurationInSeconds() / this.getPitch() : cooldown) * 20.0D)));

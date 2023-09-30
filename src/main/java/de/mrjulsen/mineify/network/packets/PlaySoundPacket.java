@@ -13,14 +13,16 @@ import net.minecraftforge.network.NetworkEvent;
 public class PlaySoundPacket {
     public final BlockPos pos;
     public final long requestId;
-    public final float volume;
+    public final int attenuationDistance;
     public final float pitch;
+    public final float volume;
     public final String path;
     
 
-    public PlaySoundPacket(long requestId, BlockPos pos, float volume, float pitch, String path) {
+    public PlaySoundPacket(long requestId, BlockPos pos, int attenuationDistance, float volume, float pitch, String path) {
         this.pos = pos;
         this.requestId = requestId;
+        this.attenuationDistance = attenuationDistance;
         this.volume = volume;
         this.pitch = pitch;
         this.path = path;
@@ -29,6 +31,7 @@ public class PlaySoundPacket {
     public static void encode(PlaySoundPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeBlockPos(packet.pos);
+        buffer.writeInt(packet.attenuationDistance);
         buffer.writeFloat(packet.volume);
         buffer.writeFloat(packet.pitch);        
         int l = packet.path.getBytes(StandardCharsets.UTF_8).length;
@@ -39,12 +42,13 @@ public class PlaySoundPacket {
     public static PlaySoundPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         BlockPos pos = buffer.readBlockPos();
+        int attenuationDistance = buffer.readInt();
         float volume = buffer.readFloat();
         float pitch = buffer.readFloat();
         int l = buffer.readInt();
         String path = buffer.readUtf(l);
 
-        PlaySoundPacket instance = new PlaySoundPacket(requestId, pos, volume, pitch, path);
+        PlaySoundPacket instance = new PlaySoundPacket(requestId, pos, attenuationDistance, volume, pitch, path);
         return instance;
     }
 

@@ -15,21 +15,27 @@ public class SoundPlayerBlockEntityPacket {
     private final BlockPos pos;
     private final SimplePlaylist playlist;
     private final PlaybackArea playbackArea;
+    private final float volume;
+    private final float pitch;
     private final boolean locked;
     private final ETrigger trigger;
 
-     public SoundPlayerBlockEntityPacket(BlockPos pos, SimplePlaylist playlist, PlaybackArea playbackArea, boolean locked, ETrigger trigger) {
+     public SoundPlayerBlockEntityPacket(BlockPos pos, SimplePlaylist playlist, float volume, float pitch, PlaybackArea playbackArea, boolean locked, ETrigger trigger) {
         this.pos = pos;
         this.playlist = playlist;
         this.playbackArea = playbackArea;
         this.locked = locked;
         this.trigger = trigger;
+        this.volume = volume;
+        this.pitch = pitch;
     }
 
     public static void encode(SoundPlayerBlockEntityPacket packet, FriendlyByteBuf buffer) {
         buffer.writeBlockPos(packet.pos);
         buffer.writeBoolean(packet.locked);
         buffer.writeByte(packet.trigger.getIndex());
+        buffer.writeFloat(packet.volume);
+        buffer.writeFloat(packet.pitch);
         packet.playlist.serialize(buffer);
         packet.playbackArea.serialize(buffer);
     }
@@ -38,10 +44,12 @@ public class SoundPlayerBlockEntityPacket {
         BlockPos pos = buffer.readBlockPos();
         boolean locked = buffer.readBoolean();
         ETrigger trigger = ETrigger.getTriggerByIndex(buffer.readByte());
+        float volume = buffer.readFloat();
+        float pitch = buffer.readFloat();
         SimplePlaylist playlist = SimplePlaylist.deserialize(buffer);
         PlaybackArea playbackArea = PlaybackArea.deserialize(buffer);
 
-        SoundPlayerBlockEntityPacket instance = new SoundPlayerBlockEntityPacket(pos, playlist, playbackArea, locked, trigger);
+        SoundPlayerBlockEntityPacket instance = new SoundPlayerBlockEntityPacket(pos, playlist, volume, pitch, playbackArea, locked, trigger);
         return instance;
     }
 
@@ -58,6 +66,8 @@ public class SoundPlayerBlockEntityPacket {
                 blockEntity.getPlaylist().setLoop(packet.playlist.isLoop());
                 blockEntity.getPlaylist().setRandom(packet.playlist.isRandom());
                 blockEntity.getPlaylist().setPlaybackArea(packet.playbackArea);
+                blockEntity.getPlaylist().setVolume(packet.volume);
+                blockEntity.getPlaylist().setPitch(packet.pitch);
                 blockEntity.setTrigger(packet.trigger);
                 if (packet.locked) {
                     blockEntity.lock(context.get().getSender().getUUID());

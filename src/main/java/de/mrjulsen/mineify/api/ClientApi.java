@@ -58,9 +58,9 @@ public class ClientApi {
 
     @Nonnull
     @OnlyIn(Dist.CLIENT) 
-    public static long playSound(SoundFile file, PlaybackArea area, BlockPos pos, float volume, float pitch) {
+    public static long playSound(SoundFile file, PlaybackArea area, BlockPos pos, int attenuationDistance, float volume, float pitch) {
         long requestId = Api.genRequestId();
-        NetworkManager.MOD_CHANNEL.sendToServer(new PlaySoundRequestPacket(requestId, area, pos, volume, pitch, file.buildShortPath()));
+        NetworkManager.MOD_CHANNEL.sendToServer(new PlaySoundRequestPacket(requestId, area, pos, attenuationDistance, volume, pitch, file.buildShortPath(), file.getCategory()));
         return requestId;
     }
 

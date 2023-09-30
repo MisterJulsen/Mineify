@@ -58,12 +58,16 @@ public final class SoundUtils {
         }
     }
 
-    public static String buildShortPath(String name, String owner, ESoundVisibility visibility, ESoundCategory category) {
+    public static String buildShortPath(String name, String owner, ESoundVisibility visibility) {
         if (visibility == ESoundVisibility.SERVER) {
-            return String.format("%s/%s/%s", category.getCategoryName(), visibility.getName(), name);
+            return String.format("%s/%s", visibility.getName(), name);
         } else {
-            return String.format("%s/%s/%s/%s", category.getCategoryName(), owner, visibility.getName(), name);
+            return String.format("%s/%s/%s", owner, visibility.getName(), name);
         }
+    }
+
+    public static String buildShortPathWithCat(String name, String owner, ESoundVisibility visibility, ESoundCategory category) {
+        return String.format("%s/%s", category.getCategoryName(), buildShortPath(name, owner, visibility));
     }
 
 

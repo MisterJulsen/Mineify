@@ -69,24 +69,23 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
         this.quality = (byte)quality;
         this.filename = IOUtils.getFileNameWithoutExtension(path);
         this.visibility = visibility;
-
-        int i = SoundUtils.getAudioDuration(path);
-        if (i > ModCommonConfig.MAX_SOUND_BOARD_DURATION.get()) {      
-            last.getMinecraft().setScreen(last);
-        }
     }
 
     public static <T extends Screen & IPlaylistScreen> void show(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
-        int i = SoundUtils.getAudioDuration(path);
-        if (i > ModCommonConfig.MAX_SOUND_BOARD_DURATION.get()) {
-            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.upload.duration_too_long"), 
-                new TranslatableComponent("gui.mineify.upload.duration_too_long.details",
-                SoundUtils.getDurationFormatted(i),
-                SoundUtils.getDurationFormatted(ModCommonConfig.MAX_SOUND_BOARD_DURATION.get())
-            )));
-        } else {     
-            last.getMinecraft().setScreen(new UploadSoundScreen<T>(last, path, visibility, channels, quality, callback));
+        if (last instanceof SoundBoardScreen) {
+            int i = SoundUtils.getAudioDuration(path);
+            if (i > ModCommonConfig.MAX_SOUND_BOARD_DURATION.get()) {
+                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.upload.duration_too_long"), 
+                    new TranslatableComponent("gui.mineify.upload.duration_too_long.details",
+                    SoundUtils.getDurationFormatted(i),
+                    SoundUtils.getDurationFormatted(ModCommonConfig.MAX_SOUND_BOARD_DURATION.get())
+                )));
+                return;
+            }
+            
         }
+        
+        last.getMinecraft().setScreen(new UploadSoundScreen<T>(last, path, visibility, channels, quality, callback));
     }
 
     @Override

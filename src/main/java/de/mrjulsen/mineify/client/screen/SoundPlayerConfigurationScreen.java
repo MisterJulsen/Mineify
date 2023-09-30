@@ -14,6 +14,7 @@ import de.mrjulsen.mineify.sound.PlaybackArea;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -36,15 +37,17 @@ public class SoundPlayerConfigurationScreen extends Screen
     private ETrigger trigger;
     private SimplePlaylist playlist;
     private PlaybackArea playbackArea;
+    private float volume;
+    private float pitch;
 
     // Controls
-    protected CycleButton<Boolean> lockButton;
     protected CycleButton<ETrigger> triggerButton;
+    protected LockIconButton lockButton;
 
     private TranslatableComponent textPlaylist = new TranslatableComponent("gui.mineify.sound_player_config.playlist");
-    private TranslatableComponent textLock = new TranslatableComponent("gui.mineify.sound_player_config.lock");
     private TranslatableComponent textTrigger = new TranslatableComponent("gui.mineify.sound_player_config.trigger");
     private TranslatableComponent textZone = new TranslatableComponent("gui.mineify.sound_player_config.zone");
+    private TranslatableComponent textSoundConfig = new TranslatableComponent("gui.mineify.sound_player_config.sound_config");
 
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
@@ -57,6 +60,8 @@ public class SoundPlayerConfigurationScreen extends Screen
         this.locked = this.getBlockEntity().isLocked();
         this.trigger = this.getBlockEntity().getTrigger();
         this.playlist = new SimplePlaylist(this.getBlockEntity().getPlaylist().getSounds(), this.getBlockEntity().getPlaylist().isLoop(), this.getBlockEntity().getPlaylist().isRandom());
+        this.volume = this.getBlockEntity().getPlaylist().getVolume();
+        this.pitch = this.getBlockEntity().getPlaylist().getPitch();
         this.playbackArea = this.getBlockEntity().getPlaylist().getPlaybackArea();
     }
 
@@ -91,32 +96,45 @@ public class SoundPlayerConfigurationScreen extends Screen
             }));
         }));
 
-        this.lockButton = this.addRenderableWidget(CycleButton.onOffBuilder(this.locked)
-            .withInitialValue(this.locked)
-            .create(this.width / 2 - 100, guiTop + 60, 200, 20, textLock, (pCycleButton, pValue) -> {
-                this.locked = pValue;        
-        }));
+        lockButton = new LockIconButton(this.width / 2 + 104, guiTop + 25, (button) -> {
+            this.locked = !locked;
+            if (button instanceof LockIconButton btn) {
+                btn.setLocked(locked);
+            }
+        });
+        lockButton.setLocked(locked);
+        this.addRenderableWidget(lockButton);
 
-        this.triggerButton = this.addRenderableWidget(CycleButton.<ETrigger>builder((p) -> {            
-                return new TranslatableComponent(p.getTranslationKey());
-            })
-            .withValues(ETrigger.values()).withInitialValue(this.trigger)
-            .create(this.width / 2 - 100, guiTop + 85, 200, 20, textTrigger, (pCycleButton, pValue) -> {
-                this.trigger = pValue;
-        }));
+        //60, 85, 110        
 
-        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 110, 200, 20, textZone, (p) -> {
+        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 50, 200, 20, textZone, (p) -> {
             Minecraft.getInstance().setScreen(new PlaybackAreaConfigScreen(this, new PlaybackArea(this.playbackArea), (success, data) -> {
                 if (success) {
                     this.playbackArea = data;
                 }
             }));
         }));
+
+        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 75, 200, 20, textSoundConfig, (p) -> {
+            Minecraft.getInstance().setScreen(new SoundConfigScreen(this, volume, pitch, (value) -> {
+                this.volume = value;
+            }, (value) -> {
+                this.pitch = value;
+            }));
+        }));
+
+        this.triggerButton = this.addRenderableWidget(CycleButton.<ETrigger>builder((p) -> {            
+                return new TranslatableComponent(p.getTranslationKey());
+            })
+            .withValues(ETrigger.values()).withInitialValue(this.trigger)
+            .create(this.width / 2 - 100, guiTop + 110, 200, 20, textTrigger, (pCycleButton, pValue) -> {
+                this.trigger = pValue;
+        }));
         
     }
 
     private void onDone() {
-        NetworkManager.MOD_CHANNEL.sendToServer(new SoundPlayerBlockEntityPacket(this.getBlockEntity().getBlockPos(), this.playlist, this.playbackArea, this.locked, this.trigger));
+        NetworkManager.MOD_CHANNEL.sendToServer(new SoundPlayerBlockEntityPacket(this.getBlockEntity().getBlockPos(), this.playlist, this.volume, this.pitch, this.playbackArea, this.locked, this.trigger));
         this.onClose();
     }
 
@@ -134,11 +152,11 @@ public class SoundPlayerConfigurationScreen extends Screen
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
         renderBackground(stack, 0);        
         drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
-        
-        Utils.renderTooltip(this, this.lockButton, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.sound_player_config.info.lock"), width / 3); }, stack, mouseX, mouseY);
-        Utils.renderTooltip(this, this.triggerButton, () -> { return Utils.getEnumTooltipData(this, ETrigger.class, width / 3); }, stack, mouseX, mouseY);
-        
         super.render(stack, mouseX, mouseY, partialTicks);
+        
+        Utils.renderTooltip(this, this.triggerButton, () -> { return Utils.getEnumTooltipData(this, ETrigger.class, width / 3); }, stack, mouseX, mouseY);
+        Utils.renderTooltip(this, this.lockButton, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.sound_player_config.info.lock"), width / 3); }, stack, mouseX, mouseY);
+        
     }
 
     @Override

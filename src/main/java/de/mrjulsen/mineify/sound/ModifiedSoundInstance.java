@@ -21,14 +21,15 @@ public class ModifiedSoundInstance extends AbstractSoundInstance {
     private final SoundBuffer audioData;
     private final String path; // for accessibility only
     private Channel channel;
+    private int attenuationDistance;
 
-    public ModifiedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, float volume, float pitch, BlockPos position, String path) {
+    public ModifiedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, int attenuationDistance, float volume, float pitch, BlockPos position, String path) {
         super(pLocation, pSource);
         this.path = path;
-        this.volume = volume;
         this.pitch = pitch;
-        this.audioData = audioData;
         this.volume = volume;
+        this.audioData = audioData;
+        this.attenuationDistance = attenuationDistance;
         this.pitch = pitch;
         this.x = position.getX() + 0.5D;
         this.y = position.getY() + 0.5D;
@@ -51,14 +52,14 @@ public class ModifiedSoundInstance extends AbstractSoundInstance {
         return path;
     }
 
-    public void modify(@Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+    public void modify(@Nullable Integer attenuationDistance, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         if (channel == null) {
             return;
         }
 
-        if (volume != null) {
+        if (attenuationDistance != null) {
             channel.setVolume(volume);
-            channel.linearAttenuation(Math.max(volume, 1.0F) * (float)sound.getAttenuationDistance());
+            channel.linearAttenuation(Math.max(volume, 1.0F) * (float)attenuationDistance);
         }
         if (pitch != null) channel.setPitch(pitch);
 
@@ -79,7 +80,7 @@ public class ModifiedSoundInstance extends AbstractSoundInstance {
 
     @Override
     public Sound getSound() {        
-        return new Sound(this.sound.getPath().getPath(), this.sound.getVolume(), this.sound.getPitch(), this.sound.getWeight(), Sound.Type.FILE, true, false, this.sound.getAttenuationDistance());
+        return new Sound(this.sound.getPath().getPath(), this.sound.getVolume(), this.sound.getPitch(), this.sound.getWeight(), Sound.Type.FILE, true, false, attenuationDistance);
     }
     
 }

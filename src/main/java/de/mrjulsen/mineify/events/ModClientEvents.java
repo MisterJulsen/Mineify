@@ -21,6 +21,6 @@ public class ModClientEvents {
         if (ModKeys.soundBoardKeyMapping.isDown() && Minecraft.getInstance().player.getInventory().hasAnyOf(Set.of(ModItems.SOUND_BOARD.get())) && !Minecraft.getInstance().player.getCooldowns().isOnCooldown(ModItems.SOUND_BOARD.get())) {
             ClientWrapper.showSoundBoardScreen();
         }
-    }   
+    }
 
 }

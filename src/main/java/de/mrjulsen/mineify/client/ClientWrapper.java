@@ -82,7 +82,7 @@ public class ClientWrapper {
 
         if (InstanceManager.Client.soundStreamCache.contains(packet.requestId)) {
             final SoundBuffer buff = InstanceManager.Client.soundStreamCache.get(packet.requestId);
-            Minecraft.getInstance().getSoundManager().play(new ModifiedSoundInstance(new ResourceLocation("minecraft:ambient.cave"), buff, SoundSource.MASTER, packet.volume, packet.pitch, packet.pos, packet.path));
+            Minecraft.getInstance().getSoundManager().play(new ModifiedSoundInstance(new ResourceLocation("minecraft:ambient.cave"), buff, SoundSource.MASTER, packet.attenuationDistance, packet.volume, packet.pitch, packet.pos, packet.path));
         }
     }
 
@@ -130,11 +130,11 @@ public class ClientWrapper {
     }
 
     public static void handleSoundModificationPacket(SoundModificationPacket packet, Supplier<NetworkEvent.Context> ctx) {
-        modifySoundOnClient(packet.soundId, packet.volume, packet.pitch, packet.x, packet.y, packet.z);
+        modifySoundOnClient(packet.soundId, packet.attenuationDistance, packet.pitch, packet.x, packet.y, packet.z);
     }
 
     public static void handleSoundModificationWithPathPacket(SoundModificationWithPathPacket packet, Supplier<NetworkEvent.Context> ctx) {
-        modifySoundOnClient(packet.shortPath, packet.volume, packet.pitch, packet.x, packet.y, packet.z);
+        modifySoundOnClient(packet.shortPath, packet.attenuationDistance, packet.pitch, packet.x, packet.y, packet.z);
     }
 
     public static void uploadFromClient(String srcPath, String filename, EUserSoundVisibility visibility, ESoundCategory category, AudioFileConfig config, UUID uploader, long usedBytes, Runnable andThen) {        
@@ -196,15 +196,15 @@ public class ClientWrapper {
         });
     }
 
-    public static void modifySoundOnClient(long soundId, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+    public static void modifySoundOnClient(long soundId, @Nullable Integer attenuationDistance, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         if (InstanceManager.Client.playingSoundsCache.contains(soundId)) {
-            InstanceManager.Client.playingSoundsCache.getAndRemove(soundId).modify(volume, pitch, x, y, z);
+            InstanceManager.Client.playingSoundsCache.getAndRemove(soundId).modify(attenuationDistance, pitch, x, y, z);
         }
     }
 
-    public static void modifySoundOnClient(String shortPath, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
+    public static void modifySoundOnClient(String shortPath, @Nullable Integer attenuationDistance, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         InstanceManager.Client.playingSoundsCache.forEach(a -> shortPath == null || shortPath.isBlank() || a.getPath().equals(shortPath), (id, soundFile) -> {
-            InstanceManager.Client.playingSoundsCache.get(id).modify(volume, pitch, x, y, z);
+            InstanceManager.Client.playingSoundsCache.get(id).modify(attenuationDistance, pitch, x, y, z);
         });
     }
 
