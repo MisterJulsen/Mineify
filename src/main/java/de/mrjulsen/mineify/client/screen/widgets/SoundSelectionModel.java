@@ -3,13 +3,13 @@ package de.mrjulsen.mineify.client.screen.widgets;
 import com.google.common.collect.Lists;
 
 import de.mrjulsen.mineify.Constants;
-import de.mrjulsen.mineify.client.ESoundVisibility;
+import de.mrjulsen.mineify.api.ClientApi;
 import de.mrjulsen.mineify.client.screen.PlaylistScreen;
-import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.network.SoundRequest;
-import de.mrjulsen.mineify.network.packets.SoundDeleteRequestPacket;
-import de.mrjulsen.mineify.sound.PlaylistData;
+import de.mrjulsen.mineify.sound.ESoundCategory;
+import de.mrjulsen.mineify.sound.SimplePlaylist;
 import de.mrjulsen.mineify.sound.SoundFile;
+
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -29,7 +29,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class SoundSelectionModel {
     
     private final PlaylistScreen parent;
-    private final Consumer<PlaylistData> callback;
+    private final Consumer<SimplePlaylist> callback;
 
     private SoundFile[] pool;
     private final List<SoundFile> selected = new ArrayList<>();
@@ -40,11 +40,11 @@ public class SoundSelectionModel {
 
     private boolean initialized = false;
 
-    public SoundSelectionModel(PlaylistScreen screen, Runnable pOnListChanged, UUID userUUID, PlaylistData data, Consumer<PlaylistData> callback) {
+    public SoundSelectionModel(PlaylistScreen screen, Runnable pOnListChanged, UUID userUUID, SimplePlaylist data, Consumer<SimplePlaylist> callback) {
         this.parent = screen;
         this.onListChanged = pOnListChanged;
         this.callback = callback;
-        this.playlist = data.sounds;       
+        this.playlist = data.getSounds();       
     }
 
     public Stream<SoundSelectionModel.Entry> getUnselected() {
@@ -70,10 +70,9 @@ public class SoundSelectionModel {
     public boolean playlistContainsFileByOtherUsers() {
         return this.selected.stream().filter(x -> !x.getOwner().equals(Minecraft.getInstance().player.getUUID().toString())).count() > 0;
     }
-
-    @SuppressWarnings("resource") 
+    
     public void commit() {
-        this.callback.accept(new PlaylistData(this.selected.toArray(SoundFile[]::new), this.parent.isLooping(), this.parent.isRandom()));
+        this.callback.accept(new SimplePlaylist(this.selected.toArray(SoundFile[]::new), this.parent.isLooping(), this.parent.isRandom()));
     }
 
     public SoundFile[] getPool() {
@@ -81,7 +80,7 @@ public class SoundSelectionModel {
     }
 
     public void readFromDisk(UUID playerUUID, Runnable andThen) {
-        SoundRequest.getSoundListFromServer((sounds) -> {
+        ClientApi.getSoundList(new ESoundCategory[] { ESoundCategory.DEFAULT }, null, null, (sounds) -> {
             this.pool = sounds;
             if (this.pool == null) {
                 this.selected.clear();
@@ -102,7 +101,7 @@ public class SoundSelectionModel {
             this.unselected.removeAll(this.selected);
             
             andThen.run();
-        });   
+        });
     }
 
 
@@ -186,7 +185,7 @@ public class SoundSelectionModel {
         }
 
         public Component getInfo() {
-            return new TextComponent(this.sound.getNameOfOwner(true) + " (" + new TranslatableComponent(this.sound.getVisibility().getTranslationKey()).getString() + ")\n" + this.sound.getDuration().toString() + " / " + this.sound.getSizeFormatted());
+            return new TextComponent(this.sound.getNameOfOwner(true) + " (" + new TranslatableComponent(this.sound.getVisibility().getTranslationKey()).getString() + ")\n" + this.sound.getDuration().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " / " + this.sound.getSizeFormatted());
         }
 
         protected void toggleSelection(boolean sort) {
@@ -230,21 +229,11 @@ public class SoundSelectionModel {
 
         @Override
         public boolean canDelete(UUID userUUID) {
-            boolean canDelete = true;
-
             if (!this.canSelect()) {
-                canDelete = false;
+                return false;
             }
 
-            if (canDelete && (this.sound.getVisibility() == ESoundVisibility.SERVER)) {
-                canDelete = false;
-            }
-
-            if (canDelete && ((this.sound.getVisibility() == ESoundVisibility.SHARED || this.sound.getVisibility() == ESoundVisibility.PRIVATE) && (this.sound.getOwner() == null || !this.sound.getOwner().equals(userUUID.toString())))) {
-                canDelete = false;
-            }
-
-            return canDelete;
+            return this.sound.canModify(userUUID);
         }
 
         @Override
@@ -252,7 +241,9 @@ public class SoundSelectionModel {
             if (!canDelete(userUUID))
                 return;
             
-            NetworkManager.MOD_CHANNEL.sendToServer(new SoundDeleteRequestPacket(this.sound.getName(), this.sound.getOwner(), this.sound.getVisibility()));
+            ClientApi.deleteSound(this.sound.getName(), this.sound.getOwner(), this.sound.getVisibility(), this.sound.getCategory(), () -> {
+                parent.reload();
+            });
         }
     }
 

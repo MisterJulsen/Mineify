@@ -1,38 +1,70 @@
 package de.mrjulsen.mineify.network.packets;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.BiConsumer;
+import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
-import de.mrjulsen.mineify.Constants;
+import org.jetbrains.annotations.NotNull;
+
 import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.NetworkManager;
-import de.mrjulsen.mineify.sound.SoundDataCache;
+import de.mrjulsen.mineify.sound.ESoundCategory;
 import de.mrjulsen.mineify.sound.SoundFile;
-import de.mrjulsen.mineify.util.IOUtils;
+import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 public class SoundListRequestPacket {
     private final long requestID;
+    private final @NotNull ESoundCategory[] categoryWhitelist;
+    private final @NotNull ESoundVisibility[] visibilityWhitelist;
+    private final @NotNull String[] usersWhitelist;
 
-    public SoundListRequestPacket(long requestId) {
+    public SoundListRequestPacket(long requestId, @NotNull ESoundVisibility[] visibilityWhitelist, @NotNull String[] usersWhitelist, @NotNull ESoundCategory[] categoryWhitelist) {
         this.requestID = requestId;
+        this.visibilityWhitelist = visibilityWhitelist == null ? new ESoundVisibility[0] : visibilityWhitelist;
+        this.usersWhitelist = usersWhitelist == null ? new String[0] : usersWhitelist;
+        this.categoryWhitelist = categoryWhitelist == null ? new ESoundCategory[0] : categoryWhitelist;
     }
 
     public static void encode(SoundListRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestID);
+        buffer.writeInt(packet.visibilityWhitelist.length);
+        for (int i = 0; i < packet.visibilityWhitelist.length; i++) {
+            buffer.writeInt(packet.visibilityWhitelist[i].getIndex());
+        }
+        buffer.writeInt(packet.categoryWhitelist.length);
+        for (int i = 0; i < packet.categoryWhitelist.length; i++) {
+            buffer.writeInt(packet.categoryWhitelist[i].getIndex());
+        }
+        buffer.writeInt(packet.usersWhitelist.length);
+        for (int i = 0; i < packet.usersWhitelist.length; i++) {
+            int l = packet.usersWhitelist[i].getBytes(StandardCharsets.UTF_8).length;
+            buffer.writeInt(l);
+            buffer.writeUtf(packet.usersWhitelist[i], l);
+        }
     }
 
     public static SoundListRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
+        int n = buffer.readInt();
+        ESoundVisibility[] visibilityWhitelist = new ESoundVisibility[n];
+        for (int i = 0; i < n; i++) {
+            visibilityWhitelist[i] = ESoundVisibility.getVisibilityByIndex(buffer.readInt());
+        }
+        int p = buffer.readInt();
+        ESoundCategory[] categoryWhitelist = new ESoundCategory[p];
+        for (int i = 0; i < p; i++) {
+            categoryWhitelist[i] = ESoundCategory.getCategoryByIndex(buffer.readInt());
+        }
+        int o = buffer.readInt();
+        String[] usersWhitelist = new String[o];
+        for (int i = 0; i < o; i++) {
+            int l = buffer.readInt();
+            usersWhitelist[i] = buffer.readUtf(l);
+        }
 
-        SoundListRequestPacket instance = new SoundListRequestPacket(requestId);
+        SoundListRequestPacket instance = new SoundListRequestPacket(requestId, visibilityWhitelist, usersWhitelist, categoryWhitelist);
         return instance;
     }
 
@@ -41,8 +73,8 @@ public class SoundListRequestPacket {
             new Thread(() -> {
                 
                 ModMain.LOGGER.debug("Reading sound files...");
-                SoundFile[] soundFiles = getSounds();
-                NetworkManager.MOD_CHANNEL.sendTo(new SoundListResponsePacket(packet.requestID, soundFiles), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                SoundFile[] soundFiles = SoundUtils.readSoundsFromDisk(packet.categoryWhitelist, packet.visibilityWhitelist, packet.usersWhitelist);
+                NetworkManager.sendToClient(new SoundListResponsePacket(packet.requestID, soundFiles), context.get().getSender());
                 
                 ModMain.LOGGER.debug("Sound file list created.");
             }, "SoundFileListReader").start();
@@ -53,81 +85,7 @@ public class SoundListRequestPacket {
 
 
 
-    private static SoundFile[] getSounds() {
-        List<SoundFile> soundFiles = Collections.synchronizedList(new ArrayList<>()); // Contains all visible sounds for that specific user
-
-        // Add all server sounds
-        searchForOggFiles(Constants.CUSTOM_SOUNDS_SERVER_PATH).forEach(path -> soundFiles.add(new SoundFile(path, Constants.SERVER_USERNAME, ESoundVisibility.SERVER)));
-        
-        // Get all sounds of private folder
-        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PRIVATE.getName()), (userFolderPath, userFolderName) -> { 
-            List<String> oggFiles = searchForOggFiles(userFolderPath);
-            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PRIVATE)));
-        });
-
-        // Get all sounds of shared folder
-        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.SHARED.getName()), (userFolderPath, userFolderName) -> {
-            List<String> oggFiles = searchForOggFiles(userFolderPath);
-            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.SHARED)));
-        });
-
-        // Get all sounds of public folder
-        forEachDirectoryInFolder(String.format("%s/%s", Constants.CUSTOM_SOUNDS_SERVER_PATH, ESoundVisibility.PUBLIC.getName()), (userFolderPath, userFolderName) -> {
-            List<String> oggFiles = searchForOggFiles(userFolderPath);
-            oggFiles.parallelStream().forEachOrdered(path -> soundFiles.add(new SoundFile(path, userFolderName, ESoundVisibility.PUBLIC)));
-        });
-
-        applyCacheData(soundFiles);        
-
-        return soundFiles.toArray(SoundFile[]::new);
-    }
-
-    private synchronized static void applyCacheData(List<SoundFile> sounds) {
-        SoundDataCache cache = SoundDataCache.loadOrCreate(Constants.DEFAULT_SOUND_DATA_CACHE);
-        sounds.forEach(x -> x.setCachedDurationInSeconds(cache.get(x.buildPath()).getDuration()));
-        cache.save(Constants.DEFAULT_SOUND_DATA_CACHE);
-    }
-
-    /***** FILE SYSTEM *****/
-    private static List<String> searchForOggFiles(String folder) {
-        List<String> sounds = new ArrayList<>();
-        File file = new File(folder);
-        if (!file.exists() || !file.isDirectory()) {
-            return sounds;
-        }
-
-        File[] files = new File(folder).listFiles();
-        if (files == null) {
-            return sounds;
-        }
-
-        for (File f : files) {
-            if (f.isDirectory() || !IOUtils.getFileExtension(f.getName()).equals(Constants.SOUND_FILE_EXTENSION))
-                continue;
-            
-            sounds.add(f.getPath());            
-        }
-        return sounds;
-    }
-
-    private static void forEachDirectoryInFolder(String folder, BiConsumer<String, String> consumer) {
-        File file = new File(folder);
-        if (!file.exists() || !file.isDirectory()) {
-            return;
-        }
-
-        File[] files = file.listFiles();
-        if (files == null) {
-            return;
-        }
-
-        for (File f : files) {
-            if (!f.isDirectory())
-                continue;
-            
-            consumer.accept(f.getPath(), f.getName());        
-        }
-    }
+    
     
 }
 

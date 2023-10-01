@@ -71,7 +71,8 @@ public class UploaderUsercache {
 
     public void recacheNamesAsync() {
         new Thread(() -> {
-            for (String uuid : cache.keySet()) {
+            String[] uuids = cache.keySet().toArray(String[]::new);
+            for (String uuid : uuids) {
                 recacheUser(uuid);
             }
         }).start();
@@ -95,7 +96,7 @@ public class UploaderUsercache {
     public synchronized boolean save(String filename) {
         try {
             String json = new Gson().toJson(this);
-            IOUtils.createDirectory(Constants.CUSTOM_SOUNDS_SERVER_PATH);
+            IOUtils.createDefaultConfigDirectory();
             IOUtils.writeTextFile(filename, json);
             return true;
         } catch (IOException e) {

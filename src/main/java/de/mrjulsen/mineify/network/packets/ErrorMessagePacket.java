@@ -3,7 +3,7 @@ package de.mrjulsen.mineify.network.packets;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.client.ClientWrapper;
-import de.mrjulsen.mineify.network.ToastMessage;
+import de.mrjulsen.mineify.client.ToastMessage;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;

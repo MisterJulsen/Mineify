@@ -6,7 +6,6 @@ import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent;
 
 public class NextSoundDataRequestPacket {
@@ -43,7 +42,7 @@ public class NextSoundDataRequestPacket {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                NetworkManager.MOD_CHANNEL.sendTo(new NextSoundDataResponsePacket(packet.requestId, data, hasNext, packet.index), context.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                NetworkManager.sendToClient(new NextSoundDataResponsePacket(packet.requestId, data, hasNext, packet.index), context.get().getSender());
                 
             }
 

@@ -2,20 +2,17 @@ package de.mrjulsen.mineify.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import de.mrjulsen.mineify.Constants;
-import de.mrjulsen.mineify.ModMain;
+import de.mrjulsen.mineify.sound.ModifiedSoundInstance;
+import de.mrjulsen.mineify.sound.SoundBuffer;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.PlayerDependDataBuffer;
-import de.mrjulsen.mineify.util.ReadWriteBuffer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.sounds.AbstractSoundInstance;
 
 public class InstanceManager {
 
@@ -62,55 +59,68 @@ public class InstanceManager {
                 }
                 fileCache.remove(requestId);
             }
-        }
-
-        
-        public static final class GarbageCollection extends GarbageCollectionBase {
-
-            private static GarbageCollection INSTANCE;
-
-            public static final GarbageCollection getInstance() {
-                return INSTANCE;
-            }
-
-            public static final GarbageCollection create() {
-                return new GarbageCollection();
-            }
-
-            public GarbageCollection() {
-                if (getInstance() != null) {
-                    return;
-                }
-
-                ModMain.LOGGER.info("Server-side GarbageCollector has been started.");
-                INSTANCE = this;
-            }
-
-            @Override
-            protected void check() {
-                if (Minecraft.getInstance().getConnection() == null) {
-                    return;
-                }
-                Collection<UUID> onlinePlayers = Minecraft.getInstance().getConnection().getOnlinePlayerIds();
-                InstanceManager.Server.fileCache.values().removeIf(x -> {
-                    boolean b = x.isDisposed() || Arrays.stream(x.getRegisteredPlayers()).noneMatch(y -> onlinePlayers.contains(y));
-                    if (b) {
-                        ModMain.LOGGER.debug("GarbageCollection performed on 'Server.fileCache'.");
-                    }
-                    return b;
-                });
-            }
-        }
-        
+        }        
     }
 
     public static final class Client {
-        public static Map<Long, Consumer<SoundFile[]>> consumerCache = new HashMap<>();        
-        public static Map<Long, ReadWriteBuffer> soundStreamCache = new HashMap<>();        
-        public static Map<Long, AbstractSoundInstance> playingSoundsCache = new HashMap<>();
+        public static Cache<Consumer<SoundFile[]>> soundListConsumerCache = new Cache<>();
+        public static Cache<Consumer<Long>> longConsumerCache = new Cache<>();
+        public static Cache<SoundBuffer> soundStreamCache = new Cache<>();
+        public static Cache<ModifiedSoundInstance> playingSoundsCache = new Cache<>();
+        public static Cache<Runnable> runnableCache = new Cache<>();
 
         public static final class GarbageCollection {
 
+        }
+
+        public static final class Cache<T> {
+            private final Map<Long, T> cache = new HashMap<>();
+
+            public void put(long id, T t) {
+                cache.put(id, t);
+            }
+
+            public boolean contains(long id) {
+                return cache.containsKey(id);
+            }
+
+            public T get(long id) {
+                if (!contains(id)) {
+                    return null;
+                }
+
+                return cache.get(id);
+            }
+
+            public T remove(long id) {
+                return cache.remove(id);
+            }
+
+            public T getAndRemove(long id) {
+                if (!contains(id)) {
+                    return null;
+                }
+
+                return remove(id);
+            }
+
+            public int size() {
+                return cache.size();
+            }
+
+            public void clear() {
+                cache.clear();
+            }
+
+            public void forEach(Predicate<T> predicate, BiConsumer<Long, T> callback) {
+                Long[] ids = cache.keySet().toArray(Long[]::new);
+                for (int i = 0; i < ids.length; i++) {
+                    if (predicate.test(cache.get(ids[i]))) {
+                        callback.accept(ids[i], cache.get(ids[i]));
+                    }
+                }
+            }
+            
         }
     }
 

@@ -9,7 +9,7 @@ import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.ESoundVisibility;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.util.IOUtils;
-import de.mrjulsen.mineify.util.Utils;
+import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,23 +21,26 @@ public class SoundFile implements Serializable {
     private final String path;
     private final long size;
     private final ESoundVisibility visibility;
+    private final ESoundCategory category;
 
     private int cachedDuration = 0;
 
-    public SoundFile(String path, String ownerUUID, ESoundVisibility visibility) {
+    public SoundFile(String path, String ownerUUID, ESoundVisibility visibility, ESoundCategory category) {
         this.path = path;
         this.filename = IOUtils.getFileNameWithoutExtension(path);
         this.ownerUUID = ownerUUID;  
         this.size = new File(path).length();
         this.visibility = visibility;
+        this.category = category;
     }
 
-    private SoundFile(String path, String ownerUUID, ESoundVisibility visibility, String filename, long size, int cachedDuration) {
+    private SoundFile(String path, String ownerUUID, ESoundVisibility visibility, String filename, long size, int cachedDuration, ESoundCategory category) {
         this.path = path;
         this.filename = filename;
         this.ownerUUID = ownerUUID;  
         this.size = size;
         this.visibility = visibility;
+        this.category = category;
         this.cachedDuration = cachedDuration;
     } 
 
@@ -47,6 +50,7 @@ public class SoundFile implements Serializable {
         buffer.writeUtf(path);
         buffer.writeLong(size);
         buffer.writeInt(visibility.getIndex());
+        buffer.writeInt(category.getIndex());
         buffer.writeInt(cachedDuration);
     }
 
@@ -56,9 +60,10 @@ public class SoundFile implements Serializable {
         String path = buffer.readUtf();
         long size = buffer.readLong();
         ESoundVisibility visibility = ESoundVisibility.getVisibilityByIndex(buffer.readInt());
+        ESoundCategory category = ESoundCategory.getCategoryByIndex(buffer.readInt());
         int cachedDuration = buffer.readInt();
 
-        return new SoundFile(path, ownerUUID, visibility, filename, size, cachedDuration);
+        return new SoundFile(path, ownerUUID, visibility, filename, size, cachedDuration, category);
     }
 
     public final String getName() {
@@ -71,6 +76,10 @@ public class SoundFile implements Serializable {
 
     public final ESoundVisibility getVisibility() {
         return this.visibility;
+    }
+
+    public final ESoundCategory getCategory() {
+        return this.category;
     }
 
     public final String getNameOfOwner(boolean pullMissing) {
@@ -97,12 +106,20 @@ public class SoundFile implements Serializable {
         return this.getVisibility() != ESoundVisibility.PRIVATE || this.getOwner().equals(uuid);
     }
 
+    public boolean canModify(UUID uuid) {
+        return this.canModify(uuid.toString());
+    }
+
+    public boolean canModify(String uuid) {
+        return this.getVisibility() == ESoundVisibility.PUBLIC || (this.getVisibility() == ESoundVisibility.PRIVATE && this.getOwner().equals(uuid));
+    }
+
     public boolean exists() {
         return new File(this.buildPath()).exists();
     }
 
     public final int readDurationInSeconds() {
-        return calcDurationSeconds(this.getName(), this.getOwner(), this.getVisibility());
+        return calcDurationSeconds();
     }
 
     public final int calcDuration() {
@@ -110,10 +127,10 @@ public class SoundFile implements Serializable {
         this.setCachedDurationInSeconds(cache.get(this.buildPath()).getDuration());
         cache.save(Constants.DEFAULT_SOUND_DATA_CACHE);
 
-        return this.getDurationInSecondsFromCache();
+        return this.getDurationInSeconds();
     }
 
-    public final int getDurationInSecondsFromCache() {
+    public final int getDurationInSeconds() {
         return this.cachedDuration;
     }
 
@@ -123,7 +140,7 @@ public class SoundFile implements Serializable {
 
     @OnlyIn(Dist.CLIENT)
     public final LocalTime getDuration() {
-        int seconds = this.getDurationInSecondsFromCache();
+        int seconds = this.getDurationInSeconds();
         int hours = seconds / 3600;
         int minutes = (seconds % 3600) / 60;
         int secs = seconds % 60;
@@ -132,26 +149,17 @@ public class SoundFile implements Serializable {
     }
 
     public String buildPath() {
-        if (this.getVisibility() == ESoundVisibility.SERVER) {
-            return String.format("%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, this.getName());
-        } else {
-            return String.format("%s/%s/%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, this.getVisibility().getName(), this.getOwner(), this.getName());
-        }
+        return SoundUtils.buildPath(filename, ownerUUID, visibility, category);
     }
 
-    public static String buildPath(String filename, String owner, ESoundVisibility visibility) {
-        if (visibility == ESoundVisibility.SERVER) {
-            return String.format("%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, filename);
-        } else {
-            return String.format("%s/%s/%s/%s.ogg", Constants.CUSTOM_SOUNDS_SERVER_PATH, visibility.getName(), owner, filename);
-        }
+    public String buildShortPath() {
+        return SoundUtils.buildShortPath(filename, ownerUUID, visibility);
     }
 
-    private static int calcDurationSeconds(String filename, String owner, ESoundVisibility visibility) {
-       
+    private int calcDurationSeconds() {
         try {
-            String oggFilePath = buildPath(filename, owner, visibility);
-            return (int)Utils.calculateOggDuration(oggFilePath);
+            String oggFilePath = this.buildPath();
+            return (int)SoundUtils.calculateOggDuration(oggFilePath);
         } catch (Exception e) { return 0;}
     }
 
@@ -170,6 +178,7 @@ public class SoundFile implements Serializable {
         CompoundTag tag = new CompoundTag();
         tag.putString("filename", this.getName());
         tag.putInt("visibility", this.getVisibility().getIndex());
+        tag.putInt("category", this.getCategory().getIndex());
         tag.putString("owner", this.getOwner());
         return tag;
     }
@@ -177,9 +186,27 @@ public class SoundFile implements Serializable {
     public static SoundFile fromNbt(CompoundTag tag) {
         String filename = tag.getString("filename");
         ESoundVisibility visibility = ESoundVisibility.getVisibilityByIndex(tag.getInt("visibility"));
+        ESoundCategory category = ESoundCategory.getCategoryByIndex(tag.getInt("category"));
         String owner = tag.getString("owner");
         
-        return new SoundFile(SoundFile.buildPath(filename, owner, visibility), owner, visibility);
+        return new SoundFile(SoundUtils.buildPath(filename, owner, visibility, category), owner, visibility, category);
+    }
+
+    public static SoundFile fromShortPath(String shortPath, ESoundCategory category) {
+        String[] data = shortPath.split("/");
+
+        if (data.length < 3) {
+            return null;
+        }
+
+        SoundFile file = null;
+        if (data.length == 2) {
+            file = new SoundFile(data[1], data[0], ESoundVisibility.SERVER, category);
+        } else {
+            file = new SoundFile(data[2], data[0], ESoundVisibility.getVisibilityByName(data[1]), category);
+        }
+
+        return file;
     }
 
     @Override

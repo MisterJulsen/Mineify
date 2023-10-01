@@ -19,20 +19,19 @@ import org.lwjgl.system.MemoryUtil;
 import com.google.common.collect.Lists;
 
 import de.mrjulsen.mineify.Constants;
-import de.mrjulsen.mineify.util.ReadWriteBuffer;
 import net.minecraft.client.sounds.AudioStream;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class ExtendedOggAudioStream implements AudioStream {
+public class ModifiedOggAudioStream implements AudioStream {
    private long handle;
    private final AudioFormat audioFormat;
-   private final ReadWriteBuffer input;
+   private final SoundBuffer input;
    private ByteBuffer buffer = MemoryUtil.memAlloc(Constants.DEFAULT_DATA_BLOCK_SIZE);
 
-   public ExtendedOggAudioStream(ReadWriteBuffer pInput) throws IOException {
+   public ModifiedOggAudioStream(SoundBuffer pInput) throws IOException {
       this.input = pInput;
       this.buffer.limit(0);
       MemoryStack memorystack = MemoryStack.stackPush();
@@ -117,7 +116,7 @@ public class ExtendedOggAudioStream implements AudioStream {
 
    }
 
-   private boolean readFrame(ExtendedOggAudioStream.OutputConcat pOutput) throws IOException {
+   private boolean readFrame(ModifiedOggAudioStream.OutputConcat pOutput) throws IOException {
       if (this.handle == 0L) {
          return false;
       } else {
@@ -202,14 +201,14 @@ public class ExtendedOggAudioStream implements AudioStream {
       }
    }
 
-   private void convertMono(FloatBuffer pChannel,ExtendedOggAudioStream.OutputConcat pOutput) {
+   private void convertMono(FloatBuffer pChannel,ModifiedOggAudioStream.OutputConcat pOutput) {
       while(pChannel.hasRemaining()) {
          pOutput.put(pChannel.get());
       }
 
    }
 
-   private void convertStereo(FloatBuffer pLeftChannel, FloatBuffer pRightChannel,ExtendedOggAudioStream.OutputConcat pOutput) {
+   private void convertStereo(FloatBuffer pLeftChannel, FloatBuffer pRightChannel,ModifiedOggAudioStream.OutputConcat pOutput) {
       while(pLeftChannel.hasRemaining() && pRightChannel.hasRemaining()) {
          pOutput.put(pLeftChannel.get());
          pOutput.put(pRightChannel.get());
@@ -232,7 +231,7 @@ public class ExtendedOggAudioStream implements AudioStream {
    }
 
    public ByteBuffer read(int pSize) throws IOException {
-     ExtendedOggAudioStream.OutputConcat OggAudioStream$outputconcat = new ExtendedOggAudioStream.OutputConcat(pSize + 8192);
+     ModifiedOggAudioStream.OutputConcat OggAudioStream$outputconcat = new ModifiedOggAudioStream.OutputConcat(pSize + 8192);
 
       while(this.readFrame(OggAudioStream$outputconcat) && OggAudioStream$outputconcat.byteCount < pSize) {
       }
@@ -241,7 +240,7 @@ public class ExtendedOggAudioStream implements AudioStream {
    }
 
    public ByteBuffer readAll() throws IOException {
-     ExtendedOggAudioStream.OutputConcat OggAudioStream$outputconcat = new ExtendedOggAudioStream.OutputConcat(16384);
+     ModifiedOggAudioStream.OutputConcat OggAudioStream$outputconcat = new ModifiedOggAudioStream.OutputConcat(16384);
 
       while(this.readFrame(OggAudioStream$outputconcat)) {
       }

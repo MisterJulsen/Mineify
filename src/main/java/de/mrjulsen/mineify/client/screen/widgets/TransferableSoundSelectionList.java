@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 
 import de.mrjulsen.mineify.ModMain;
-import de.mrjulsen.mineify.client.screen.PlaylistScreen;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -33,6 +32,7 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
 
     private static final ResourceLocation ICON_OVERLAY_LOCATION = new ResourceLocation(ModMain.MOD_ID, "textures/gui/sound_icons.png");
     protected static final ResourceLocation DEFAULT_FILE_ICON = new ResourceLocation("textures/item/music_disc_strad.png");
+
     private final Component title;
 
     public TransferableSoundSelectionList(Minecraft pMinecraft, int pWidth, int pHeight, Component pTitle) {
@@ -70,17 +70,18 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
         private final TransferableSoundSelectionList parent;
         protected final Minecraft minecraft;
         protected final Screen screen;
-        private final SoundSelectionModel.Entry pack;
+        private final SoundSelectionModel.Entry entry;
+        
         private final FormattedCharSequence nameDisplayCache;
         private final MultiLineLabel descriptionDisplayCache;
 
-        public SoundEntry(Minecraft pMinecraft, TransferableSoundSelectionList pParent, Screen pScreen, SoundSelectionModel.Entry pPack) {
+        public SoundEntry(Minecraft pMinecraft, TransferableSoundSelectionList pParent, Screen pScreen, SoundSelectionModel.Entry entry) {
             this.minecraft = pMinecraft;
             this.screen = pScreen;
-            this.pack = pPack;
+            this.entry = entry;
             this.parent = pParent;
-            this.nameDisplayCache = cacheName(pMinecraft, pPack.getName());
-            this.descriptionDisplayCache = cacheDescription(pMinecraft, pPack.getInfo());
+            this.nameDisplayCache = cacheName(pMinecraft, entry.getName());
+            this.descriptionDisplayCache = cacheDescription(pMinecraft, entry.getInfo());
         }
 
         private static FormattedCharSequence cacheName(Minecraft pMinecraft, Component pName) {
@@ -100,13 +101,13 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
         }
 
         public Component getNarration() {
-            return new TranslatableComponent("narrator.select", this.pack.getName());
+            return new TranslatableComponent("narrator.select", this.entry.getName());
         }
 
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
             
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, new ResourceLocation(this.pack.getIconFileName()));
+            RenderSystem.setShaderTexture(0, new ResourceLocation(this.entry.getIconFileName()));
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
             GuiComponent.blit(pPoseStack, pLeft, pTop, 0.0F, 0.0F, 32, 32, 32, 32);
@@ -120,14 +121,14 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                 int i = pMouseX - pLeft;
                 int j = pMouseY - pTop;                
 
-                if (this.pack.canSelect()) {
+                if (this.entry.canSelect()) {
                     if (i < 32 && i > 16) {
                         GuiComponent.blit(pPoseStack, pLeft, pTop, 0.0F, 32.0F, 32, 32, 256, 256);
                     } else {
                         GuiComponent.blit(pPoseStack, pLeft, pTop, 0.0F, 0.0F, 32, 32, 256, 256);
                     }
 
-                    if (this.pack.canDelete(this.minecraft.player.getUUID())) {
+                    if (this.entry.canDelete(this.minecraft.player.getUUID())) {
                         if (i < 16) {
                             GuiComponent.blit(pPoseStack, pLeft, pTop, 128.0F, 32.0F, 32, 32, 256, 256);
                         } else {
@@ -135,7 +136,7 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                         }
                     }
                 } else {
-                    if (this.pack.canUnselect()) {
+                    if (this.entry.canUnselect()) {
                         if (i < 16) {
                             GuiComponent.blit(pPoseStack, pLeft, pTop, 32.0F, 32.0F, 32, 32, 256, 256);
                         } else {
@@ -143,7 +144,7 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                         }
                     }
 
-                    if (this.pack.canMoveUp()) {
+                    if (this.entry.canMoveUp()) {
                         if (i < 32 && i > 16 && j < 16) {
                             GuiComponent.blit(pPoseStack, pLeft, pTop, 96.0F, 32.0F, 32, 32, 256, 256);
                         } else {
@@ -151,7 +152,7 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                         }
                     }
 
-                    if (this.pack.canMoveDown()) {
+                    if (this.entry.canMoveDown()) {
                         if (i < 32 && i > 16 && j > 16) {
                             GuiComponent.blit(pPoseStack, pLeft, pTop, 64.0F, 32.0F, 32, 32, 256, 256);
                         } else {
@@ -161,8 +162,7 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
                 }
             }
 
-            this.minecraft.font.drawShadow(pPoseStack, formattedcharsequence, (float) (pLeft + 32 + 2),
-                    (float) (pTop + 1), 16777215);
+            this.minecraft.font.drawShadow(pPoseStack, formattedcharsequence, (float) (pLeft + 32 + 2), (float) (pTop + 1), 16777215);
             multilinelabel.renderLeftAligned(pPoseStack, pLeft + 32 + 2, pTop + 12, 10, 8421504);
         }
 
@@ -174,36 +174,35 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
             double d0 = pMouseX - (double) this.parent.getRowLeft();
             double d1 = pMouseY - (double) this.parent.getRowTop(this.parent.children().indexOf(this));
             if (this.showHoverOverlay() && d0 <= 32.0D) {
-                if (d0 > 16.0D && this.pack.canSelect()) {
-                    this.pack.select();
+                if (d0 > 16.0D && this.entry.canSelect()) {
+                    this.entry.select();
                     return true;
                 }
 
-                if (d0 < 16.0D && this.pack.canDelete(this.minecraft.player.getUUID())) {
+                if (d0 < 16.0D && this.entry.canDelete(this.minecraft.player.getUUID())) {
                     this.minecraft.setScreen(new ConfirmScreen((result) -> {
                     if (result) {
-                        this.pack.delete(this.minecraft.player.getUUID());
-                        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.delete"), this.pack.getName())); 
-                        ((PlaylistScreen)this.screen).reload();
+                        this.entry.delete(this.minecraft.player.getUUID());
+                        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.delete"), this.entry.getName())); 
                     }
 
                     this.minecraft.setScreen(this.screen);
-                }, new TranslatableComponent("gui.mineify.soundselection.ask_delete"), this.pack.getName()));
+                }, new TranslatableComponent("gui.mineify.soundselection.ask_delete"), this.entry.getName()));
                     return true;
                 }
 
-                if (d0 < 16.0D && this.pack.canUnselect()) {
-                    this.pack.unselect();
+                if (d0 < 16.0D && this.entry.canUnselect()) {
+                    this.entry.unselect();
                     return true;
                 }
 
-                if (d0 > 16.0D && d1 < 16.0D && this.pack.canMoveUp()) {
-                    this.pack.moveUp();
+                if (d0 > 16.0D && d1 < 16.0D && this.entry.canMoveUp()) {
+                    this.entry.moveUp();
                     return true;
                 }
 
-                if (d0 > 16.0D && d1 > 16.0D && this.pack.canMoveDown()) {
-                    this.pack.moveDown();
+                if (d0 > 16.0D && d1 > 16.0D && this.entry.canMoveDown()) {
+                    this.entry.moveDown();
                     return true;
                 }
             }

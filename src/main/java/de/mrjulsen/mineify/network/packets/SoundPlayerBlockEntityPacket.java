@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
 import de.mrjulsen.mineify.client.ETrigger;
 import de.mrjulsen.mineify.sound.PlaybackArea;
-import de.mrjulsen.mineify.sound.PlaylistData;
+import de.mrjulsen.mineify.sound.SimplePlaylist;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
@@ -13,23 +13,29 @@ import net.minecraftforge.network.NetworkEvent;
 
 public class SoundPlayerBlockEntityPacket {
     private final BlockPos pos;
-    private final PlaylistData playlist;
+    private final SimplePlaylist playlist;
     private final PlaybackArea playbackArea;
+    private final float volume;
+    private final float pitch;
     private final boolean locked;
     private final ETrigger trigger;
 
-     public SoundPlayerBlockEntityPacket(BlockPos pos, PlaylistData playlist, PlaybackArea playbackArea, boolean locked, ETrigger trigger) {
+     public SoundPlayerBlockEntityPacket(BlockPos pos, SimplePlaylist playlist, float volume, float pitch, PlaybackArea playbackArea, boolean locked, ETrigger trigger) {
         this.pos = pos;
         this.playlist = playlist;
         this.playbackArea = playbackArea;
         this.locked = locked;
         this.trigger = trigger;
+        this.volume = volume;
+        this.pitch = pitch;
     }
 
     public static void encode(SoundPlayerBlockEntityPacket packet, FriendlyByteBuf buffer) {
         buffer.writeBlockPos(packet.pos);
         buffer.writeBoolean(packet.locked);
         buffer.writeByte(packet.trigger.getIndex());
+        buffer.writeFloat(packet.volume);
+        buffer.writeFloat(packet.pitch);
         packet.playlist.serialize(buffer);
         packet.playbackArea.serialize(buffer);
     }
@@ -38,10 +44,12 @@ public class SoundPlayerBlockEntityPacket {
         BlockPos pos = buffer.readBlockPos();
         boolean locked = buffer.readBoolean();
         ETrigger trigger = ETrigger.getTriggerByIndex(buffer.readByte());
-        PlaylistData playlist = PlaylistData.deserialize(buffer);
+        float volume = buffer.readFloat();
+        float pitch = buffer.readFloat();
+        SimplePlaylist playlist = SimplePlaylist.deserialize(buffer);
         PlaybackArea playbackArea = PlaybackArea.deserialize(buffer);
 
-        SoundPlayerBlockEntityPacket instance = new SoundPlayerBlockEntityPacket(pos, playlist, playbackArea, locked, trigger);
+        SoundPlayerBlockEntityPacket instance = new SoundPlayerBlockEntityPacket(pos, playlist, volume, pitch, playbackArea, locked, trigger);
         return instance;
     }
 
@@ -54,10 +62,12 @@ public class SoundPlayerBlockEntityPacket {
                 return;
 
             if (level.getBlockEntity(packet.pos) instanceof SoundPlayerBlockEntity blockEntity) {
-                blockEntity.setPlaylist(packet.playlist.sounds);
-                blockEntity.setLooping(packet.playlist.loop);
-                blockEntity.setRandom(packet.playlist.random);
-                blockEntity.setPlaybackArea(packet.playbackArea);
+                blockEntity.getPlaylist().setPlaylist(packet.playlist.getSounds());
+                blockEntity.getPlaylist().setLoop(packet.playlist.isLoop());
+                blockEntity.getPlaylist().setRandom(packet.playlist.isRandom());
+                blockEntity.getPlaylist().setPlaybackArea(packet.playbackArea);
+                blockEntity.getPlaylist().setVolume(packet.volume);
+                blockEntity.getPlaylist().setPitch(packet.pitch);
                 blockEntity.setTrigger(packet.trigger);
                 if (packet.locked) {
                     blockEntity.lock(context.get().getSender().getUUID());

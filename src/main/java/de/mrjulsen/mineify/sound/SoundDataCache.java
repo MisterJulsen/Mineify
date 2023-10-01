@@ -7,10 +7,12 @@ import java.util.Map;
 
 import com.google.gson.Gson;
 
-import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.util.IOUtils;
-import de.mrjulsen.mineify.util.Utils;
+import de.mrjulsen.mineify.util.SoundUtils;
 
+/**
+ * Stores some sound data, for faster loading.
+ */
 public class SoundDataCache {
     
     private Map<String, CachedSoundData> cache = new HashMap<>();
@@ -62,7 +64,7 @@ public class SoundDataCache {
     public synchronized boolean save(String filename) {
         try {
             String json = new Gson().toJson(this);
-            IOUtils.createDirectory(Constants.CUSTOM_SOUNDS_SERVER_PATH);
+            IOUtils.createDefaultConfigDirectory();
             IOUtils.writeTextFile(filename, json);
             return true;
         } catch (IOException e) {
@@ -84,7 +86,7 @@ public class SoundDataCache {
             this.hash = IOUtils.getFileHash(path);
 
             try {
-                this.duration = (int)Utils.calculateOggDuration(this.getPath());
+                this.duration = (int)SoundUtils.calculateOggDuration(this.getPath());
             } catch (IOException e) {
                 e.printStackTrace();
                 this.duration = 0;

@@ -9,6 +9,8 @@ public class AudioFileConfig {
 
     public final ESoundChannels channels;
     public final byte quality;
+    
+    public static final AudioFileConfig DEFAULT = new AudioFileConfig(ESoundChannels.MONO, OGG_QUALITY_DEFAULT);
 
     /**
      * 

@@ -15,6 +15,7 @@ public class ModClientConfig {
     public static final ForgeConfigSpec.ConfigValue<EUserSoundVisibility> DEFAULT_VISIBILITY;
     public static final ConfigValue<Integer> DEFAULT_QUALITY;
     public static final ForgeConfigSpec.ConfigValue<Boolean> ACTIVATION;
+    public static final ConfigValue<Integer> DEFAULT_SOUND_BOARD_DISTANCE;
 
     static {
         BUILDER.push("Mineify Client Config");
@@ -28,7 +29,8 @@ public class ModClientConfig {
                 .defineInRange("defaults.sound_quality", 5, AudioFileConfig.OGG_QUALITY_MAX, AudioFileConfig.OGG_QUALITY_MIN);                
         ACTIVATION = BUILDER.comment("When false, you won't hear any sounds played by this mod.")
                 .define("enabled", true);
-
+        DEFAULT_SOUND_BOARD_DISTANCE = BUILDER.comment("Preselected distance in the sound board. Limited to the server's max distance.")
+                .define("defaults.sound_board_distance", 10);
         BUILDER.pop();
         SPEC = BUILDER.build();
     }

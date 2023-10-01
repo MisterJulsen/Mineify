@@ -1,18 +1,16 @@
 package de.mrjulsen.mineify.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.util.TriConsumer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -30,6 +28,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.FormattedCharSequence;
 
 public class Utils {
+
     public static void shiftByteArray(byte[] array, int n) {
         int length = array.length;
         byte[] temp = new byte[length];
@@ -55,7 +54,6 @@ public class Utils {
             return "null";
         }
     }
-    
 
     public static String getPlayerName(String uuid) {
         try {
@@ -97,77 +95,45 @@ public class Utils {
         if (w.isMouseOver(mouseX, mouseY)) {
             s.renderTooltip(stack, lines.get(), mouseX, mouseY, s.getMinecraft().font);
         }
-    }
-
-    
-
-    public static double calculateOggDuration(final String filePath) throws IOException {
-        final File oggFile = new File(filePath);
-        
-        int size = (int) oggFile.length();
-        byte[] t = new byte[size];
-        
-        try (FileInputStream stream = new FileInputStream(oggFile)) {
-            stream.read(t);
-        }
-
-        return calculateOggDuration(t);
-    }
-
-    public static double calculateOggDuration(final byte[] data) {
-        int rate = -1;
-        int length = -1;
-
-        for (int i = data.length - 1 - 8 - 2 - 4; i >= 0 && length < 0; i--) {
-            if (isMatch(data, i, "OggS")) {
-                byte[] byteArray = extractByteArray(data, i + 6, 8);
-                length = extractIntLittleEndian(byteArray);
-            }
-        }
-
-        for (int i = 0; i < data.length - 8 - 2 - 4 && rate < 0; i++) {
-            if (isMatch(data, i, "vorbis")) {
-                byte[] byteArray = extractByteArray(data, i + 11, 4);
-                rate = extractIntLittleEndian(byteArray);
-            }
-        }
-
-        double duration = (double) length / (double) rate;
-        return duration;
-    }
-
-    public static final LocalTime formattedDuration(int seconds) {
-        int hours = seconds / 3600;
-        int minutes = (seconds % 3600) / 60;
-        int secs = seconds % 60;
-
-        return LocalTime.of(hours, minutes, secs);
-    }
-
-    private static boolean isMatch(byte[] array, int startIndex, String pattern) {
-        for (int i = 0; i < pattern.length(); i++) {
-            if (array[startIndex + i] != pattern.charAt(i)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static byte[] extractByteArray(byte[] array, int startIndex, int length) {
-        byte[] result = new byte[length];
-        System.arraycopy(array, startIndex, result, 0, length);
-        return result;
-    }
-
-    private static int extractIntLittleEndian(byte[] byteArray) {
-        ByteBuffer bb = ByteBuffer.wrap(byteArray);
-        bb.order(ByteOrder.LITTLE_ENDIAN);
-        return bb.getInt();
-    }
+    }    
 
     public static void giveAdvancement(ServerPlayer player, String name, String criteriaKey) {
         Advancement adv = player.getServer().getAdvancements().getAdvancement(new ResourceLocation(ModMain.MOD_ID, name));
         player.getAdvancements().award(adv, criteriaKey);
     }
+
+    public static void executeIfNotNull(Runnable runnable) {
+        if (runnable != null) {
+            runnable.run();
+        }
+    }
+
+    public static <T> void executeIfNotNull(Consumer<T> consumer, T object) {
+        if (consumer != null) {
+            consumer.accept(object);
+        }
+    }
+
+    public static <A, B> void executeIfNotNull(BiConsumer<A, B> consumer, A objectA, B objectB) {
+        if (consumer != null) {
+            consumer.accept(objectA, objectB);
+        }
+    }
+
+    public static <A, B, C> void executeIfNotNull(TriConsumer<A, B, C> consumer, A objectA, B objectB, C objectC) {
+        if (consumer != null) {
+            consumer.accept(objectA, objectB, objectC);
+        }
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+    
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
+    }
+
 
 }

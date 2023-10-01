@@ -3,7 +3,6 @@ package de.mrjulsen.mineify.client.screen;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
@@ -12,10 +11,14 @@ import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.sound.AudioFileConfig;
 import de.mrjulsen.mineify.sound.ESoundChannels;
 import de.mrjulsen.mineify.util.IOUtils;
+import de.mrjulsen.mineify.util.SoundUtils;
 import de.mrjulsen.mineify.util.Utils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
@@ -26,10 +29,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
 
 @OnlyIn(Dist.CLIENT)
-public class UploadSoundScreen extends Screen
+public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Screen
 {
-    public static final Component title = new TextComponent("soundupload");
-    private final PlaylistScreen lastScreen;
+    public static final Component title = new TranslatableComponent("gui.mineify.upload.title");
+    private final T lastScreen;
     
     private int guiTop = 50;
     
@@ -50,7 +53,6 @@ public class UploadSoundScreen extends Screen
     protected ForgeSlider qualitySlider; 
     protected Button doneButton;
 
-    private TranslatableComponent textTitle = new TranslatableComponent("gui.mineify.upload.title");
     private TranslatableComponent textFilename = new TranslatableComponent("gui.mineify.upload.filename");
     private TranslatableComponent textVisibility = new TranslatableComponent("gui.mineify.upload.visibility");
     private TranslatableComponent textChannels = new TranslatableComponent("gui.mineify.upload.channels");
@@ -59,7 +61,7 @@ public class UploadSoundScreen extends Screen
     private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
     private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
 
-    public UploadSoundScreen(PlaylistScreen last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
+    private UploadSoundScreen(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
         super(title);
         this.lastScreen = last;
         this.callback = callback;
@@ -67,6 +69,23 @@ public class UploadSoundScreen extends Screen
         this.quality = (byte)quality;
         this.filename = IOUtils.getFileNameWithoutExtension(path);
         this.visibility = visibility;
+    }
+
+    public static <T extends Screen & IPlaylistScreen> void show(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
+        if (last instanceof SoundBoardScreen) {
+            int i = SoundUtils.getAudioDuration(path);
+            if (i > ModCommonConfig.MAX_SOUND_BOARD_DURATION.get()) {
+                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.upload.duration_too_long"), 
+                    new TranslatableComponent("gui.mineify.upload.duration_too_long.details",
+                    SoundUtils.getDurationFormatted(i),
+                    SoundUtils.getDurationFormatted(ModCommonConfig.MAX_SOUND_BOARD_DURATION.get())
+                )));
+                return;
+            }
+            
+        }
+        
+        last.getMinecraft().setScreen(new UploadSoundScreen<T>(last, path, visibility, channels, quality, callback));
     }
 
     @Override
@@ -92,9 +111,8 @@ public class UploadSoundScreen extends Screen
         this.filenameBox.setMaxLength(ModCommonConfig.MAX_FILENAME_LENGTH.get());
         this.filenameBox.setValue(IOUtils.sanitizeFileName(filename).substring(0, Math.min(filename.length(), ModCommonConfig.MAX_FILENAME_LENGTH.get())));
         this.filenameBox.setFilter(input -> {
-                return IOUtils.isValidFileName(input);
-            }
-        );
+            return IOUtils.isValidFileName(input);
+        });
         this.filenameBox.setResponder((text) -> {
             this.checkFilename();
         });
@@ -102,7 +120,7 @@ public class UploadSoundScreen extends Screen
 
         this.visibilityButton = this.addRenderableWidget(CycleButton.<EUserSoundVisibility>builder((p) -> {            
             return new TranslatableComponent(p.getTranslationKey());
-            })
+        })
             .withValues(EUserSoundVisibility.values()).withInitialValue(this.visibility)
             .create(this.width / 2 - 100, guiTop + 75, 200, 20, textVisibility, (pCycleButton, pValue) -> {
                 this.visibility = pValue;
@@ -124,7 +142,7 @@ public class UploadSoundScreen extends Screen
 
     @SuppressWarnings("resources")
     private void checkFilename() {
-        this.doneButton.active = !Arrays.stream(this.lastScreen.model.getPool()).filter(x -> 
+        this.doneButton.active = !Arrays.stream(this.lastScreen.getPool()).filter(x -> 
             x.getVisibility() == this.visibility.toESoundVisibility() &&
             x.getOwner().equals(this.minecraft.player.getUUID().toString())
         ).anyMatch(x -> x.getName().equals(this.filenameBox.getValue())) && !this.filenameBox.getValue().isBlank();
@@ -165,7 +183,7 @@ public class UploadSoundScreen extends Screen
     @SuppressWarnings("resource")
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
         renderBackground(stack, 0);        
-        drawCenteredString(stack, this.font, textTitle, this.width / 2, guiTop, 16777215);    
+        drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);    
         drawCenteredString(stack, this.font, textFilename, this.width / 2, guiTop + 25, 16777215);      
         
         String qualitySuffix = this.getQualitySuffix((byte)this.qualitySlider.getValueInt());
@@ -183,7 +201,7 @@ public class UploadSoundScreen extends Screen
     }
 
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
-        if(this.shouldCloseOnEsc() && p_keyPressed_1_ == 256 || this.minecraft.options.keyInventory.isActiveAndMatches(InputConstants.getKey(p_keyPressed_1_, p_keyPressed_2_))) {
+        if(this.shouldCloseOnEsc() && p_keyPressed_1_ == 256) {
             this.onCancel();
             return true;
         } else {

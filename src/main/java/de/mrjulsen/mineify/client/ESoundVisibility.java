@@ -40,6 +40,15 @@ public enum ESoundVisibility implements StringRepresentable, ITranslatableEnum {
 		return ESoundVisibility.PRIVATE;
 	}
 
+	public static ESoundVisibility getVisibilityByName(String name) {
+		for (ESoundVisibility shape : ESoundVisibility.values()) {
+			if (shape.getName().equals(name)) {
+				return shape;
+			}
+		}
+		return ESoundVisibility.PRIVATE;
+	}
+
 	public EUserSoundVisibility toEUserSoundVisibility() {
 		return this.getIndex() > -1 ? EUserSoundVisibility.getVisibilityByIndex(this.getIndex()) : null;
 	}

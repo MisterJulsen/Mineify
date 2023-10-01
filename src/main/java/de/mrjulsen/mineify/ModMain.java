@@ -7,7 +7,6 @@ import de.mrjulsen.mineify.blocks.blockentity.ModBlockEntities;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.items.ModItems;
-import de.mrjulsen.mineify.network.InstanceManager;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.UploaderUsercache;
 import de.mrjulsen.mineify.proxy.ClientProxy;
@@ -26,16 +25,14 @@ import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(ModMain.MOD_ID)
-public class ModMain
-{
+public class ModMain {
     public static final String MOD_ID = "mineify";
     public final IProxy PROXY = DistExecutor.safeRunForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public ModMain()
-    {
+    public ModMain() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         eventBus.addListener(this::setup);
 
@@ -49,12 +46,9 @@ public class ModMain
 
         UploaderUsercache.loadOrCreate(Constants.DEFAULT_USERCACHE_PATH);
         UploaderUsercache.INSTANCE.recacheNamesAsync();
-
-        InstanceManager.Server.GarbageCollection.create();
     }
 
-    private void setup(final FMLCommonSetupEvent event)
-    {
+    private void setup(final FMLCommonSetupEvent event) {
         // some preinit code
         LOGGER.info("Welcome to the MINEIFY mod by MRJULSEN.");
         PROXY.setup(event);
