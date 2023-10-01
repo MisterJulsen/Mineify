@@ -71,7 +71,8 @@ public class UploaderUsercache {
 
     public void recacheNamesAsync() {
         new Thread(() -> {
-            for (String uuid : cache.keySet()) {
+            String[] uuids = cache.keySet().toArray(String[]::new);
+            for (String uuid : uuids) {
                 recacheUser(uuid);
             }
         }).start();
