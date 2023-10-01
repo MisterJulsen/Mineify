@@ -157,7 +157,7 @@ public class Playlist extends SimplePlaylist {
     }
 
     public void calcAndSetTimeToPlayNext(long seconds) {
-        this.setTimeToPlayNext(System.nanoTime() + (long)(seconds * 1000000000 * pitch));
+        this.setTimeToPlayNext(System.nanoTime() + (long)(seconds / pitch * 1000000000.0D));
     }
 
     public void setTimeToPlayNext(long time) {
