@@ -111,7 +111,7 @@ public class SoundFile implements Serializable {
     }
 
     public boolean canModify(String uuid) {
-        return this.getVisibility() == ESoundVisibility.PUBLIC || (this.getVisibility() == ESoundVisibility.PRIVATE && this.getOwner().equals(uuid));
+        return this.getVisibility() == ESoundVisibility.PUBLIC || this.getOwner().equals(uuid);
     }
 
     public boolean exists() {
