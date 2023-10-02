@@ -51,11 +51,12 @@ public class SoundBoardModel {
 
     public void readFromDisk(UUID playerUUID, Runnable andThen) {
         ClientApi.getSoundList(new ESoundCategory[] { ESoundCategory.SOUND_BOARD }, null, null, (sounds) -> {
+            SoundFile[] filtered = Arrays.stream(sounds).filter(x -> x.visibleFor(playerUUID)).toArray(SoundFile[]::new);
             int duration = ModCommonConfig.MAX_SOUND_BOARD_DURATION.get();
             if (duration > 0) {                
-                this.pool = Arrays.stream(sounds).filter(x -> x.getDurationInSeconds() <= duration).toArray(SoundFile[]::new);
+                this.pool = Arrays.stream(filtered).filter(x -> x.getDurationInSeconds() <= duration).toArray(SoundFile[]::new);
             } else { 
-                this.pool = sounds;
+                this.pool = filtered;
             }
             andThen.run();
         });
