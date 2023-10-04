@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 public class SoundPlayerBlockEntity extends BlockEntity {
 
     // Properties
-    private Playlist playlist = Playlist.DEFAULT;
+    private Playlist playlist = Playlist.defaultPlaylist();
     private UUID owner = null;
     private ETrigger trigger = ETrigger.NONE;
     private boolean powered = false;

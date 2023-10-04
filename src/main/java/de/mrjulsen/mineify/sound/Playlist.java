@@ -16,8 +16,6 @@ import net.minecraft.world.level.Level;
 
 public class Playlist extends SimplePlaylist {
 
-    public static final Playlist DEFAULT = new Playlist(new SoundFile[0], false, false);
-
     private boolean isPlaying = false;
     private PlaybackArea playbackArea = new PlaybackArea(Constants.DEFAULT_PLAYBACK_AREA_RADIUS, Constants.DEFAULT_PLAYBACK_AREA_DISTANCE);
     private float volume = Constants.VOLUME_MAX;
@@ -78,6 +76,10 @@ public class Playlist extends SimplePlaylist {
     public Playlist withSyncFunc(Runnable syncFunc) {
         this.syncFunc = syncFunc;
         return this;
+    }
+
+    public static Playlist defaultPlaylist() {
+       return new Playlist(new SoundFile[0], false, false);
     }
 
     
