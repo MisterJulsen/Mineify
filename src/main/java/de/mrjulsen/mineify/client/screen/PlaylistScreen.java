@@ -182,7 +182,7 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
         this.setLoading(true);
         this.model.readFromDisk(this.minecraft.player.getUUID(), () -> {
             this.fillLists();
-        this.setLoading(false);
+            this.setLoading(false);
         });
     }
 
@@ -193,8 +193,9 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
 
         if (this.isLoading()) {
             drawCenteredString(pPoseStack, this.font, textLoading, this.width / 2, 100, 16777215);
+            this.cancelButton.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+            return;
         }
-        this.cancelButton.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
         this.availablePackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         this.selectedPackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);

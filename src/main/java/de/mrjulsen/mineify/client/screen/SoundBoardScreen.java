@@ -167,7 +167,7 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
         this.setLoading(true);
         this.model.readFromDisk(this.minecraft.player.getUUID(), () -> {
             this.fillLists();
-        this.setLoading(false);
+            this.setLoading(false);
         });
     }
 
@@ -178,8 +178,9 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
 
         if (this.isLoading()) {
             drawCenteredString(pPoseStack, this.font, textLoading, this.width / 2, 100, 16777215);
+            this.cancelButton.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+            return;
         }
-        this.cancelButton.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
         this.pitchSlider.setMessage(new TextComponent(new TranslatableComponent("gui.mineify.audio.pitch", formatter.format(pitchSlider.getValue())).getString()));
 
