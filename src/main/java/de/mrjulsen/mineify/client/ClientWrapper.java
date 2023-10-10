@@ -115,8 +115,8 @@ public class ClientWrapper {
                 buff.write(packet.data, 0, packet.data.length);
                 buff.setHasNext(packet.hasNext);
             }).start();
-            InstanceManager.Client.soundStreamCache.remove(packet.requestId);
-            InstanceManager.Client.soundStreamCache.put(packet.requestId, buff);
+            //InstanceManager.Client.soundStreamCache.remove(packet.requestId);
+            //InstanceManager.Client.soundStreamCache.put(packet.requestId, buff);
         }
         ctx.get().setPacketHandled(true);
     }
