@@ -36,27 +36,27 @@ public class NetworkManager {
     public static final SimpleChannel MOD_CHANNEL = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(ModMain.MOD_ID, "mineify_channel")).networkProtocolVersion(() -> PROTOCOL_VERSION).clientAcceptedVersions(PROTOCOL_VERSION::equals).serverAcceptedVersions(PROTOCOL_VERSION::equals).simpleChannel();
     
     public static void registerNetworkPackets() {
-        register(DownloadSoundPacket.class).encoder(DownloadSoundPacket::encode).decoder(DownloadSoundPacket::decode).consumer(DownloadSoundPacket::handle).add();
-        register(UploadSoundPacket.class).encoder(UploadSoundPacket::encode).decoder(UploadSoundPacket::decode).consumer(UploadSoundPacket::handle).add();
-        register(UploadSoundCompletionPacket.class).encoder(UploadSoundCompletionPacket::encode).decoder(UploadSoundCompletionPacket::decode).consumer(UploadSoundCompletionPacket::handle).add();
-        register(SoundDeleteRequestPacket.class).encoder(SoundDeleteRequestPacket::encode).decoder(SoundDeleteRequestPacket::decode).consumer(SoundDeleteRequestPacket::handle).add();
-        register(SoundListRequestPacket.class).encoder(SoundListRequestPacket::encode).decoder(SoundListRequestPacket::decode).consumer(SoundListRequestPacket::handle).add();
-        register(SoundListResponsePacket.class).encoder(SoundListResponsePacket::encode).decoder(SoundListResponsePacket::decode).consumer(SoundListResponsePacket::handle).add();
-        register(SoundPlayerBlockEntityPacket.class).encoder(SoundPlayerBlockEntityPacket::encode).decoder(SoundPlayerBlockEntityPacket::decode).consumer(SoundPlayerBlockEntityPacket::handle).add();
-        register(StopSoundPacket.class).encoder(StopSoundPacket::encode).decoder(StopSoundPacket::decode).consumer(StopSoundPacket::handle).add();
-        register(ErrorMessagePacket.class).encoder(ErrorMessagePacket::encode).decoder(ErrorMessagePacket::decode).consumer(ErrorMessagePacket::handle).add();
-        register(NextSoundDataRequestPacket.class).encoder(NextSoundDataRequestPacket::encode).decoder(NextSoundDataRequestPacket::decode).consumer(NextSoundDataRequestPacket::handle).add();
-        register(NextSoundDataResponsePacket.class).encoder(NextSoundDataResponsePacket::encode).decoder(NextSoundDataResponsePacket::decode).consumer(NextSoundDataResponsePacket::handle).add();
-        register(PlaySoundPacket.class).encoder(PlaySoundPacket::encode).decoder(PlaySoundPacket::decode).consumer(PlaySoundPacket::handle).add();
-        register(DefaultServerResponsePacket.class).encoder(DefaultServerResponsePacket::encode).decoder(DefaultServerResponsePacket::decode).consumer(DefaultServerResponsePacket::handle).add();
-        register(SoundFilesCountRequestPacket.class).encoder(SoundFilesCountRequestPacket::encode).decoder(SoundFilesCountRequestPacket::decode).consumer(SoundFilesCountRequestPacket::handle).add();
-        register(SoundFilesCountResponsePacket.class).encoder(SoundFilesCountResponsePacket::encode).decoder(SoundFilesCountResponsePacket::decode).consumer(SoundFilesCountResponsePacket::handle).add();
-        register(SoundFilesSizeRequestPacket.class).encoder(SoundFilesSizeRequestPacket::encode).decoder(SoundFilesSizeRequestPacket::decode).consumer(SoundFilesSizeRequestPacket::handle).add();
-        register(StopSoundWithPathPacket.class).encoder(StopSoundWithPathPacket::encode).decoder(StopSoundWithPathPacket::decode).consumer(StopSoundWithPathPacket::handle).add();
-        register(SoundModificationPacket.class).encoder(SoundModificationPacket::encode).decoder(SoundModificationPacket::decode).consumer(SoundModificationPacket::handle).add();
-        register(SoundModificationWithPathPacket.class).encoder(SoundModificationWithPathPacket::encode).decoder(SoundModificationWithPathPacket::decode).consumer(SoundModificationWithPathPacket::handle).add();
-        register(PlaySoundRequestPacket.class).encoder(PlaySoundRequestPacket::encode).decoder(PlaySoundRequestPacket::decode).consumer(PlaySoundRequestPacket::handle).add();
-        register(SetCooldownPacket.class).encoder(SetCooldownPacket::encode).decoder(SetCooldownPacket::decode).consumer(SetCooldownPacket::handle).add();
+        register(DownloadSoundPacket.class).encoder(DownloadSoundPacket::encode).decoder(DownloadSoundPacket::decode).consumerNetworkThread(DownloadSoundPacket::handle).add();
+        register(UploadSoundPacket.class).encoder(UploadSoundPacket::encode).decoder(UploadSoundPacket::decode).consumerNetworkThread(UploadSoundPacket::handle).add();
+        register(UploadSoundCompletionPacket.class).encoder(UploadSoundCompletionPacket::encode).decoder(UploadSoundCompletionPacket::decode).consumerNetworkThread(UploadSoundCompletionPacket::handle).add();
+        register(SoundDeleteRequestPacket.class).encoder(SoundDeleteRequestPacket::encode).decoder(SoundDeleteRequestPacket::decode).consumerNetworkThread(SoundDeleteRequestPacket::handle).add();
+        register(SoundListRequestPacket.class).encoder(SoundListRequestPacket::encode).decoder(SoundListRequestPacket::decode).consumerNetworkThread(SoundListRequestPacket::handle).add();
+        register(SoundListResponsePacket.class).encoder(SoundListResponsePacket::encode).decoder(SoundListResponsePacket::decode).consumerNetworkThread(SoundListResponsePacket::handle).add();
+        register(SoundPlayerBlockEntityPacket.class).encoder(SoundPlayerBlockEntityPacket::encode).decoder(SoundPlayerBlockEntityPacket::decode).consumerNetworkThread(SoundPlayerBlockEntityPacket::handle).add();
+        register(StopSoundPacket.class).encoder(StopSoundPacket::encode).decoder(StopSoundPacket::decode).consumerNetworkThread(StopSoundPacket::handle).add();
+        register(ErrorMessagePacket.class).encoder(ErrorMessagePacket::encode).decoder(ErrorMessagePacket::decode).consumerNetworkThread(ErrorMessagePacket::handle).add();
+        register(NextSoundDataRequestPacket.class).encoder(NextSoundDataRequestPacket::encode).decoder(NextSoundDataRequestPacket::decode).consumerNetworkThread(NextSoundDataRequestPacket::handle).add();
+        register(NextSoundDataResponsePacket.class).encoder(NextSoundDataResponsePacket::encode).decoder(NextSoundDataResponsePacket::decode).consumerNetworkThread(NextSoundDataResponsePacket::handle).add();
+        register(PlaySoundPacket.class).encoder(PlaySoundPacket::encode).decoder(PlaySoundPacket::decode).consumerNetworkThread(PlaySoundPacket::handle).add();
+        register(DefaultServerResponsePacket.class).encoder(DefaultServerResponsePacket::encode).decoder(DefaultServerResponsePacket::decode).consumerNetworkThread(DefaultServerResponsePacket::handle).add();
+        register(SoundFilesCountRequestPacket.class).encoder(SoundFilesCountRequestPacket::encode).decoder(SoundFilesCountRequestPacket::decode).consumerNetworkThread(SoundFilesCountRequestPacket::handle).add();
+        register(SoundFilesCountResponsePacket.class).encoder(SoundFilesCountResponsePacket::encode).decoder(SoundFilesCountResponsePacket::decode).consumerNetworkThread(SoundFilesCountResponsePacket::handle).add();
+        register(SoundFilesSizeRequestPacket.class).encoder(SoundFilesSizeRequestPacket::encode).decoder(SoundFilesSizeRequestPacket::decode).consumerNetworkThread(SoundFilesSizeRequestPacket::handle).add();
+        register(StopSoundWithPathPacket.class).encoder(StopSoundWithPathPacket::encode).decoder(StopSoundWithPathPacket::decode).consumerNetworkThread(StopSoundWithPathPacket::handle).add();
+        register(SoundModificationPacket.class).encoder(SoundModificationPacket::encode).decoder(SoundModificationPacket::decode).consumerNetworkThread(SoundModificationPacket::handle).add();
+        register(SoundModificationWithPathPacket.class).encoder(SoundModificationWithPathPacket::encode).decoder(SoundModificationWithPathPacket::decode).consumerNetworkThread(SoundModificationWithPathPacket::handle).add();
+        register(PlaySoundRequestPacket.class).encoder(PlaySoundRequestPacket::encode).decoder(PlaySoundRequestPacket::decode).consumerNetworkThread(PlaySoundRequestPacket::handle).add();
+        register(SetCooldownPacket.class).encoder(SetCooldownPacket::encode).decoder(SetCooldownPacket::decode).consumerNetworkThread(SetCooldownPacket::handle).add();
         
     }
 
