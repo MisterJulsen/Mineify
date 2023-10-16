@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 
 import de.mrjulsen.mineify.blocks.ModBlocks;
 import de.mrjulsen.mineify.blocks.blockentity.ModBlockEntities;
+import de.mrjulsen.mineify.commands.ModCommandArguments;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.items.ModItems;
@@ -20,7 +21,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
 import org.slf4j.Logger;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -39,10 +39,11 @@ public class ModMain {
         ModBlocks.register(eventBus);
         ModItems.register(eventBus);
         ModBlockEntities.register(eventBus);
+        ModCommandArguments.register(eventBus);
         NetworkManager.registerNetworkPackets();
         MinecraftForge.EVENT_BUS.register(this);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ModClientConfig.SPEC, MOD_ID + "-client.toml");
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModCommonConfig.SPEC, MOD_ID + "-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModCommonConfig.SPEC, MOD_ID + "-common.toml");       
 
         UploaderUsercache.loadOrCreate(Constants.DEFAULT_USERCACHE_PATH);
         UploaderUsercache.INSTANCE.recacheNamesAsync();

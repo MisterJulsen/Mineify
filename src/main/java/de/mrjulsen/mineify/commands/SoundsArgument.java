@@ -32,6 +32,10 @@ public class SoundsArgument implements ArgumentType<SoundFile> {
 
     private final ESoundCategory category;
 
+    public ESoundCategory getCategory() {
+        return category;
+    }
+
     private SoundsArgument(ESoundCategory category) {
         this.category = category;
     }
