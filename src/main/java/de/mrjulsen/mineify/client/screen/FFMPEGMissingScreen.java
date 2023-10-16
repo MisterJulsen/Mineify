@@ -12,8 +12,6 @@ import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class FFMPEGMissingScreen extends Screen {
 
@@ -23,8 +21,8 @@ public class FFMPEGMissingScreen extends Screen {
     private MultiLineLabel messageLabel;
 
     public FFMPEGMissingScreen(Screen last) {
-        super(new TranslatableComponent("gui.mineify.soundselection.upload.ffmpeg_missing.title"));
-        this.message = new TranslatableComponent("gui.mineify.soundselection.upload.ffmpeg_missing.message", System.getProperty("os.name"), Constants.FFMPEG_WEB);
+        super(Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.title"));
+        this.message = Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.message", System.getProperty("os.name"), Constants.FFMPEG_WEB);
         this.lastScreen = last;
     }
 
@@ -32,17 +30,17 @@ public class FFMPEGMissingScreen extends Screen {
     protected void init() {
         super.init();
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, 150, 200, 20, new TranslatableComponent("gui.mineify.soundselection.upload.ffmpeg_missing.ffmpeg_web"), (p_96057_) -> {
+            new Button(this.width / 2 - 100, 150, 200, 20, Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.ffmpeg_web"), (p_96057_) -> {
                 Util.getPlatform().openUri(Constants.FFMPEG_WEB);
             }, new Button.OnTooltip() {
                 @Override
                 public void onTooltip(Button pButton, PoseStack pPoseStack, int pMouseX, int pMouseY) {
-                    FFMPEGMissingScreen.this.renderTooltip(pPoseStack, new TextComponent(Constants.FFMPEG_WEB), pMouseX, pMouseY);                    
+                    FFMPEGMissingScreen.this.renderTooltip(pPoseStack, Component.literal(Constants.FFMPEG_WEB), pMouseX, pMouseY);                    
                 }
             }));
 
         this.addRenderableWidget(
-            new Button(this.width / 2 - 100, 175, 200, 20, new TranslatableComponent("gui.mineify.soundselection.upload.ffmpeg_missing.show_folder"), (p_96057_) -> {
+            new Button(this.width / 2 - 100, 175, 200, 20, Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.show_folder"), (p_96057_) -> {
                 IOUtils.createDirectory(Constants.FFMPEG_HOME);
                 Util.getPlatform().openFile(new File(Constants.FFMPEG_HOME));
             }));

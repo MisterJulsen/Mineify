@@ -21,8 +21,6 @@ import net.minecraft.advancements.Advancement;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.FormattedCharSequence;
@@ -76,10 +74,10 @@ public class Utils {
     public static <T extends Enum<T> & ITranslatableEnum> List<FormattedCharSequence> getEnumTooltipData(Screen s, Class<T> enumClass, int maxWidth) {
         List<FormattedCharSequence> c = new ArrayList<>();
         T enumValue = enumClass.getEnumConstants()[0];
-        c.addAll(s.getMinecraft().font.split(new TranslatableComponent(enumValue.getDescriptionTranslationKey()), maxWidth));
-        c.add(new TextComponent("").getVisualOrderText());
+        c.addAll(s.getMinecraft().font.split(Component.translatable(enumValue.getDescriptionTranslationKey()), maxWidth));
+        c.add(Component.literal("").getVisualOrderText());
         c.addAll(Arrays.stream(enumClass.getEnumConstants()).map((tr) -> {
-            return new TextComponent(String.format("§l> %s§r§7\n%s", new TranslatableComponent(tr.getTranslationKey()).getString(), new TranslatableComponent(tr.getInfoTranslationKey()).getString()));
+            return Component.literal(String.format("§l> %s§r§7\n%s", Component.translatable(tr.getTranslationKey()).getString(), Component.translatable(tr.getInfoTranslationKey()).getString()));
         }).map((x) -> s.getMinecraft().font.split(x, maxWidth)).flatMap(List::stream).collect(Collectors.toList()));
         
         return c;

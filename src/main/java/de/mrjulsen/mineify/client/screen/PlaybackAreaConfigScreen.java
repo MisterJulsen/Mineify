@@ -14,13 +14,13 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+
 import net.minecraftforge.api.distmarker.Dist;
 
 @OnlyIn(Dist.CLIENT)
 public class PlaybackAreaConfigScreen extends Screen
 {
-    public static final Component title = new TranslatableComponent("gui.mineify.playback_area_config.title");
+    public static final Component title = Component.translatable("gui.mineify.playback_area_config.title");
     private final Screen lastScreen;
     
     private int guiTop = 50;
@@ -44,14 +44,14 @@ public class PlaybackAreaConfigScreen extends Screen
     protected EditBox y2Box;
     protected EditBox z2Box;
 
-    private TranslatableComponent textType = new TranslatableComponent("gui.mineify.playback_area_config.type");
-    private TranslatableComponent textRadius = new TranslatableComponent("gui.mineify.playback_area_config.radius", 0, ModCommonConfig.MAX_RADIUS.get());
-    private TranslatableComponent textFrom = new TranslatableComponent("gui.mineify.playback_area_config.area_from", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
-    private TranslatableComponent textTo = new TranslatableComponent("gui.mineify.playback_area_config.area_to", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
-    private TranslatableComponent textAttenuationDistance = new TranslatableComponent("gui.mineify.playback_area_config.attenuation_distance", 0, ModCommonConfig.MAX_ATTENUATION_DISTANCE.get());
+    private Component textType = Component.translatable("gui.mineify.playback_area_config.type");
+    private Component textRadius = Component.translatable("gui.mineify.playback_area_config.radius", 0, ModCommonConfig.MAX_RADIUS.get());
+    private Component textFrom = Component.translatable("gui.mineify.playback_area_config.area_from", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+    private Component textTo = Component.translatable("gui.mineify.playback_area_config.area_to", -ModCommonConfig.MAX_BOX_SIZE.get(), ModCommonConfig.MAX_BOX_SIZE.get());
+    private Component textAttenuationDistance = Component.translatable("gui.mineify.playback_area_config.attenuation_distance", 0, ModCommonConfig.MAX_ATTENUATION_DISTANCE.get());
 
-    private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
-    private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
+    private Component btnDoneTxt = Component.translatable("gui.done");
+    private Component btnCancelTxt = Component.translatable("gui.cancel");
 
     public PlaybackAreaConfigScreen(Screen lastScreen, PlaybackArea playbackArea, BiConsumer<Boolean, PlaybackArea> callback) {
         super(title);
@@ -104,7 +104,7 @@ public class PlaybackAreaConfigScreen extends Screen
 
         /* Controls */
         this.typeButton = this.addRenderableWidget(CycleButton.<EPlaybackAreaType>builder((p) -> {            
-                return new TranslatableComponent(p.getTranslationKey());
+                return Component.translatable(p.getTranslationKey());
             })
             .withValues(EPlaybackAreaType.values()).withInitialValue(this.playbackArea.getAreaType())
             .create(this.width / 2 - 100, guiTop + 25, 200, 20, textType, (pCycleButton, pValue) -> {
@@ -254,7 +254,7 @@ public class PlaybackAreaConfigScreen extends Screen
 
         super.render(stack, mouseX, mouseY, partialTicks);
 
-        Utils.renderTooltip(this, this.attenuationDistanceBox, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.playback_area_config.volume.description"), width / 3); }, stack, mouseX, mouseY);
+        Utils.renderTooltip(this, this.attenuationDistanceBox, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.playback_area_config.volume.description"), width / 3); }, stack, mouseX, mouseY);
         Utils.renderTooltip(this, this.typeButton, () -> { return Utils.getEnumTooltipData(this, EPlaybackAreaType.class, width / 3); }, stack, mouseX, mouseY);        
     }
 

@@ -36,15 +36,13 @@ import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.gui.widget.ForgeSlider;
 
 @OnlyIn(Dist.CLIENT)
 public class SoundBoardScreen extends Screen implements IPlaylistScreen {
-    private static final Component DRAG_AND_DROP = (new TranslatableComponent("gui.mineify.soundselection.drag_and_drop")).withStyle(ChatFormatting.GRAY);
+    private static final Component DRAG_AND_DROP = (Component.translatable("gui.mineify.soundselection.drag_and_drop")).withStyle(ChatFormatting.GRAY);
     private static final DecimalFormat formatter = new DecimalFormat("#0.00"); 
 
     public final SoundBoardModel model;
@@ -66,16 +64,16 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
     private ForgeSlider distanceSlider;
     private ForgeSlider pitchSlider;
 
-    private TranslatableComponent textClose = new TranslatableComponent("gui.mineify.button.close");
-    private TranslatableComponent textOpenFolder = new TranslatableComponent("gui.mineify.soundselection.open_folder");
-    private TranslatableComponent textUpload = new TranslatableComponent("gui.mineify.soundselection.upload");
-    private TranslatableComponent textLoading = new TranslatableComponent("gui.mineify.soundselection.loading");
-    private TranslatableComponent textDistance = new TranslatableComponent("gui.mineify.audio.distance");
-    private TranslatableComponent textPitch = new TranslatableComponent("gui.mineify.audio.pitch");
+    private Component textClose = Component.translatable("gui.mineify.button.close");
+    private Component textOpenFolder = Component.translatable("gui.mineify.soundselection.open_folder");
+    private Component textUpload = Component.translatable("gui.mineify.soundselection.upload");
+    private Component textLoading = Component.translatable("gui.mineify.soundselection.loading");
+    private Component textDistance = Component.translatable("gui.mineify.audio.distance");
+    private Component textPitch = Component.translatable("gui.mineify.audio.pitch");
 
     @SuppressWarnings("resource")
     public SoundBoardScreen() {
-        super(new TranslatableComponent("gui.mineify.soundselection.title"));
+        super(Component.translatable("gui.mineify.soundselection.title"));
         this.soundsDir = new File(Constants.CUSTOM_SOUNDS_SERVER_PATH + ESoundCategory.SOUND_BOARD.getPathWithSeparatorPrefix());
         this.model = new SoundBoardModel(this, this::fillLists, Minecraft.getInstance().player.getUUID());
     }
@@ -119,15 +117,15 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
             });
         }));
 
-        this.distanceSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 154, this.height - 55, 150, 20, textDistance, new TextComponent(""), 1, ModCommonConfig.SOUND_BOARD_MAX_DISTANCE.get(), this.distance, 1, 1, true));
-        this.pitchSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 + 4, this.height - 55, 150, 20, textPitch, new TextComponent(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01D, 4, true));
+        this.distanceSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 154, this.height - 55, 150, 20, textDistance, Component.literal(""), 1, ModCommonConfig.SOUND_BOARD_MAX_DISTANCE.get(), this.distance, 1, 1, true));
+        this.pitchSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 + 4, this.height - 55, 150, 20, textPitch, Component.literal(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01D, 4, true));
 
-        this.availablePackList = new SoundBoardList(this.minecraft, this, width, this.height, new TranslatableComponent("gui.mineify.soundselection.available"));
+        this.availablePackList = new SoundBoardList(this.minecraft, this, width, this.height, Component.translatable("gui.mineify.soundselection.available"));
         this.availablePackList.setLeftPos(0);
         this.availablePackList.setRenderBackground(false);
         this.addWidget(this.availablePackList);
 
-        this.searchAvailable = new EditBox(this.font, this.width / 2 - 100, 32, 200, 20, new TranslatableComponent("gui.mineify.soundselection.search"));
+        this.searchAvailable = new EditBox(this.font, this.width / 2 - 100, 32, 200, 20, Component.translatable("gui.mineify.soundselection.search"));
         this.searchAvailable.setResponder((text) -> {
             this.availablePackList.updateList(this, text, this.model.getAvailable());
         });
@@ -182,14 +180,14 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
             return;
         }
 
-        this.pitchSlider.setMessage(new TextComponent(new TranslatableComponent("gui.mineify.audio.pitch", formatter.format(pitchSlider.getValue())).getString()));
+        this.pitchSlider.setMessage(Component.literal(Component.translatable("gui.mineify.audio.pitch", formatter.format(pitchSlider.getValue())).getString()));
 
         this.availablePackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
         drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, 8, 16777215);
         drawCenteredString(pPoseStack, this.font, DRAG_AND_DROP, this.width / 2, 20, 16777215);
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
 
-        Utils.renderTooltip(this, this.searchAvailable, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.soundselection.search.tooltip", Constants.INVERSE_PREFIX, Constants.USER_PREFIX, Constants.VISIBILITY_PREFIX), width / 3); }, pPoseStack, pMouseX, pMouseY);
+        Utils.renderTooltip(this, this.searchAvailable, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.soundselection.search.tooltip", Constants.INVERSE_PREFIX, Constants.USER_PREFIX, Constants.VISIBILITY_PREFIX), width / 3); }, pPoseStack, pMouseX, pMouseY);
         
     }
 
@@ -208,17 +206,17 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
 
         final String fileExtension = IOUtils.getFileExtension(firstPath);
         if (Arrays.stream(Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS).noneMatch(x -> x.equals(fileExtension))) {
-            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.invalid_extension"), new TranslatableComponent("gui.mineify.soundselection.upload.invalid_extension.details", fileExtension.toUpperCase())));
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.upload.invalid_extension"), Component.translatable("gui.mineify.soundselection.upload.invalid_extension.details", fileExtension.toUpperCase())));
             return;
         }
 
         if (this.model.storageUsedByUser() >= ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() && ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() > 0) {
-            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.storage_full"), new TranslatableComponent("gui.mineify.soundselection.upload.storage_full.details", IOUtils.formatBytes(ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get()))));
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.upload.storage_full"), Component.translatable("gui.mineify.soundselection.upload.storage_full.details", IOUtils.formatBytes(ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get()))));
             return;
         }
 
         if (this.model.uploadsByUser() >= ModCommonConfig.MAX_FILES.get() && ModCommonConfig.MAX_FILES.get() >= 0) {
-            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.file_limit_exceeded"), new TranslatableComponent("gui.mineify.soundselection.upload.file_limit_exceeded.details", ModCommonConfig.MAX_FILES.get())));
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.upload.file_limit_exceeded"), Component.translatable("gui.mineify.soundselection.upload.file_limit_exceeded.details", ModCommonConfig.MAX_FILES.get())));
             return;
         }
 

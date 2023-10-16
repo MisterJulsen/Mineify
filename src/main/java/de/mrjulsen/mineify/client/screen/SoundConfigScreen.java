@@ -11,14 +11,12 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 
 @OnlyIn(Dist.CLIENT)
 public class SoundConfigScreen extends Screen
 {
-    public static final Component title = new TranslatableComponent("gui.mineify.sound_config.title");
+    public static final Component title = Component.translatable("gui.mineify.sound_config.title");
     private final Screen lastScreen;
     
     private static final DecimalFormat formatter = new DecimalFormat("#0.00"); 
@@ -66,11 +64,11 @@ public class SoundConfigScreen extends Screen
             this.onCancel();
         }));
 
-        this.volumeSlider = this.addRenderableWidget(new CustomMessageSlider(this.width / 2 - 100, guiTop + 25, 200, 20, new TextComponent(""), new TextComponent(""), Constants.VOLUME_MIN, Constants.VOLUME_MAX, this.volume, 0.01D, 1, true, (slider) -> {
-            slider.setMessage(new TextComponent(new TranslatableComponent("gui.mineify.sound_config.volume").getString() + ": " + (int)(slider.getValue() * 100.0D) + "%"));
+        this.volumeSlider = this.addRenderableWidget(new CustomMessageSlider(this.width / 2 - 100, guiTop + 25, 200, 20, Component.literal(""), Component.literal(""), Constants.VOLUME_MIN, Constants.VOLUME_MAX, this.volume, 0.01D, 1, true, (slider) -> {
+            slider.setMessage(Component.literal(Component.translatable("gui.mineify.sound_config.volume").getString() + ": " + (int)(slider.getValue() * 100.0D) + "%"));
         }));
-        this.pitchSlider = this.addRenderableWidget(new CustomMessageSlider(this.width / 2 - 100, guiTop + 50, 200, 20, new TextComponent(""), new TextComponent(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01D, 4, true, (slider) -> {
-            slider.setMessage(new TextComponent(new TranslatableComponent("gui.mineify.sound_config.pitch").getString() + ": " + formatter.format(slider.getValue())));
+        this.pitchSlider = this.addRenderableWidget(new CustomMessageSlider(this.width / 2 - 100, guiTop + 50, 200, 20, Component.literal(""), Component.literal(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01D, 4, true, (slider) -> {
+            slider.setMessage(Component.literal(Component.translatable("gui.mineify.sound_config.pitch").getString() + ": " + formatter.format(slider.getValue())));
         }));
     }
 

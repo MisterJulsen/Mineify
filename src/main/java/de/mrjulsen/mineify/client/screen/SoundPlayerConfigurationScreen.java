@@ -17,13 +17,13 @@ import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.LockIconButton;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
+
 import net.minecraftforge.api.distmarker.Dist;
 
 @OnlyIn(Dist.CLIENT)
 public class SoundPlayerConfigurationScreen extends Screen
 {
-    public static final Component title = new TranslatableComponent("gui.mineify.sound_player_config.title");
+    public static final Component title = Component.translatable("gui.mineify.sound_player_config.title");
     private final Screen lastScreen;
     
     private int guiTop = 50;
@@ -44,13 +44,13 @@ public class SoundPlayerConfigurationScreen extends Screen
     protected CycleButton<ETrigger> triggerButton;
     protected LockIconButton lockButton;
 
-    private TranslatableComponent textPlaylist = new TranslatableComponent("gui.mineify.sound_player_config.playlist");
-    private TranslatableComponent textTrigger = new TranslatableComponent("gui.mineify.sound_player_config.trigger");
-    private TranslatableComponent textZone = new TranslatableComponent("gui.mineify.sound_player_config.zone");
-    private TranslatableComponent textSoundConfig = new TranslatableComponent("gui.mineify.sound_player_config.sound_config");
+    private Component textPlaylist = Component.translatable("gui.mineify.sound_player_config.playlist");
+    private Component textTrigger = Component.translatable("gui.mineify.sound_player_config.trigger");
+    private Component textZone = Component.translatable("gui.mineify.sound_player_config.zone");
+    private Component textSoundConfig = Component.translatable("gui.mineify.sound_player_config.sound_config");
 
-    private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
-    private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
+    private Component btnDoneTxt = Component.translatable("gui.done");
+    private Component btnCancelTxt = Component.translatable("gui.cancel");
 
     public SoundPlayerConfigurationScreen(SoundPlayerBlockEntity blockEntity) {
         super(title);
@@ -124,7 +124,7 @@ public class SoundPlayerConfigurationScreen extends Screen
         }));
 
         this.triggerButton = this.addRenderableWidget(CycleButton.<ETrigger>builder((p) -> {            
-                return new TranslatableComponent(p.getTranslationKey());
+                return Component.translatable(p.getTranslationKey());
             })
             .withValues(ETrigger.values()).withInitialValue(this.trigger)
             .create(this.width / 2 - 100, guiTop + 110, 200, 20, textTrigger, (pCycleButton, pValue) -> {
@@ -155,7 +155,7 @@ public class SoundPlayerConfigurationScreen extends Screen
         super.render(stack, mouseX, mouseY, partialTicks);
         
         Utils.renderTooltip(this, this.triggerButton, () -> { return Utils.getEnumTooltipData(this, ETrigger.class, width / 3); }, stack, mouseX, mouseY);
-        Utils.renderTooltip(this, this.lockButton, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.sound_player_config.info.lock"), width / 3); }, stack, mouseX, mouseY);
+        Utils.renderTooltip(this, this.lockButton, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.sound_player_config.info.lock"), width / 3); }, stack, mouseX, mouseY);
         
     }
 

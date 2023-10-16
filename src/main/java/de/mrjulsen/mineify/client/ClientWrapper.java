@@ -42,8 +42,7 @@ import de.mrjulsen.mineify.util.exceptions.ConfigException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.network.NetworkEvent;
@@ -87,7 +86,7 @@ public class ClientWrapper {
     }
 
     public static void handleErrorMessagePacket(ErrorMessagePacket packet, Supplier<NetworkEvent.Context> ctx) {        
-        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent(packet.message.titleTranslationKey), new TranslatableComponent(packet.message.descriptionTranslationKey, (Object[])packet.message.data)));   
+        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable(packet.message.titleTranslationKey), Component.translatable(packet.message.descriptionTranslationKey, (Object[])packet.message.data)));   
     }
 
     public static void handleSoundListResponsePacket(SoundListResponsePacket packet, Supplier<NetworkEvent.Context> ctx) { 
@@ -141,39 +140,39 @@ public class ClientWrapper {
         Thread sendThread = new Thread(() -> { 
             final long requestId = Api.genRequestId();
             InstanceManager.Client.runnableCache.put(requestId, andThen);
-            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.convert"), new TextComponent(filename)));
+            Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.upload.convert"), Component.literal(filename)));
                  
             try (InputStream stream = SoundUtils.convertToOGG(new FileInputStream(srcPath), config)) {
                 final int maxSize = stream.available();
                 
                 if (maxSize > ModCommonConfig.MAX_FILE_SIZE_BYTES.get() && ModCommonConfig.MAX_FILE_SIZE_BYTES.get() >= 0) {
-                    throw new ConfigException(new TranslatableComponent("gui.mineify.soundselection.upload.file_too_large").getString(), new TranslatableComponent("gui.mineify.soundselection.upload.file_too_large.details", IOUtils.formatBytes(maxSize), IOUtils.formatBytes(ModCommonConfig.MAX_FILE_SIZE_BYTES.get())).getString());
+                    throw new ConfigException(Component.translatable("gui.mineify.soundselection.upload.file_too_large").getString(), Component.translatable("gui.mineify.soundselection.upload.file_too_large.details", IOUtils.formatBytes(maxSize), IOUtils.formatBytes(ModCommonConfig.MAX_FILE_SIZE_BYTES.get())).getString());
                 }
 
                 if (usedBytes > -1 && maxSize + usedBytes > ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() && ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get() >= 0) {
-                    throw new ConfigException(new TranslatableComponent("gui.mineify.soundselection.upload.storage_full").getString(), new TranslatableComponent("gui.mineify.soundselection.upload.storage_full.details", IOUtils.formatBytes(ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get())).getString());
+                    throw new ConfigException(Component.translatable("gui.mineify.soundselection.upload.storage_full").getString(), Component.translatable("gui.mineify.soundselection.upload.storage_full.details", IOUtils.formatBytes(ModCommonConfig.MAX_STORAGE_SPACE_BYTES.get())).getString());
                 }
 
                 stream.mark(maxSize);
                 double duration = SoundUtils.calculateOggDuration(stream.readAllBytes());
                 if (duration > ModCommonConfig.MAX_AUDIO_DURATION.get() && ModCommonConfig.MAX_AUDIO_DURATION.get() >= 0) {
-                    throw new ConfigException(new TranslatableComponent("gui.mineify.soundselection.upload.duration_too_long").getString(), new TranslatableComponent("gui.mineify.soundselection.upload.duration_too_long.details", SoundUtils.formattedDuration((int)duration), SoundUtils.formattedDuration(ModCommonConfig.MAX_AUDIO_DURATION.get())).getString());
+                    throw new ConfigException(Component.translatable("gui.mineify.soundselection.upload.duration_too_long").getString(), Component.translatable("gui.mineify.soundselection.upload.duration_too_long.details", SoundUtils.formattedDuration((int)duration), SoundUtils.formattedDuration(ModCommonConfig.MAX_AUDIO_DURATION.get())).getString());
                 }
                 stream.reset();
 
-                //Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.started"), new TextComponent(filename)));
+                //Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.upload.started"), Component.literal(filename)));
                 byte[] buffer = new byte[Constants.DEFAULT_DATA_BLOCK_SIZE];
                 while (stream.read(buffer) != -1) {                    
                     NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundPacket(requestId, buffer, maxSize));
                 }            
 
-                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.completed"), new TextComponent(filename)));
+                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.upload.completed"), Component.literal(filename)));
                 NetworkManager.MOD_CHANNEL.sendToServer(new UploadSoundCompletionPacket(requestId, uploader, visibility, filename, category));
             } catch (ConfigException e) {
-                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TextComponent(e.getMessage()), new TextComponent(e.getDetails())));
+                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.literal(e.getMessage()), Component.literal(e.getDetails())));
                 InstanceManager.Client.runnableCache.remove(requestId);
             } catch (Exception e) {
-                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.upload.error"), new TextComponent(e.getMessage())));
+                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.upload.error"), Component.literal(e.getMessage())));
                 InstanceManager.Client.runnableCache.remove(requestId);
                 ModMain.LOGGER.error("An error occurred while uploading a sound file.");
                 e.printStackTrace();

@@ -21,8 +21,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.FormattedText;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraftforge.api.distmarker.Dist;
@@ -46,7 +44,7 @@ public class SoundBoardList extends ObjectSelectionList<SoundBoardList.SoundEntr
     }
 
     protected void renderHeader(PoseStack pPoseStack, int pX, int pY, Tesselator pTessellator) {
-        Component component = (new TextComponent("")).append(this.title).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD);
+        Component component = (Component.literal("")).append(this.title).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD);
         this.minecraft.font.draw(pPoseStack, component, (float) (this.width / 2 - this.minecraft.font.width(component) / 2), (float) Math.min(this.y0 + 3, pY), 16777215);
     }
 
@@ -106,7 +104,7 @@ public class SoundBoardList extends ObjectSelectionList<SoundBoardList.SoundEntr
         }
 
         public Component getNarration() {
-            return new TranslatableComponent("narrator.select", this.entry.getName());
+            return Component.translatable("narrator.select", this.entry.getName());
         }
 
         public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
@@ -118,7 +116,7 @@ public class SoundBoardList extends ObjectSelectionList<SoundBoardList.SoundEntr
             GuiComponent.blit(pPoseStack, pLeft, pTop, 0.0F, 0.0F, 32, 32, 32, 32);
             FormattedCharSequence formattedcharsequence = this.nameDisplayCache;
             MultiLineLabel multilinelabel = this.descriptionDisplayCache;
-            if (this.showHoverOverlay() && (this.minecraft.options.touchscreen || pIsMouseOver)) {
+            if (this.showHoverOverlay() && (this.minecraft.options.touchscreen().get() || pIsMouseOver)) {
                 RenderSystem.setShaderTexture(0, SoundBoardList.ICON_OVERLAY_LOCATION);
                 GuiComponent.fill(pPoseStack, pLeft, pTop, pLeft + 32, pTop + 32, -1601138544);
                 RenderSystem.setShader(GameRenderer::getPositionTexShader);
@@ -161,11 +159,11 @@ public class SoundBoardList extends ObjectSelectionList<SoundBoardList.SoundEntr
                     this.minecraft.setScreen(new ConfirmScreen((result) -> {
                     if (result) {
                         this.entry.delete(this.minecraft.player.getUUID());
-                        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.soundselection.delete"), this.entry.getName())); 
+                        Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.soundselection.delete"), this.entry.getName())); 
                     }
 
                     this.minecraft.setScreen(this.screen);
-                }, new TranslatableComponent("gui.mineify.soundselection.ask_delete"), this.entry.getName()));
+                }, Component.translatable("gui.mineify.soundselection.ask_delete"), this.entry.getName()));
                     return true;
                 }
             }

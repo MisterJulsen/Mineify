@@ -14,6 +14,7 @@ import net.minecraft.client.sounds.SoundBufferLibrary;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 
 public class ModifiedSoundInstance extends AbstractSoundInstance {
@@ -24,7 +25,7 @@ public class ModifiedSoundInstance extends AbstractSoundInstance {
     private int attenuationDistance;
 
     public ModifiedSoundInstance(ResourceLocation pLocation, SoundBuffer audioData, SoundSource pSource, int attenuationDistance, float volume, float pitch, BlockPos position, String path) {
-        super(pLocation, pSource);
+        super(pLocation, pSource, RandomSource.create());
         this.path = path;
         this.pitch = pitch;
         this.volume = volume;

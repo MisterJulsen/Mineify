@@ -29,7 +29,7 @@ import de.mrjulsen.mineify.sound.PlaybackArea;
 import de.mrjulsen.mineify.sound.SoundFile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -208,8 +208,8 @@ public class ClientApi {
 
     @OnlyIn(Dist.CLIENT) 
     public static void showUploadDialog(Consumer<Path> result) {        
-        TranslatableComponent titleOpenFileDialog = new TranslatableComponent("gui.mineify.soundselection.openfiledialog.title");
-        TranslatableComponent filterOpenFileDialog = new TranslatableComponent("gui.mineify.soundselection.openfiledialog.filter");
+        Component titleOpenFileDialog = Component.translatable("gui.mineify.soundselection.openfiledialog.title");
+        Component filterOpenFileDialog = Component.translatable("gui.mineify.soundselection.openfiledialog.filter");
         Minecraft.getInstance().getSoundManager().pause();
         PointerBuffer filterPatterns = MemoryUtil.memAllocPointer(Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS.length);
         for (String s : Constants.ACCEPTED_INPUT_AUDIO_FILE_EXTENSIONS) {

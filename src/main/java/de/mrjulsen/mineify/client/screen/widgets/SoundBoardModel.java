@@ -14,8 +14,6 @@ import java.util.stream.Stream;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -96,7 +94,7 @@ public class SoundBoardModel {
         }
 
         public Component getName() {
-            return new TextComponent(this.sound.getName());
+            return Component.literal(this.sound.getName());
         }
         
         @Override
@@ -109,7 +107,7 @@ public class SoundBoardModel {
 
             if (s.startsWith(Constants.USER_PREFIX) && this.sound.getNameOfOwner(true).toLowerCase().contains(s.substring(1, s.length()))) {
                 return !reverse;
-            } else if (s.startsWith(Constants.VISIBILITY_PREFIX) && new TranslatableComponent(this.sound.getVisibility().getTranslationKey()).getString().toLowerCase().contains(s.substring(1, s.length()))) {
+            } else if (s.startsWith(Constants.VISIBILITY_PREFIX) && Component.translatable(this.sound.getVisibility().getTranslationKey()).getString().toLowerCase().contains(s.substring(1, s.length()))) {
                 return !reverse;
             } else if (this.getName().getString().toLowerCase().contains(s)) {
                 return !reverse;
@@ -118,7 +116,7 @@ public class SoundBoardModel {
         }
 
         public Component getInfo() {
-            return new TextComponent(this.sound.getNameOfOwner(true) + " (" + new TranslatableComponent(this.sound.getVisibility().getTranslationKey()).getString() + ")\n" + this.sound.getDuration().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " / " + this.sound.getSizeFormatted());
+            return Component.literal(this.sound.getNameOfOwner(true) + " (" + Component.translatable(this.sound.getVisibility().getTranslationKey()).getString() + ")\n" + this.sound.getDuration().format(DateTimeFormatter.ofPattern("HH:mm:ss")) + " / " + this.sound.getSizeFormatted());
         }
 
         @Override

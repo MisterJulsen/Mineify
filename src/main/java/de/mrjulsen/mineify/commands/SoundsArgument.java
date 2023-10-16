@@ -17,16 +17,17 @@ import de.mrjulsen.mineify.sound.ESoundCategory;
 import de.mrjulsen.mineify.sound.SoundFile;
 import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.commands.SharedSuggestionProvider;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
+
 
 public class SoundsArgument implements ArgumentType<SoundFile> {
     private static final Collection<String> EXAMPLES = Arrays.asList("\"Server.test\"");
 
     private static final DynamicCommandExceptionType PATH_TOO_SHORT = new DynamicCommandExceptionType((obj) -> {
-        return new TextComponent("Invalid path. Too few arguments.");
+        return Component.literal("Invalid path. Too few arguments.");
     });
     private static final DynamicCommandExceptionType INVALID_PATH = new DynamicCommandExceptionType((obj) -> {
-        return new TextComponent("Invalid path. File does not exist.");
+        return Component.literal("Invalid path. File does not exist.");
     });
 
     private final ESoundCategory category;

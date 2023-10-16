@@ -8,7 +8,7 @@ import de.mrjulsen.mineify.blocks.blockentity.SoundPlayerBlockEntity;
 import de.mrjulsen.mineify.client.ClientWrapper;
 import de.mrjulsen.mineify.client.ETrigger;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -87,7 +87,7 @@ public class SoundPlayer extends BaseEntityBlock {
                 if (level.isClientSide) {
                     
                 } else {
-                    player.displayClientMessage(new TranslatableComponent("block.mineify.sound_player.locked"), true);
+                    player.displayClientMessage(Component.translatable("block.mineify.sound_player.locked"), true);
                 }
                 
             }                

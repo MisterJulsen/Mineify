@@ -21,8 +21,6 @@ import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -31,7 +29,7 @@ import net.minecraftforge.client.gui.widget.ForgeSlider;
 @OnlyIn(Dist.CLIENT)
 public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Screen
 {
-    public static final Component title = new TranslatableComponent("gui.mineify.upload.title");
+    public static final Component title = Component.translatable("gui.mineify.upload.title");
     private final T lastScreen;
     
     private int guiTop = 50;
@@ -53,13 +51,13 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
     protected ForgeSlider qualitySlider; 
     protected Button doneButton;
 
-    private TranslatableComponent textFilename = new TranslatableComponent("gui.mineify.upload.filename");
-    private TranslatableComponent textVisibility = new TranslatableComponent("gui.mineify.upload.visibility");
-    private TranslatableComponent textChannels = new TranslatableComponent("gui.mineify.upload.channels");
-    private TranslatableComponent textQuality = new TranslatableComponent("gui.mineify.upload.quality");
+    private Component textFilename = Component.translatable("gui.mineify.upload.filename");
+    private Component textVisibility = Component.translatable("gui.mineify.upload.visibility");
+    private Component textChannels = Component.translatable("gui.mineify.upload.channels");
+    private Component textQuality = Component.translatable("gui.mineify.upload.quality");
 
-    private TranslatableComponent btnDoneTxt = new TranslatableComponent("gui.done");
-    private TranslatableComponent btnCancelTxt = new TranslatableComponent("gui.cancel");
+    private Component btnDoneTxt = Component.translatable("gui.done");
+    private Component btnCancelTxt = Component.translatable("gui.cancel");
 
     private UploadSoundScreen(T last, String path, EUserSoundVisibility visibility, ESoundChannels channels, int quality, BiConsumer<Boolean, UploadSoundSettings> callback) {
         super(title);
@@ -75,8 +73,8 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
         if (last instanceof SoundBoardScreen) {
             int i = SoundUtils.getAudioDuration(path);
             if (i > ModCommonConfig.MAX_SOUND_BOARD_DURATION.get()) {
-                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, new TranslatableComponent("gui.mineify.upload.duration_too_long"), 
-                    new TranslatableComponent("gui.mineify.upload.duration_too_long.details",
+                Minecraft.getInstance().getToasts().addToast(new SystemToast(SystemToastIds.PERIODIC_NOTIFICATION, Component.translatable("gui.mineify.upload.duration_too_long"), 
+                    Component.translatable("gui.mineify.upload.duration_too_long.details",
                     SoundUtils.getDurationFormatted(i),
                     SoundUtils.getDurationFormatted(ModCommonConfig.MAX_SOUND_BOARD_DURATION.get())
                 )));
@@ -107,7 +105,7 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
             this.onCancel();
         }));
 
-        this.filenameBox = new EditBox(this.font, this.width / 2 - 100, guiTop + 40, 200, 20, new TranslatableComponent("gui.mineify.upload.filename"));
+        this.filenameBox = new EditBox(this.font, this.width / 2 - 100, guiTop + 40, 200, 20, Component.translatable("gui.mineify.upload.filename"));
         this.filenameBox.setMaxLength(ModCommonConfig.MAX_FILENAME_LENGTH.get());
         this.filenameBox.setValue(IOUtils.sanitizeFileName(filename).substring(0, Math.min(filename.length(), ModCommonConfig.MAX_FILENAME_LENGTH.get())));
         this.filenameBox.setFilter(input -> {
@@ -119,7 +117,7 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
         this.addRenderableWidget(this.filenameBox);
 
         this.visibilityButton = this.addRenderableWidget(CycleButton.<EUserSoundVisibility>builder((p) -> {            
-            return new TranslatableComponent(p.getTranslationKey());
+            return Component.translatable(p.getTranslationKey());
         })
             .withValues(EUserSoundVisibility.values()).withInitialValue(this.visibility)
             .create(this.width / 2 - 100, guiTop + 75, 200, 20, textVisibility, (pCycleButton, pValue) -> {
@@ -128,14 +126,14 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
         }));
 
         this.channelsButton = this.addRenderableWidget(CycleButton.<ESoundChannels>builder((p) -> {            
-            return new TranslatableComponent(p.getTranslationKey());
+            return Component.translatable(p.getTranslationKey());
             })
             .withValues(ESoundChannels.values()).withInitialValue(this.channels)
             .create(this.width / 2 - 100, guiTop + 100, 200, 20, textChannels, (pCycleButton, pValue) -> {
                 this.channels = pValue;
         }));
 
-        this.qualitySlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 100, guiTop + 125, 200, 20, textQuality, new TextComponent(String.valueOf(this.quality)), AudioFileConfig.OGG_QUALITY_MAX, AudioFileConfig.OGG_QUALITY_MIN, this.quality, 1, 1, true));
+        this.qualitySlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 100, guiTop + 125, 200, 20, textQuality, Component.literal(String.valueOf(this.quality)), AudioFileConfig.OGG_QUALITY_MAX, AudioFileConfig.OGG_QUALITY_MIN, this.quality, 1, 1, true));
         
         this.checkFilename();
     }
@@ -187,16 +185,16 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
         drawCenteredString(stack, this.font, textFilename, this.width / 2, guiTop + 25, 16777215);      
         
         String qualitySuffix = this.getQualitySuffix((byte)this.qualitySlider.getValueInt());
-        this.qualitySlider.setMessage(new TextComponent(new TranslatableComponent("gui.mineify.upload.quality", this.qualitySlider.getValueInt()).getString() + (qualitySuffix == null ? "" :  " (" + new TranslatableComponent(qualitySuffix).getString() + ")")));
+        this.qualitySlider.setMessage(Component.literal(Component.translatable("gui.mineify.upload.quality", this.qualitySlider.getValueInt()).getString() + (qualitySuffix == null ? "" :  " (" + Component.translatable(qualitySuffix).getString() + ")")));
 
         super.render(stack, mouseX, mouseY, partialTicks);
 
         Utils.renderTooltip(this, this.visibilityButton, () -> { return Utils.getEnumTooltipData(this, EUserSoundVisibility.class, width / 3); }, stack, mouseX, mouseY);
         Utils.renderTooltip(this, this.channelsButton, () -> { return Utils.getEnumTooltipData(this, ESoundChannels.class, width / 3); }, stack, mouseX, mouseY);
-        Utils.renderTooltip(this, this.qualitySlider, () -> { return Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.quality.description"), width / 3); }, stack, mouseX, mouseY);
+        Utils.renderTooltip(this, this.qualitySlider, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.quality.description"), width / 3); }, stack, mouseX, mouseY);
 
         if (!this.doneButton.active && mouseX >= this.doneButton.x && mouseX <= this.doneButton.x + this.doneButton.getWidth() && mouseY >= this.doneButton.y && mouseY <= this.doneButton.y + this.doneButton.getHeight()) {
-            this.renderTooltip(stack, Utils.getTooltipData(this, new TranslatableComponent("gui.mineify.upload.file_duplicate"), width / 3), mouseX, mouseY, this.getMinecraft().font);
+            this.renderTooltip(stack, Utils.getTooltipData(this, Component.translatable("gui.mineify.upload.file_duplicate"), width / 3), mouseX, mouseY, this.getMinecraft().font);
         }
     }
 
