@@ -58,7 +58,7 @@ public class ModifiedOggAudioStream implements AudioStream {
          }
 
          this.buffer.position(this.buffer.position() + intbuffer.get(0));
-         STBVorbisInfo stbvorbisinfo = STBVorbisInfo.mallocStack(memorystack);
+         STBVorbisInfo stbvorbisinfo = STBVorbisInfo.malloc(memorystack);
          STBVorbis.stb_vorbis_get_info(this.handle, stbvorbisinfo);
          this.audioFormat = new AudioFormat((float)stbvorbisinfo.sample_rate(), 16, stbvorbisinfo.channels(), true, false);
       } catch (Throwable throwable1) {
