@@ -9,14 +9,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class StopSoundWithPathPacket {
-    public final String shortPath;
+public class StopSoundWithPathPacket implements IPacketBase<StopSoundWithPathPacket> {
+    public String shortPath;
+
+    public StopSoundWithPathPacket() { }
 
     public StopSoundWithPathPacket(String shortPath) {
         this.shortPath = shortPath;
     }
 
-    public static void encode(StopSoundWithPathPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(StopSoundWithPathPacket packet, FriendlyByteBuf buffer) {
         if (packet.shortPath == null) {
             buffer.writeInt(0);
         } else {
@@ -25,7 +28,8 @@ public class StopSoundWithPathPacket {
         }
     }
 
-    public static StopSoundWithPathPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public StopSoundWithPathPacket decode(FriendlyByteBuf buffer) {
         int l = buffer.readInt();
         String shortPath = null;
         if (l > 0) { 
@@ -36,7 +40,8 @@ public class StopSoundWithPathPacket {
         return instance;
     }
 
-    public static void handle(StopSoundWithPathPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(StopSoundWithPathPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientWrapper.handleStopSoundWithPathPacket(packet, context));

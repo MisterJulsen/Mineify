@@ -13,10 +13,12 @@ import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundFilesSizeRequestPacket {
-    private final long requestID;
-    private final @NotNull ESoundVisibility[] visibilityWhitelist;
-    private final @NotNull String[] usersWhitelist;
+public class SoundFilesSizeRequestPacket implements IPacketBase<SoundFilesSizeRequestPacket> {
+    private long requestID;
+    private @NotNull ESoundVisibility[] visibilityWhitelist;
+    private @NotNull String[] usersWhitelist;
+
+    public SoundFilesSizeRequestPacket() { }
 
     public SoundFilesSizeRequestPacket(long requestId, @NotNull ESoundVisibility[] visibilityWhitelist, @NotNull String[] usersWhitelist) {
         this.requestID = requestId;
@@ -24,7 +26,8 @@ public class SoundFilesSizeRequestPacket {
         this.usersWhitelist = usersWhitelist == null ? new String[0] : usersWhitelist;
     }
 
-    public static void encode(SoundFilesSizeRequestPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundFilesSizeRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestID);
         buffer.writeInt(packet.visibilityWhitelist.length);
         for (int i = 0; i < packet.visibilityWhitelist.length; i++) {
@@ -38,7 +41,8 @@ public class SoundFilesSizeRequestPacket {
         }
     }
 
-    public static SoundFilesSizeRequestPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundFilesSizeRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int n = buffer.readInt();
         ESoundVisibility[] visibilityWhitelist = new ESoundVisibility[n];
@@ -56,7 +60,8 @@ public class SoundFilesSizeRequestPacket {
         return instance;
     }
 
-    public static void handle(SoundFilesSizeRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(SoundFilesSizeRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             new Thread(() -> {                
                 ModMain.LOGGER.debug("Reading sound files size...");

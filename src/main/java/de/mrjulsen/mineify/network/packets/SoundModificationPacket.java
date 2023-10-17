@@ -10,13 +10,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundModificationPacket {
-    public final long soundId;
-    public final @Nullable Integer attenuationDistance;
-    public final @Nullable Float pitch;
-    public final @Nullable Double x;
-    public final @Nullable Double y;
-    public final @Nullable Double z;
+public class SoundModificationPacket implements IPacketBase<SoundModificationPacket> {
+    public long soundId;
+    public @Nullable Integer attenuationDistance;
+    public @Nullable Float pitch;
+    public @Nullable Double x;
+    public @Nullable Double y;
+    public @Nullable Double z;
+
+    public SoundModificationPacket() { }
 
     public SoundModificationPacket(long soundId, @Nullable Integer attenuationDistance, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         this.soundId = soundId;
@@ -27,7 +29,8 @@ public class SoundModificationPacket {
         this.z = z;
     }
 
-    public static void encode(SoundModificationPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundModificationPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.soundId);
 
         boolean b;
@@ -52,7 +55,8 @@ public class SoundModificationPacket {
         if (b) buffer.writeDouble(packet.y);
     }
 
-    public static SoundModificationPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundModificationPacket decode(FriendlyByteBuf buffer) {
         long id = buffer.readLong();
 
         @Nullable Integer attenuationDistance = null;
@@ -71,7 +75,8 @@ public class SoundModificationPacket {
         return instance;
     }
 
-    public static void handle(SoundModificationPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(SoundModificationPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientWrapper.handleSoundModificationPacket(packet, context));

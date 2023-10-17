@@ -10,14 +10,15 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class PlaySoundPacket {
-    public final BlockPos pos;
-    public final long requestId;
-    public final int attenuationDistance;
-    public final float pitch;
-    public final float volume;
-    public final String path;
-    
+public class PlaySoundPacket implements IPacketBase<PlaySoundPacket> {
+    public BlockPos pos;
+    public long requestId;
+    public int attenuationDistance;
+    public float pitch;
+    public float volume;
+    public String path;
+
+    public PlaySoundPacket() { }
 
     public PlaySoundPacket(long requestId, BlockPos pos, int attenuationDistance, float volume, float pitch, String path) {
         this.pos = pos;
@@ -28,7 +29,8 @@ public class PlaySoundPacket {
         this.path = path;
     }
 
-    public static void encode(PlaySoundPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(PlaySoundPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeBlockPos(packet.pos);
         buffer.writeInt(packet.attenuationDistance);
@@ -39,7 +41,8 @@ public class PlaySoundPacket {
         buffer.writeUtf(packet.path);
     }
 
-    public static PlaySoundPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public PlaySoundPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         BlockPos pos = buffer.readBlockPos();
         int attenuationDistance = buffer.readInt();
@@ -52,7 +55,8 @@ public class PlaySoundPacket {
         return instance;
     }
 
-    public static void handle(PlaySoundPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(PlaySoundPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {

@@ -12,10 +12,12 @@ import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundFilesCountRequestPacket {
-    private final long requestID;
-    private final @NotNull ESoundVisibility[] visibilityWhitelist;
-    private final @NotNull String[] usersWhitelist;
+public class SoundFilesCountRequestPacket implements IPacketBase<SoundFilesCountRequestPacket> {
+    private long requestID;
+    private @NotNull ESoundVisibility[] visibilityWhitelist;
+    private @NotNull String[] usersWhitelist;
+
+    public SoundFilesCountRequestPacket() { }
 
     public SoundFilesCountRequestPacket(long requestId, @NotNull ESoundVisibility[] visibilityWhitelist, @NotNull String[] usersWhitelist) {
         this.requestID = requestId;
@@ -23,7 +25,8 @@ public class SoundFilesCountRequestPacket {
         this.usersWhitelist = usersWhitelist == null ? new String[0] : usersWhitelist;
     }
 
-    public static void encode(SoundFilesCountRequestPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundFilesCountRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestID);
         buffer.writeInt(packet.visibilityWhitelist.length);
         for (int i = 0; i < packet.visibilityWhitelist.length; i++) {
@@ -37,7 +40,8 @@ public class SoundFilesCountRequestPacket {
         }
     }
 
-    public static SoundFilesCountRequestPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundFilesCountRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int n = buffer.readInt();
         ESoundVisibility[] visibilityWhitelist = new ESoundVisibility[n];
@@ -55,7 +59,8 @@ public class SoundFilesCountRequestPacket {
         return instance;
     }
 
-    public static void handle(SoundFilesCountRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(SoundFilesCountRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             new Thread(() -> {
                 

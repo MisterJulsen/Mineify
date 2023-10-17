@@ -11,16 +11,18 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundPlayerBlockEntityPacket {
-    private final BlockPos pos;
-    private final SimplePlaylist playlist;
-    private final PlaybackArea playbackArea;
-    private final float volume;
-    private final float pitch;
-    private final boolean locked;
-    private final ETrigger trigger;
+public class SoundPlayerBlockEntityPacket implements IPacketBase<SoundPlayerBlockEntityPacket> {
+    private BlockPos pos;
+    private SimplePlaylist playlist;
+    private PlaybackArea playbackArea;
+    private float volume;
+    private float pitch;
+    private boolean locked;
+    private ETrigger trigger;
 
-     public SoundPlayerBlockEntityPacket(BlockPos pos, SimplePlaylist playlist, float volume, float pitch, PlaybackArea playbackArea, boolean locked, ETrigger trigger) {
+    public SoundPlayerBlockEntityPacket() { }
+
+    public SoundPlayerBlockEntityPacket(BlockPos pos, SimplePlaylist playlist, float volume, float pitch, PlaybackArea playbackArea, boolean locked, ETrigger trigger) {
         this.pos = pos;
         this.playlist = playlist;
         this.playbackArea = playbackArea;
@@ -30,7 +32,8 @@ public class SoundPlayerBlockEntityPacket {
         this.pitch = pitch;
     }
 
-    public static void encode(SoundPlayerBlockEntityPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundPlayerBlockEntityPacket packet, FriendlyByteBuf buffer) {
         buffer.writeBlockPos(packet.pos);
         buffer.writeBoolean(packet.locked);
         buffer.writeByte(packet.trigger.getIndex());
@@ -40,7 +43,8 @@ public class SoundPlayerBlockEntityPacket {
         packet.playbackArea.serialize(buffer);
     }
 
-    public static SoundPlayerBlockEntityPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundPlayerBlockEntityPacket decode(FriendlyByteBuf buffer) {
         BlockPos pos = buffer.readBlockPos();
         boolean locked = buffer.readBoolean();
         ETrigger trigger = ETrigger.getTriggerByIndex(buffer.readByte());
@@ -53,7 +57,8 @@ public class SoundPlayerBlockEntityPacket {
         return instance;
     }
 
-    public static void handle(SoundPlayerBlockEntityPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(SoundPlayerBlockEntityPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             Level level = context.get().getSender().getLevel();

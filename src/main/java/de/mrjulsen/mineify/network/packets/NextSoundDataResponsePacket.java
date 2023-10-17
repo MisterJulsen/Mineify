@@ -8,11 +8,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class NextSoundDataResponsePacket {
-    public final long requestId;
-    public final int index;
-    public final byte[] data;
-    public final boolean hasNext;
+public class NextSoundDataResponsePacket implements IPacketBase<NextSoundDataResponsePacket> {
+    public long requestId;
+    public int index;
+    public byte[] data;
+    public boolean hasNext;
+
+    public NextSoundDataResponsePacket() { }
 
     public NextSoundDataResponsePacket(long requestId, byte[] data, boolean hasNext, int index) {
         this.requestId = requestId;
@@ -21,14 +23,16 @@ public class NextSoundDataResponsePacket {
         this.index = index;
     }
 
-    public static void encode(NextSoundDataResponsePacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(NextSoundDataResponsePacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeInt(packet.index);
         buffer.writeBoolean(packet.hasNext);
         buffer.writeByteArray(packet.data);
     }
 
-    public static NextSoundDataResponsePacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public NextSoundDataResponsePacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int index = buffer.readInt();
         boolean hasNext = buffer.readBoolean();
@@ -38,10 +42,12 @@ public class NextSoundDataResponsePacket {
         return instance;
     }
 
-    public static void handle(NextSoundDataResponsePacket packet, Supplier<NetworkEvent.Context> context) {
+    @Override
+    public void handle(NextSoundDataResponsePacket packet, Supplier<NetworkEvent.Context> context) {
         context.get().enqueueWork(() ->
         {  
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientWrapper.handleNextSoundDataResponsePacket(packet, context));
         });
+        context.get().setPacketHandled(true);
     }
 }

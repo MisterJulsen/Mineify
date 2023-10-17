@@ -11,16 +11,17 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class PlaySoundRequestPacket {
-    public final BlockPos pos;
-    public final long requestId;
-    public final PlaybackArea area;
-    public final int attenuationDistance;
-    public final float volume;
-    public final float pitch;
-    public final String path;
-    public final ESoundCategory category;
-    
+public class PlaySoundRequestPacket implements IPacketBase<PlaySoundRequestPacket> {
+    public BlockPos pos;
+    public long requestId;
+    public PlaybackArea area;
+    public int attenuationDistance;
+    public float volume;
+    public float pitch;
+    public String path;
+    public ESoundCategory category;    
+
+    public PlaySoundRequestPacket() { }
 
     public PlaySoundRequestPacket(long requestId, PlaybackArea area, BlockPos pos, int attenuationDistance, float volume, float pitch, String path, ESoundCategory category) {
         this.pos = pos;
@@ -33,7 +34,8 @@ public class PlaySoundRequestPacket {
         this.category = category;
     }
 
-    public static void encode(PlaySoundRequestPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(PlaySoundRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         packet.area.serialize(buffer);
         buffer.writeBlockPos(packet.pos);
@@ -46,7 +48,8 @@ public class PlaySoundRequestPacket {
         buffer.writeEnum(packet.category);
     }
 
-    public static PlaySoundRequestPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public PlaySoundRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         PlaybackArea area = PlaybackArea.deserialize(buffer);
         BlockPos pos = buffer.readBlockPos();
@@ -61,7 +64,8 @@ public class PlaySoundRequestPacket {
         return instance;
     }
 
-    public static void handle(PlaySoundRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(PlaySoundRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             ServerApi.playSound(SoundFile.fromShortPath(packet.path, packet.category), packet.area, context.get().getSender().level, packet.pos, packet.attenuationDistance, packet.volume, packet.pitch);

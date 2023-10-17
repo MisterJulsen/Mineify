@@ -8,10 +8,12 @@ import de.mrjulsen.mineify.network.InstanceManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class UploadSoundPacket {
-    private final long requestId;
-    private final int maxSize; 
-    private final byte[] data;
+public class UploadSoundPacket implements IPacketBase<UploadSoundPacket> {
+    private long requestId;
+    private int maxSize; 
+    private byte[] data;
+
+    public UploadSoundPacket() { }
 
     public UploadSoundPacket(long requestId, byte[] data, int maxSize) {
         this.data = data;
@@ -19,13 +21,15 @@ public class UploadSoundPacket {
         this.requestId = requestId;
     }
 
-    public static void encode(UploadSoundPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(UploadSoundPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeInt(packet.maxSize);
         buffer.writeByteArray(packet.data);
     }
 
-    public static UploadSoundPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public UploadSoundPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int maxSize = buffer.readInt();
         byte[] data = buffer.readByteArray();
@@ -34,7 +38,8 @@ public class UploadSoundPacket {
         return instance;
     }
 
-    public static void handle(UploadSoundPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(UploadSoundPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             if (!InstanceManager.Server.streamCache.containsKey(packet.requestId)) {
                 InstanceManager.Server.streamCache.put(packet.requestId, new ByteArrayOutputStream(packet.maxSize));

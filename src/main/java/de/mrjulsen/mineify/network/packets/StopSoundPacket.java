@@ -8,25 +8,30 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class StopSoundPacket {
-    public final long soundId;
+public class StopSoundPacket implements IPacketBase<StopSoundPacket> {
+    public long soundId;
+
+    public StopSoundPacket() { }
 
     public StopSoundPacket(long soundId) {
         this.soundId = soundId;
     }
 
-    public static void encode(StopSoundPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(StopSoundPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.soundId);
     }
 
-    public static StopSoundPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public StopSoundPacket decode(FriendlyByteBuf buffer) {
         long soundId = buffer.readLong();
 
         StopSoundPacket instance = new StopSoundPacket(soundId);
         return instance;
     }
 
-    public static void handle(StopSoundPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(StopSoundPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientWrapper.handleStopSoundPacket(packet, context));

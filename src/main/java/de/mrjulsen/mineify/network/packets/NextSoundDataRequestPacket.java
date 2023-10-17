@@ -8,21 +8,25 @@ import de.mrjulsen.mineify.network.NetworkManager;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class NextSoundDataRequestPacket {
-    private final long requestId;
-    private final int index;
+public class NextSoundDataRequestPacket implements IPacketBase<NextSoundDataRequestPacket> {
+    private long requestId;
+    private int index;
+
+    public NextSoundDataRequestPacket() { }
 
     public NextSoundDataRequestPacket(long requestId, int index) {
         this.requestId = requestId;
         this.index = index;
     }
 
-    public static void encode(NextSoundDataRequestPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(NextSoundDataRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeInt(packet.index);
     }
 
-    public static NextSoundDataRequestPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public NextSoundDataRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int index = buffer.readInt();
 
@@ -30,7 +34,8 @@ public class NextSoundDataRequestPacket {
         return instance;
     }
 
-    public static void handle(NextSoundDataRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(NextSoundDataRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             
             if (InstanceManager.Server.fileCache.containsKey(packet.requestId)) {                

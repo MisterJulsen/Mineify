@@ -11,14 +11,16 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundModificationWithPathPacket {
-    public final String shortPath;
-    public final @Nullable Integer attenuationDistance;
-    public final @Nullable Float pitch;
-    public final @Nullable Float volume;
-    public final @Nullable Double x;
-    public final @Nullable Double y;
-    public final @Nullable Double z;
+public class SoundModificationWithPathPacket implements IPacketBase<SoundModificationWithPathPacket> {
+    public String shortPath;
+    public @Nullable Integer attenuationDistance;
+    public @Nullable Float pitch;
+    public @Nullable Float volume;
+    public @Nullable Double x;
+    public @Nullable Double y;
+    public @Nullable Double z;
+
+    public SoundModificationWithPathPacket() { }
 
     public SoundModificationWithPathPacket(String shortPath, @Nullable Integer attenuationDistance, @Nullable Float volume, @Nullable Float pitch, @Nullable Double x, @Nullable Double y, @Nullable Double z) {
         this.shortPath = shortPath;
@@ -30,7 +32,8 @@ public class SoundModificationWithPathPacket {
         this.z = z;
     }
 
-    public static void encode(SoundModificationWithPathPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundModificationWithPathPacket packet, FriendlyByteBuf buffer) {
         if (packet.shortPath == null) {
             buffer.writeInt(0);
         } else {
@@ -64,7 +67,8 @@ public class SoundModificationWithPathPacket {
         if (b) buffer.writeDouble(packet.z);
     }
 
-    public static SoundModificationWithPathPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundModificationWithPathPacket decode(FriendlyByteBuf buffer) {
         int l = buffer.readInt();
         String shortPath = null;
         if (l > 0) { 
@@ -89,7 +93,8 @@ public class SoundModificationWithPathPacket {
         return instance;
     }
 
-    public static void handle(SoundModificationWithPathPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(SoundModificationWithPathPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientWrapper.handleSoundModificationWithPathPacket(packet, context));

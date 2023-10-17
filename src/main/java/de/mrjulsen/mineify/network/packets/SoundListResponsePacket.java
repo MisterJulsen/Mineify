@@ -9,16 +9,19 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundListResponsePacket {
-    public final long requestId;
-    public final SoundFile[] soundFiles;
+public class SoundListResponsePacket implements IPacketBase<SoundListResponsePacket> {
+    public long requestId;
+    public SoundFile[] soundFiles;
+
+    public SoundListResponsePacket() { }
 
     public SoundListResponsePacket(long requestId, SoundFile[] soundFiles) {
         this.requestId = requestId;
         this.soundFiles = soundFiles;
     }
 
-    public static void encode(SoundListResponsePacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundListResponsePacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeInt(packet.soundFiles.length);
         for (int i = 0; i < packet.soundFiles.length; i++) {
@@ -26,7 +29,8 @@ public class SoundListResponsePacket {
         }
     }
 
-    public static SoundListResponsePacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundListResponsePacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int l = buffer.readInt();
         SoundFile[] soundFiles = new SoundFile[l];
@@ -38,7 +42,8 @@ public class SoundListResponsePacket {
         return instance;
     }
 
-    public static void handle(SoundListResponsePacket packet, Supplier<NetworkEvent.Context> context) {  
+    @Override
+    public void handle(SoundListResponsePacket packet, Supplier<NetworkEvent.Context> context) {  
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientWrapper.handleSoundListResponsePacket(packet, context));

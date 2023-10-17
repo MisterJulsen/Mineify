@@ -9,12 +9,14 @@ import de.mrjulsen.mineify.sound.ESoundCategory;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundDeleteRequestPacket {
-    private final long requestId;
-    private final String filename;
-    private final String fileOwner;
-    private final ESoundVisibility visibility;
-    private final ESoundCategory category;
+public class SoundDeleteRequestPacket implements IPacketBase<SoundDeleteRequestPacket> {
+    private long requestId;
+    private String filename;
+    private String fileOwner;
+    private ESoundVisibility visibility;
+    private ESoundCategory category;
+
+    public SoundDeleteRequestPacket() { }
 
     public SoundDeleteRequestPacket(long requestId, String filename, String fileOwner, ESoundVisibility visibility, ESoundCategory category) {
         this.filename = filename;
@@ -24,7 +26,8 @@ public class SoundDeleteRequestPacket {
         this.category = category;
     }
 
-    public static void encode(SoundDeleteRequestPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundDeleteRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeUtf(packet.filename);
         buffer.writeUtf(packet.fileOwner);
@@ -32,7 +35,8 @@ public class SoundDeleteRequestPacket {
         buffer.writeEnum(packet.category);
     }
 
-    public static SoundDeleteRequestPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundDeleteRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         String filename = buffer.readUtf();
         String fileOwner = buffer.readUtf();
@@ -43,7 +47,8 @@ public class SoundDeleteRequestPacket {
         return instance;
     }
 
-    public static void handle(SoundDeleteRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(SoundDeleteRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             ServerWrapper.deleteSound(packet.filename, packet.fileOwner, packet.visibility, packet.category, context.get().getSender(), () -> {
                 ServerApi.sendResponse(context.get().getSender(), packet.requestId);

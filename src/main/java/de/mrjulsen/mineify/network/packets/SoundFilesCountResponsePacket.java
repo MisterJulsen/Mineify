@@ -8,21 +8,25 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundFilesCountResponsePacket {
-    public final long requestId;
-    public final long count;
+public class SoundFilesCountResponsePacket implements IPacketBase<SoundFilesCountResponsePacket> {
+    public long requestId;
+    public long count;
+
+    public SoundFilesCountResponsePacket() { }
 
     public SoundFilesCountResponsePacket(long requestId, long count) {
         this.requestId = requestId;
         this.count = count;
     }
 
-    public static void encode(SoundFilesCountResponsePacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundFilesCountResponsePacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeLong(packet.count);
     }
 
-    public static SoundFilesCountResponsePacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundFilesCountResponsePacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         long count = buffer.readLong();
 
@@ -30,7 +34,8 @@ public class SoundFilesCountResponsePacket {
         return instance;
     }
 
-    public static void handle(SoundFilesCountResponsePacket packet, Supplier<NetworkEvent.Context> context) {  
+    @Override
+    public void handle(SoundFilesCountResponsePacket packet, Supplier<NetworkEvent.Context> context) {  
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientWrapper.handleSoundFilesCountResponsePacket(packet, context));

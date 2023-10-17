@@ -9,13 +9,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 
-public class DownloadSoundPacket {
-    public final long requestId;
-    public final int dataOffset;
-    public final int maxLength;
-    public final EStreamingMode streamingMode;
-    public final byte[] data;
+public class DownloadSoundPacket implements IPacketBase<DownloadSoundPacket> {
+    public long requestId;
+    public int dataOffset;
+    public int maxLength;
+    public EStreamingMode streamingMode;
+    public byte[] data;
     
+    public DownloadSoundPacket() { }
 
     public DownloadSoundPacket(long requestId, int dataOffset, byte[] data, int maxLength, EStreamingMode streamingMode) {
         this.data = data;
@@ -25,7 +26,8 @@ public class DownloadSoundPacket {
         this.maxLength = maxLength;
     }
 
-    public static void encode(DownloadSoundPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(DownloadSoundPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeInt(packet.dataOffset);
         buffer.writeInt(packet.maxLength);
@@ -33,7 +35,8 @@ public class DownloadSoundPacket {
         buffer.writeByteArray(packet.data);
     }
 
-    public static DownloadSoundPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public DownloadSoundPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int dataOffset = buffer.readInt();
         int maxLength = buffer.readInt();
@@ -44,7 +47,8 @@ public class DownloadSoundPacket {
         return instance;
     }
 
-    public static void handle(DownloadSoundPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(DownloadSoundPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
             DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {

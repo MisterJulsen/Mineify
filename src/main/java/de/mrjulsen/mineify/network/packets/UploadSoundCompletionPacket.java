@@ -20,12 +20,14 @@ import de.mrjulsen.mineify.util.Utils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class UploadSoundCompletionPacket {
-    private final long requestId;
-    private final UUID uploaderUUID;
-    private final EUserSoundVisibility visibility;
-    private final ESoundCategory category;
-    private final String filename;
+public class UploadSoundCompletionPacket implements IPacketBase<UploadSoundCompletionPacket> {
+    private long requestId;
+    private UUID uploaderUUID;
+    private EUserSoundVisibility visibility;
+    private ESoundCategory category;
+    private String filename;
+
+    public UploadSoundCompletionPacket() { }
 
     public UploadSoundCompletionPacket(long requestId, UUID uploader, EUserSoundVisibility visibility, String filename, ESoundCategory category) {
         this.uploaderUUID = uploader;
@@ -35,7 +37,8 @@ public class UploadSoundCompletionPacket {
         this.category = category;
     }
 
-    public static void encode(UploadSoundCompletionPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(UploadSoundCompletionPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestId);
         buffer.writeUUID(packet.uploaderUUID);
         buffer.writeEnum(packet.visibility);
@@ -43,7 +46,8 @@ public class UploadSoundCompletionPacket {
         buffer.writeUtf(packet.filename);
     }
 
-    public static UploadSoundCompletionPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public UploadSoundCompletionPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         UUID uploader = buffer.readUUID();
         EUserSoundVisibility visibility = buffer.readEnum(EUserSoundVisibility.class);
@@ -54,7 +58,8 @@ public class UploadSoundCompletionPacket {
         return instance;
     }
 
-    public static void handle(UploadSoundCompletionPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(UploadSoundCompletionPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             new Thread(() -> {
                 

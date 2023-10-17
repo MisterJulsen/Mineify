@@ -14,11 +14,13 @@ import de.mrjulsen.mineify.util.SoundUtils;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkEvent;
 
-public class SoundListRequestPacket {
-    private final long requestID;
-    private final @NotNull ESoundCategory[] categoryWhitelist;
-    private final @NotNull ESoundVisibility[] visibilityWhitelist;
-    private final @NotNull String[] usersWhitelist;
+public class SoundListRequestPacket implements IPacketBase<SoundListRequestPacket> {
+    private long requestID;
+    private @NotNull ESoundCategory[] categoryWhitelist;
+    private @NotNull ESoundVisibility[] visibilityWhitelist;
+    private @NotNull String[] usersWhitelist;
+
+    public SoundListRequestPacket() { }
 
     public SoundListRequestPacket(long requestId, @NotNull ESoundVisibility[] visibilityWhitelist, @NotNull String[] usersWhitelist, @NotNull ESoundCategory[] categoryWhitelist) {
         this.requestID = requestId;
@@ -27,7 +29,8 @@ public class SoundListRequestPacket {
         this.categoryWhitelist = categoryWhitelist == null ? new ESoundCategory[0] : categoryWhitelist;
     }
 
-    public static void encode(SoundListRequestPacket packet, FriendlyByteBuf buffer) {
+    @Override
+    public void encode(SoundListRequestPacket packet, FriendlyByteBuf buffer) {
         buffer.writeLong(packet.requestID);
         buffer.writeInt(packet.visibilityWhitelist.length);
         for (int i = 0; i < packet.visibilityWhitelist.length; i++) {
@@ -45,7 +48,8 @@ public class SoundListRequestPacket {
         }
     }
 
-    public static SoundListRequestPacket decode(FriendlyByteBuf buffer) {
+    @Override
+    public SoundListRequestPacket decode(FriendlyByteBuf buffer) {
         long requestId = buffer.readLong();
         int n = buffer.readInt();
         ESoundVisibility[] visibilityWhitelist = new ESoundVisibility[n];
@@ -68,7 +72,8 @@ public class SoundListRequestPacket {
         return instance;
     }
 
-    public static void handle(SoundListRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
+    @Override
+    public void handle(SoundListRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() -> {
             new Thread(() -> {
                 
