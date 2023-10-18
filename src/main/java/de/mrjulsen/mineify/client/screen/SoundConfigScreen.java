@@ -56,13 +56,13 @@ public class SoundConfigScreen extends Screen
 
         guiTop = this.height / 2 - HEIGHT / 2;
 
-        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 100, 97, 20, CommonComponents.GUI_DONE, (p) -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE, (p) -> {
             this.onDone();
-        }));
+        }).pos(this.width / 2 - 100, guiTop + 100).size(97, 20).build());
 
-        this.addRenderableWidget(new Button(this.width / 2 + 4, guiTop + 100, 97, 20, CommonComponents.GUI_CANCEL, (p) -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_CANCEL, (p) -> {
             this.onCancel();
-        }));
+        }).pos(this.width / 2 + 4, guiTop + 100).size(97, 20).build());
 
         this.volumeSlider = this.addRenderableWidget(new CustomMessageSlider(this.width / 2 - 100, guiTop + 25, 200, 20, Component.literal(""), Component.literal(""), Constants.VOLUME_MIN, Constants.VOLUME_MAX, this.volume, 0.01D, 1, true, (slider) -> {
             slider.setMessage(Component.literal(Component.translatable("gui.mineify.sound_config.volume").getString() + ": " + (int)(slider.getValue() * 100.0D) + "%"));

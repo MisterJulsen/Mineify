@@ -92,30 +92,28 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
         this.defaultControls.components.clear();
         this.loadingScreenControls.components.clear();
 
-        cancelButton = this.loadingScreenControls.add(new Button(this.width / 2 - 50, this.height - 50, 100, 20,
-        CommonComponents.GUI_CANCEL, (p_100004_) -> {
+        cancelButton = this.loadingScreenControls.add(Button.builder(CommonComponents.GUI_CANCEL, (p_100004_) -> {
             this.onClose();
-        }));
+        }).pos(this.width / 2 - 50, this.height - 50).size(100, 20).build());
 
-        this.defaultControls.add(new Button(this.width / 2 + 4 + (b ? 50 : 0), this.height - 30, 100 + (b ? 0 : 50), 20, textClose, (p_100036_) -> {
+        this.defaultControls.add(Button.builder(textClose, (p_100036_) -> {
             this.onClose();
-        }));
+        }).pos(this.width / 2 + 4 + (b ? 50 : 0), this.height - 30).size(100 + (b ? 0 : 50), 20).build());
 
         if (b) {
-            this.defaultControls.add(new Button(this.width / 2 - 50, this.height - 30, 100, 20,
-            textOpenFolder, (p_100004_) -> {
+            this.defaultControls.add(Button.builder(textOpenFolder, (p_100004_) -> {
                 Util.getPlatform().openFile(this.soundsDir);
-            }));
+            }).pos(this.width / 2 - 50, this.height - 30).size(100, 20).build());
         }
 
-        this.defaultControls.add(new Button(this.width / 2 - 154, this.height - 30, 100 + (b ? 0 : 50), 20, textUpload, (p_100036_) -> {
+        this.defaultControls.add(Button.builder(textUpload, (p_100036_) -> {
             ClientApi.showUploadDialog((path) -> {
                 if (path == null) 
                     return;
                     
                 onFilesDrop(new ArrayList<Path>(List.of(path)));
             });
-        }));
+        }).pos(this.width / 2 - 154, this.height - 30).size(100 + (b ? 0 : 50), 20).build());
 
         this.distanceSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 - 154, this.height - 55, 150, 20, textDistance, Component.literal(""), 1, ModCommonConfig.SOUND_BOARD_MAX_DISTANCE.get(), this.distance, 1, 1, true));
         this.pitchSlider = this.addRenderableWidget(new ForgeSlider(this.width / 2 + 4, this.height - 55, 150, 20, textPitch, Component.literal(""), Constants.PITCH_MIN, Constants.PITCH_MAX, this.pitch, 0.01D, 4, true));

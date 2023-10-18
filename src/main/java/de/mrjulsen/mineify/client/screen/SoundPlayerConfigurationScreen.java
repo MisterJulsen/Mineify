@@ -80,21 +80,21 @@ public class SoundPlayerConfigurationScreen extends Screen
 
         guiTop = this.height / 2 - HEIGHT / 2;
 
-        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 160, 97, 20, btnDoneTxt, (p) -> {
+        this.addRenderableWidget(Button.builder(btnDoneTxt, (p) -> {
             this.onDone();
-        }));
+        }).pos(this.width / 2 - 100, guiTop + 160).size(97, 20).build());
 
-        this.addRenderableWidget(new Button(this.width / 2 + 4, guiTop + 160, 97, 20, btnCancelTxt, (p) -> {
+        this.addRenderableWidget(Button.builder(btnCancelTxt, (p) -> {
             this.onCancel();
-        }));
+        }).pos(this.width / 2 + 4, guiTop + 160).size(97, 20).build());
 
 
         /* Controls */
-        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 25, 200, 20, textPlaylist, (p) -> {
+        this.addRenderableWidget(Button.builder(textPlaylist, (p) -> {
             Minecraft.getInstance().setScreen(new PlaylistScreen(this, this.playlist, (data) -> {
                 this.playlist = data;
             }));
-        }));
+        }).pos(this.width / 2 - 100, guiTop + 25).size(200, 20).build());
 
         lockButton = new LockIconButton(this.width / 2 + 104, guiTop + 25, (button) -> {
             this.locked = !locked;
@@ -107,21 +107,21 @@ public class SoundPlayerConfigurationScreen extends Screen
 
         //60, 85, 110        
 
-        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 50, 200, 20, textZone, (p) -> {
+        this.addRenderableWidget(Button.builder(textZone, (p) -> {
             Minecraft.getInstance().setScreen(new PlaybackAreaConfigScreen(this, new PlaybackArea(this.playbackArea), (success, data) -> {
                 if (success) {
                     this.playbackArea = data;
                 }
             }));
-        }));
+        }).pos(this.width / 2 - 100, guiTop + 50).size(200, 20).build());
 
-        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 75, 200, 20, textSoundConfig, (p) -> {
+        this.addRenderableWidget(Button.builder(textSoundConfig, (p) -> {
             Minecraft.getInstance().setScreen(new SoundConfigScreen(this, volume, pitch, (value) -> {
                 this.volume = value;
             }, (value) -> {
                 this.pitch = value;
             }));
-        }));
+        }).pos(this.width / 2 - 100, guiTop + 75).size(200, 20).build());
 
         this.triggerButton = this.addRenderableWidget(CycleButton.<ETrigger>builder((p) -> {            
                 return Component.translatable(p.getTranslationKey());

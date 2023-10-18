@@ -9,6 +9,7 @@ import de.mrjulsen.mineify.util.IOUtils;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -29,26 +30,20 @@ public class FFMPEGMissingScreen extends Screen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(
-            new Button(this.width / 2 - 100, 150, 200, 20, Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.ffmpeg_web"), (p_96057_) -> {
-                Util.getPlatform().openUri(Constants.FFMPEG_WEB);
-            }, new Button.OnTooltip() {
-                @Override
-                public void onTooltip(Button pButton, PoseStack pPoseStack, int pMouseX, int pMouseY) {
-                    FFMPEGMissingScreen.this.renderTooltip(pPoseStack, Component.literal(Constants.FFMPEG_WEB), pMouseX, pMouseY);                    
-                }
-            }));
 
-        this.addRenderableWidget(
-            new Button(this.width / 2 - 100, 175, 200, 20, Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.show_folder"), (p_96057_) -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.ffmpeg_web"), (p_96057_) -> {
+                Util.getPlatform().openUri(Constants.FFMPEG_WEB);
+            }).pos(this.width / 2 - 100, 150).size(200, 20).tooltip(Tooltip.create(Component.literal(Constants.FFMPEG_WEB))).build());
+
+        this.addRenderableWidget(Button.builder(Component.translatable("gui.mineify.soundselection.upload.ffmpeg_missing.show_folder"), (p_96057_) -> {
                 IOUtils.createDirectory(Constants.FFMPEG_HOME);
                 Util.getPlatform().openFile(new File(Constants.FFMPEG_HOME));
-            }));
+            }).pos(this.width / 2 - 100, 175).size(200, 20).build());
 
-        this.addRenderableWidget(
-            new Button(this.width / 2 - 50, 210, 100, 20, CommonComponents.GUI_BACK, (p_96057_) -> {
-                this.minecraft.setScreen(lastScreen);
-            }));
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, (p_96057_) -> {
+                IOUtils.createDirectory(Constants.FFMPEG_HOME);
+                Util.getPlatform().openFile(new File(Constants.FFMPEG_HOME));
+            }).pos(this.width / 2 - 50, 21).size(100, 20).build());
             
         this.messageLabel = MultiLineLabel.create(this.font, message, 256, 10);
     }
@@ -64,5 +59,10 @@ public class FFMPEGMissingScreen extends Screen {
     @Override
     public boolean shouldCloseOnEsc() {
         return true;
+    }
+
+    @Override
+    public void onClose() {
+        this.minecraft.setScreen(lastScreen);
     }
 }

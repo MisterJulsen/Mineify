@@ -97,13 +97,13 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
 
         guiTop = this.height / 2 - HEIGHT / 2;
 
-        this.doneButton = this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 160, 97, 20, btnDoneTxt, (p) -> {
+        this.doneButton = this.addRenderableWidget(Button.builder(btnDoneTxt, (p) -> {
             this.onDone();
-        }));
+        }).pos(this.width / 2 - 100, guiTop + 160).size(97, 20).build());
 
-        this.addRenderableWidget(new Button(this.width / 2 + 4, guiTop + 160, 97, 20, btnCancelTxt, (p) -> {
+        this.addRenderableWidget(Button.builder(btnCancelTxt, (p) -> {
             this.onCancel();
-        }));
+        }).pos(this.width / 2 + 4, guiTop + 160).size(97, 20).build());
 
         this.filenameBox = new EditBox(this.font, this.width / 2 - 100, guiTop + 40, 200, 20, Component.translatable("gui.mineify.upload.filename"));
         this.filenameBox.setMaxLength(ModCommonConfig.MAX_FILENAME_LENGTH.get());
@@ -193,7 +193,7 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
         Utils.renderTooltip(this, this.channelsButton, () -> { return Utils.getEnumTooltipData(this, ESoundChannels.class, width / 3); }, stack, mouseX, mouseY);
         Utils.renderTooltip(this, this.qualitySlider, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.quality.description"), width / 3); }, stack, mouseX, mouseY);
 
-        if (!this.doneButton.active && mouseX >= this.doneButton.x && mouseX <= this.doneButton.x + this.doneButton.getWidth() && mouseY >= this.doneButton.y && mouseY <= this.doneButton.y + this.doneButton.getHeight()) {
+        if (!this.doneButton.active && mouseX >= this.doneButton.getX() && mouseX <= this.doneButton.getX() + this.doneButton.getWidth() && mouseY >= this.doneButton.getY() && mouseY <= this.doneButton.getY() + this.doneButton.getHeight()) {
             this.renderTooltip(stack, Utils.getTooltipData(this, Component.translatable("gui.mineify.upload.file_duplicate"), width / 3), mouseX, mouseY, this.getMinecraft().font);
         }
     }

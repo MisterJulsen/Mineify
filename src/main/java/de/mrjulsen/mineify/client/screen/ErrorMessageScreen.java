@@ -25,11 +25,10 @@ public class ErrorMessageScreen extends Screen {
     protected void init() {
         super.init();
         
-        this.addRenderableWidget(
-            new Button(this.width / 2 - 50, height - 40, 100, 20, CommonComponents.GUI_BACK, (p_96057_) -> {
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, (p_96057_) -> {
                 this.minecraft.setScreen(lastScreen);
-            }));
-            
+            }).pos(this.width / 2 - 50, height - 40).size(100, 20).build());
+
         this.messageLabel = MultiLineLabel.create(this.font, message, 256, 20);
     }
 

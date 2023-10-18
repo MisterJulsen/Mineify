@@ -3,9 +3,11 @@ package de.mrjulsen.mineify.blocks;
 import java.util.function.Supplier;
 
 import de.mrjulsen.mineify.ModMain;
+import de.mrjulsen.mineify.events.ModCreativeTabs;
 import de.mrjulsen.mineify.items.ModItems;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -17,7 +19,7 @@ public class ModBlocks {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ModMain.MOD_ID);
     
     
-    public static final RegistryObject<Block> SOUND_PLAYER = registerBlock("sound_player", () -> new SoundPlayer(), CreativeModeTab.TAB_REDSTONE);
+    public static final RegistryObject<Block> SOUND_PLAYER = registerBlock("sound_player", () -> new SoundPlayer(), CreativeModeTabs.REDSTONE_BLOCKS);
     
 
     private static <T extends Block>RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
@@ -28,7 +30,9 @@ public class ModBlocks {
 
     private static <T extends Block>RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, CreativeModeTab tab) {
         return ModItems.ITEMS.register(name, () -> {
-            return new BlockItem(block.get(), new Item.Properties().tab(tab));
+            BlockItem item = new BlockItem(block.get(), new Item.Properties());
+            ModCreativeTabs.setCreativeTab(item, tab);
+            return item;
         });
     }
 

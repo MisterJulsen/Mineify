@@ -93,13 +93,13 @@ public class PlaybackAreaConfigScreen extends Screen
 
         guiTop = this.height / 2 - HEIGHT / 2;
 
-        this.addRenderableWidget(new Button(this.width / 2 - 100, guiTop + 210, 97, 20, btnDoneTxt, (p) -> {
+        this.addRenderableWidget(Button.builder(btnDoneTxt, (p) -> {
             this.onDone();
-        }));
+        }).pos(this.width / 2 - 100, guiTop + 210).size(97, 20).build());
 
-        this.addRenderableWidget(new Button(this.width / 2 + 4, guiTop + 210, 97, 20, btnCancelTxt, (p) -> {
+        this.addRenderableWidget(Button.builder(btnCancelTxt, (p) -> {
             this.onCancel();
-        }));
+        }).pos(this.width / 2 + 4, guiTop + 210).size(97, 20).build());
 
 
         /* Controls */
