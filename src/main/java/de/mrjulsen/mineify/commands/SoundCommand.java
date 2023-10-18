@@ -19,6 +19,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
@@ -266,7 +267,7 @@ public class SoundCommand {
                 }
             }
 
-            ServerApi.playSound(pSound, new ServerPlayer[] { serverplayer }, new BlockPos(vec3), attenuationDistance, f, pPitch);
+            ServerApi.playSound(pSound, new ServerPlayer[] { serverplayer }, new BlockPos(new Vec3i((int)vec3.x, (int)vec3.y, (int)vec3.z)), attenuationDistance, f, pPitch);
             ++i;
         }
     }

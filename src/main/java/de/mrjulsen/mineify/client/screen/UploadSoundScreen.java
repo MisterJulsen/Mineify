@@ -164,7 +164,7 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
     }
 
     private String getQualitySuffix(byte value) {        
-        value = Mth.clamp(value, AudioFileConfig.OGG_QUALITY_MAX, AudioFileConfig.OGG_QUALITY_MIN);
+        value = (byte)Mth.clamp(value, AudioFileConfig.OGG_QUALITY_MAX, AudioFileConfig.OGG_QUALITY_MIN);
         switch (value) {
             case AudioFileConfig.OGG_QUALITY_MIN:
                 return "gui.mineify.quality.best";
@@ -180,7 +180,7 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
     @Override
     @SuppressWarnings("resource")
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
-        renderBackground(stack, 0);        
+        renderBackground(stack);        
         drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);    
         drawCenteredString(stack, this.font, textFilename, this.width / 2, guiTop + 25, 16777215);      
         

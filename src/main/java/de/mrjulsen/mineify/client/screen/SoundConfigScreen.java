@@ -91,7 +91,7 @@ public class SoundConfigScreen extends Screen
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
-        renderBackground(stack, 0);        
+        renderBackground(stack);        
         drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
 
         super.render(stack, mouseX, mouseY, partialTicks);

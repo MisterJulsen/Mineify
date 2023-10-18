@@ -19,6 +19,6 @@ public class AudioFileConfig {
      */
     public AudioFileConfig(ESoundChannels channels, byte quality) {
         this.channels = channels;
-        this.quality = Mth.clamp(quality, OGG_QUALITY_MAX, OGG_QUALITY_MIN);
+        this.quality = (byte)Mth.clamp(quality, OGG_QUALITY_MAX, OGG_QUALITY_MIN);
     }
 }

@@ -76,6 +76,6 @@ public class NetworkManager {
     }
 
     public static void sendToClient(Object o, ServerPlayer player) {
-        NetworkManager.MOD_CHANNEL.sendTo(o, player.connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+        NetworkManager.MOD_CHANNEL.sendTo(o, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
     }
 }

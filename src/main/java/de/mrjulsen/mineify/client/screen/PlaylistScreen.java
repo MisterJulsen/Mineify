@@ -187,7 +187,7 @@ public class PlaylistScreen extends Screen implements IPlaylistScreen {
     @Override
     public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
 
-        this.renderDirtBackground(0);
+        renderDirtBackground(pPoseStack);
 
         if (this.isLoading()) {
             drawCenteredString(pPoseStack, this.font, textLoading, this.width / 2, 100, 16777215);

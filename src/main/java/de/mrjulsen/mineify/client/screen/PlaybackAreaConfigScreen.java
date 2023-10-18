@@ -236,7 +236,7 @@ public class PlaybackAreaConfigScreen extends Screen
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
-        renderBackground(stack, 0);        
+        renderBackground(stack);       
         drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
         drawCenteredString(stack, this.font, textAttenuationDistance, this.width / 2, guiTop + 150 + 10, 16777215);
 
