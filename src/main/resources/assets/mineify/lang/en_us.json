@@ -21,7 +21,7 @@
     "advancement.mineify.sound_board.description": "Craft a Sound Board.",
     
     "gui.mineify.button.close": "Close",
-    "gui.mineify.audio.distance": "Distance: %s",
+    "gui.mineify.audio.distance": "Distance: ",
     "gui.mineify.audio.pitch": "Pitch: %s",
     "gui.mineify.soundselection.task_fail": "Task failed!",
     "gui.mineify.soundselection.task_success": "Task success!",
