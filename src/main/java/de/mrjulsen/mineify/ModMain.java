@@ -7,6 +7,7 @@ import de.mrjulsen.mineify.blocks.blockentity.ModBlockEntities;
 import de.mrjulsen.mineify.commands.ModCommandArguments;
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
+import de.mrjulsen.mineify.events.ModCreativeTabs;
 import de.mrjulsen.mineify.items.ModItems;
 import de.mrjulsen.mineify.network.NetworkManager;
 import de.mrjulsen.mineify.network.UploaderUsercache;
@@ -43,7 +44,8 @@ public class ModMain {
         NetworkManager.registerNetworkPackets();
         MinecraftForge.EVENT_BUS.register(this);
         ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ModClientConfig.SPEC, MOD_ID + "-client.toml");
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModCommonConfig.SPEC, MOD_ID + "-common.toml");       
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ModCommonConfig.SPEC, MOD_ID + "-common.toml");
+        eventBus.addListener(ModCreativeTabs::register); 
 
         UploaderUsercache.loadOrCreate(Constants.DEFAULT_USERCACHE_PATH);
         UploaderUsercache.INSTANCE.recacheNamesAsync();
