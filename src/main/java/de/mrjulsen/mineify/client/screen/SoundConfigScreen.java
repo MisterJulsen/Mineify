@@ -4,9 +4,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.text.DecimalFormat;
 import java.util.function.Consumer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import de.mrjulsen.mineify.Constants;
 import de.mrjulsen.mineify.client.screen.widgets.CustomMessageSlider;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.CommonComponents;
@@ -90,11 +90,11 @@ public class SoundConfigScreen extends Screen
     
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
-        renderBackground(stack);        
-        drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
+    public void render(GuiGraphics pGuiGraphics, int mouseX, int mouseY, float partialTicks) {        
+        renderBackground(pGuiGraphics);        
+        pGuiGraphics.drawCenteredString(this.font, title, this.width / 2, guiTop, 16777215);
 
-        super.render(stack, mouseX, mouseY, partialTicks);
+        super.render(pGuiGraphics, mouseX, mouseY, partialTicks);
     }
 
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {

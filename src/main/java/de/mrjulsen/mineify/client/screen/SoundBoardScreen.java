@@ -1,7 +1,5 @@
 package de.mrjulsen.mineify.client.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import de.mrjulsen.mineify.config.ModClientConfig;
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.items.ModItems;
@@ -28,6 +26,7 @@ import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -168,24 +167,25 @@ public class SoundBoardScreen extends Screen implements IPlaylistScreen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 
-        this.renderBackground(pPoseStack);
 
-        if (this.isLoading()) {
-            drawCenteredString(pPoseStack, this.font, textLoading, this.width / 2, 100, 16777215);
-            this.cancelButton.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        this.renderBackground(pGuiGraphics);
+
+        if (this.isLoading()) {              
+            pGuiGraphics.drawCenteredString(this.font, textLoading, this.width / 2, 100, 16777215);
+            this.cancelButton.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
             return;
         }
 
         this.pitchSlider.setMessage(Component.literal(Component.translatable("gui.mineify.audio.pitch", formatter.format(pitchSlider.getValue())).getString()));
 
-        this.availablePackList.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
-        drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, 8, 16777215);
-        drawCenteredString(pPoseStack, this.font, DRAG_AND_DROP, this.width / 2, 20, 16777215);
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+        this.availablePackList.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        pGuiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 8, 16777215);
+        pGuiGraphics.drawCenteredString(this.font, DRAG_AND_DROP, this.width / 2, 20, 16777215);
+        super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
-        Utils.renderTooltip(this, this.searchAvailable, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.soundselection.search.tooltip", Constants.INVERSE_PREFIX, Constants.USER_PREFIX, Constants.VISIBILITY_PREFIX), width / 3); }, pPoseStack, pMouseX, pMouseY);
+        Utils.renderTooltip(this, this.searchAvailable, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.soundselection.search.tooltip", Constants.INVERSE_PREFIX, Constants.USER_PREFIX, Constants.VISIBILITY_PREFIX), width / 3); }, pGuiGraphics, pMouseX, pMouseY);
         
     }
 

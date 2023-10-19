@@ -3,8 +3,6 @@ package de.mrjulsen.mineify.client.screen;
 import java.util.Arrays;
 import java.util.function.BiConsumer;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
 import de.mrjulsen.mineify.client.EUserSoundVisibility;
 import de.mrjulsen.mineify.client.UploadSoundSettings;
 import de.mrjulsen.mineify.config.ModCommonConfig;
@@ -14,6 +12,7 @@ import de.mrjulsen.mineify.util.IOUtils;
 import de.mrjulsen.mineify.util.SoundUtils;
 import de.mrjulsen.mineify.util.Utils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -179,22 +178,22 @@ public class UploadSoundScreen<T extends Screen & IPlaylistScreen> extends Scree
 
     @Override
     @SuppressWarnings("resource")
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
-        renderBackground(stack);        
-        drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);    
-        drawCenteredString(stack, this.font, textFilename, this.width / 2, guiTop + 25, 16777215);      
+    public void render(GuiGraphics pGuiGraphics, int mouseX, int mouseY, float partialTicks) {        
+        renderBackground(pGuiGraphics);        
+        pGuiGraphics.drawCenteredString(this.font, title, this.width / 2, guiTop, 16777215);    
+        pGuiGraphics.drawCenteredString(this.font, textFilename, this.width / 2, guiTop + 25, 16777215);      
         
         String qualitySuffix = this.getQualitySuffix((byte)this.qualitySlider.getValueInt());
         this.qualitySlider.setMessage(Component.literal(Component.translatable("gui.mineify.upload.quality", this.qualitySlider.getValueInt()).getString() + (qualitySuffix == null ? "" :  " (" + Component.translatable(qualitySuffix).getString() + ")")));
 
-        super.render(stack, mouseX, mouseY, partialTicks);
+        super.render(pGuiGraphics, mouseX, mouseY, partialTicks);
 
-        Utils.renderTooltip(this, this.visibilityButton, () -> { return Utils.getEnumTooltipData(this, EUserSoundVisibility.class, width / 3); }, stack, mouseX, mouseY);
-        Utils.renderTooltip(this, this.channelsButton, () -> { return Utils.getEnumTooltipData(this, ESoundChannels.class, width / 3); }, stack, mouseX, mouseY);
-        Utils.renderTooltip(this, this.qualitySlider, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.quality.description"), width / 3); }, stack, mouseX, mouseY);
+        Utils.renderTooltip(this, this.visibilityButton, () -> { return Utils.getEnumTooltipData(this, EUserSoundVisibility.class, width / 3); }, pGuiGraphics, mouseX, mouseY);
+        Utils.renderTooltip(this, this.channelsButton, () -> { return Utils.getEnumTooltipData(this, ESoundChannels.class, width / 3); }, pGuiGraphics, mouseX, mouseY);
+        Utils.renderTooltip(this, this.qualitySlider, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.quality.description"), width / 3); }, pGuiGraphics, mouseX, mouseY);
 
         if (!this.doneButton.active && mouseX >= this.doneButton.getX() && mouseX <= this.doneButton.getX() + this.doneButton.getWidth() && mouseY >= this.doneButton.getY() && mouseY <= this.doneButton.getY() + this.doneButton.getHeight()) {
-            this.renderTooltip(stack, Utils.getTooltipData(this, Component.translatable("gui.mineify.upload.file_duplicate"), width / 3), mouseX, mouseY, this.getMinecraft().font);
+            pGuiGraphics.renderTooltip(this.getMinecraft().font, Utils.getTooltipData(this, Component.translatable("gui.mineify.upload.file_duplicate"), width / 3), mouseX, mouseY);
         }
     }
 

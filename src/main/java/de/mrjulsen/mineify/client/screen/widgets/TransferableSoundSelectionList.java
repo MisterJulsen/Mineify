@@ -3,13 +3,12 @@ package de.mrjulsen.mineify.client.screen.widgets;
 import java.util.stream.Stream;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 
 import de.mrjulsen.mineify.ModMain;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -40,9 +39,9 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
         this.setRenderHeader(true, (int) (9.0F * 1.5F));
     }
 
-    protected void renderHeader(PoseStack pPoseStack, int pX, int pY, Tesselator pTessellator) {
+    protected void renderHeader(GuiGraphics pGuiGraphics, int pX, int pY, Tesselator pTessellator) {
         Component component = (Component.literal("")).append(this.title).withStyle(ChatFormatting.UNDERLINE, ChatFormatting.BOLD);
-        this.minecraft.font.draw(pPoseStack, component, (float) (pX + this.width / 2 - this.minecraft.font.width(component) / 2), (float) Math.min(this.y0 + 3, pY), 16777215);
+        pGuiGraphics.drawString(this.minecraft.font, component, (int) (pX + this.width / 2 - this.minecraft.font.width(component) / 2), (int) Math.min(this.y0 + 3, pY), 16777215);
     }
 
     public int getRowWidth() {
@@ -102,18 +101,17 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
             return Component.translatable("narrator.select", this.entry.getName());
         }
 
-        public void render(PoseStack pPoseStack, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
+        public void render(GuiGraphics pGuiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTick) {
             
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, new ResourceLocation(this.entry.getIconFileName()));
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-            GuiComponent.blit(pPoseStack, pLeft, pTop, 0.0F, 0.0F, 32, 32, 32, 32);
+            pGuiGraphics.blit(new ResourceLocation(this.entry.getIconFileName()), pLeft, pTop, 0.0F, 0.0F, 32, 32, 32, 32);
             FormattedCharSequence formattedcharsequence = this.nameDisplayCache;
             MultiLineLabel multilinelabel = this.descriptionDisplayCache;
             if (this.showHoverOverlay() && (this.minecraft.options.touchscreen().get() || pIsMouseOver)) {
                 RenderSystem.setShaderTexture(0, TransferableSoundSelectionList.ICON_OVERLAY_LOCATION);
-                GuiComponent.fill(pPoseStack, pLeft, pTop, pLeft + 32, pTop + 32, -1601138544);
+                pGuiGraphics.fill(pLeft, pTop, pLeft + 32, pTop + 32, -1601138544);
                 RenderSystem.setShader(GameRenderer::getPositionTexShader);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 int i = pMouseX - pLeft;
@@ -121,47 +119,47 @@ public class TransferableSoundSelectionList extends ObjectSelectionList<Transfer
 
                 if (this.entry.canSelect()) {
                     if (i < 32 && i > 16) {
-                        GuiComponent.blit(pPoseStack, pLeft, pTop, 0.0F, 32.0F, 32, 32, 256, 256);
+                        pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 0.0F, 32.0F, 32, 32, 256, 256);
                     } else {
-                        GuiComponent.blit(pPoseStack, pLeft, pTop, 0.0F, 0.0F, 32, 32, 256, 256);
+                        pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 0.0F, 0.0F, 32, 32, 256, 256);
                     }
 
                     if (this.entry.canDelete(this.minecraft.player.getUUID())) {
                         if (i < 16) {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 128.0F, 32.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 128.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 128.0F, 0.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 128.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
                 } else {
                     if (this.entry.canUnselect()) {
                         if (i < 16) {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 32.0F, 32.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 32.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 32.0F, 0.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 32.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
 
                     if (this.entry.canMoveUp()) {
                         if (i < 32 && i > 16 && j < 16) {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 96.0F, 32.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 96.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 96.0F, 0.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 96.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
 
                     if (this.entry.canMoveDown()) {
                         if (i < 32 && i > 16 && j > 16) {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 64.0F, 32.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 64.0F, 32.0F, 32, 32, 256, 256);
                         } else {
-                            GuiComponent.blit(pPoseStack, pLeft, pTop, 64.0F, 0.0F, 32, 32, 256, 256);
+                            pGuiGraphics.blit(TransferableSoundSelectionList.ICON_OVERLAY_LOCATION, pLeft, pTop, 64.0F, 0.0F, 32, 32, 256, 256);
                         }
                     }
                 }
             }
 
-            this.minecraft.font.drawShadow(pPoseStack, formattedcharsequence, (float) (pLeft + 32 + 2), (float) (pTop + 1), 16777215);
-            multilinelabel.renderLeftAligned(pPoseStack, pLeft + 32 + 2, pTop + 12, 10, 8421504);
+            pGuiGraphics.drawString(this.minecraft.font, formattedcharsequence, (int) (pLeft + 32 + 2), (int) (pTop + 1), 16777215);
+            multilinelabel.renderLeftAligned(pGuiGraphics, pLeft + 32 + 2, pTop + 12, 10, 8421504);
         }
 
         private boolean showHoverOverlay() {

@@ -68,7 +68,7 @@ public class PlaySoundRequestPacket implements IPacketBase<PlaySoundRequestPacke
     public void handle(PlaySoundRequestPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
-            ServerApi.playSound(SoundFile.fromShortPath(packet.path, packet.category), packet.area, context.get().getSender().level, packet.pos, packet.attenuationDistance, packet.volume, packet.pitch);
+            ServerApi.playSound(SoundFile.fromShortPath(packet.path, packet.category), packet.area, context.get().getSender().level(), packet.pos, packet.attenuationDistance, packet.volume, packet.pitch);
         });
         
         context.get().setPacketHandled(true);      

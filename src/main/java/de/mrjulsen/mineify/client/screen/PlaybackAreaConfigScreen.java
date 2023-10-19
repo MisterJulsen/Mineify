@@ -3,12 +3,12 @@ package de.mrjulsen.mineify.client.screen;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.function.BiConsumer;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.config.ModCommonConfig;
 import de.mrjulsen.mineify.sound.EPlaybackAreaType;
 import de.mrjulsen.mineify.sound.PlaybackArea;
 import de.mrjulsen.mineify.util.Utils;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.EditBox;
@@ -235,27 +235,27 @@ public class PlaybackAreaConfigScreen extends Screen
     
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float partialTicks) {        
-        renderBackground(stack);       
-        drawCenteredString(stack, this.font, title, this.width / 2, guiTop, 16777215);
-        drawCenteredString(stack, this.font, textAttenuationDistance, this.width / 2, guiTop + 150 + 10, 16777215);
+    public void render(GuiGraphics pGuiGraphics, int mouseX, int mouseY, float partialTicks) {        
+        renderBackground(pGuiGraphics);       
+        pGuiGraphics.drawCenteredString(this.font, title, this.width / 2, guiTop, 16777215);
+        pGuiGraphics.drawCenteredString(this.font, textAttenuationDistance, this.width / 2, guiTop + 150 + 10, 16777215);
 
         switch (this.playbackArea.getAreaType()) {
             case ZONE:                
-                drawCenteredString(stack, this.font, textFrom, this.width / 2, guiTop + 50 + 10, 16777215);
-                drawCenteredString(stack, this.font, textTo, this.width / 2, guiTop + 100 + 10, 16777215);
+                pGuiGraphics.drawCenteredString(this.font, textFrom, this.width / 2, guiTop + 50 + 10, 16777215);
+                pGuiGraphics.drawCenteredString(this.font, textTo, this.width / 2, guiTop + 100 + 10, 16777215);
 
                 break;
             case RADIUS:
             default:
-                drawCenteredString(stack, this.font, textRadius, this.width / 2, guiTop + 50 + 10, 16777215);
+                pGuiGraphics.drawCenteredString(this.font, textRadius, this.width / 2, guiTop + 50 + 10, 16777215);
                 break;
         }
 
-        super.render(stack, mouseX, mouseY, partialTicks);
+        super.render(pGuiGraphics, mouseX, mouseY, partialTicks);
 
-        Utils.renderTooltip(this, this.attenuationDistanceBox, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.playback_area_config.volume.description"), width / 3); }, stack, mouseX, mouseY);
-        Utils.renderTooltip(this, this.typeButton, () -> { return Utils.getEnumTooltipData(this, EPlaybackAreaType.class, width / 3); }, stack, mouseX, mouseY);        
+        Utils.renderTooltip(this, this.attenuationDistanceBox, () -> { return Utils.getTooltipData(this, Component.translatable("gui.mineify.playback_area_config.volume.description"), width / 3); }, pGuiGraphics, mouseX, mouseY);
+        Utils.renderTooltip(this, this.typeButton, () -> { return Utils.getEnumTooltipData(this, EPlaybackAreaType.class, width / 3); }, pGuiGraphics, mouseX, mouseY);        
     }
 
     public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {

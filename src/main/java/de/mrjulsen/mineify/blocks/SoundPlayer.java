@@ -22,13 +22,14 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 
 public class SoundPlayer extends BaseEntityBlock {
     
     public SoundPlayer() {
-        super(BlockBehaviour.Properties.of(Material.WOOD)
+        super(BlockBehaviour.Properties.of()
+            .mapColor(MapColor.WOOD)
             .strength(5f)
             .sound(SoundType.WOOD)
         );

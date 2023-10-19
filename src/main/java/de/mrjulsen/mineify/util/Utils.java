@@ -14,10 +14,10 @@ import org.apache.logging.log4j.util.TriConsumer;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.vertex.PoseStack;
 
 import de.mrjulsen.mineify.ModMain;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -89,9 +89,9 @@ public class Utils {
     }
 
     @SuppressWarnings("resource")
-    public static <W extends AbstractWidget> void renderTooltip(Screen s, W w, Supplier<List<FormattedCharSequence>> lines, PoseStack stack, int mouseX, int mouseY) {
+    public static <W extends AbstractWidget> void renderTooltip(Screen s, W w, Supplier<List<FormattedCharSequence>> lines, GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if (w.isMouseOver(mouseX, mouseY)) {
-            s.renderTooltip(stack, lines.get(), mouseX, mouseY, s.getMinecraft().font);
+            guiGraphics.renderTooltip(s.getMinecraft().font, lines.get(), mouseX, mouseY);
         }
     }    
 

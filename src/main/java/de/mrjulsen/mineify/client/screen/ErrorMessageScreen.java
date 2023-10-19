@@ -1,7 +1,6 @@
 package de.mrjulsen.mineify.client.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.MultiLineLabel;
 import net.minecraft.client.gui.screens.Screen;
@@ -33,11 +32,11 @@ public class ErrorMessageScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
-        this.renderBackground(pPoseStack);
-        drawCenteredString(pPoseStack, this.font, this.title, this.width / 2, 20, 15343905);
-        this.messageLabel.renderLeftAligned(pPoseStack, this.width / 2 - 128, 50, 20, 8421504);
-        super.render(pPoseStack, pMouseX, pMouseY, pPartialTick);
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        this.renderBackground(pGuiGraphics);
+        pGuiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 15343905);
+        this.messageLabel.renderLeftAligned(pGuiGraphics, this.width / 2 - 128, 50, 20, 8421504);
+        super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
     }
 
     @Override

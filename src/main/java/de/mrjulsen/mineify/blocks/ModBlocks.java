@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import de.mrjulsen.mineify.ModMain;
 import de.mrjulsen.mineify.events.ModCreativeTabs;
 import de.mrjulsen.mineify.items.ModItems;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -22,13 +23,13 @@ public class ModBlocks {
     public static final RegistryObject<Block> SOUND_PLAYER = registerBlock("sound_player", () -> new SoundPlayer(), CreativeModeTabs.REDSTONE_BLOCKS);
     
 
-    private static <T extends Block>RegistryObject<T> registerBlock(String name, Supplier<T> block, CreativeModeTab tab) {
+    private static <T extends Block>RegistryObject<T> registerBlock(String name, Supplier<T> block, ResourceKey<CreativeModeTab> tab) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
         registerBlockItem(name, toReturn, tab);
         return toReturn;
     }
 
-    private static <T extends Block>RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, CreativeModeTab tab) {
+    private static <T extends Block>RegistryObject<Item> registerBlockItem(String name, RegistryObject<T> block, ResourceKey<CreativeModeTab> tab) {
         return ModItems.ITEMS.register(name, () -> {
             BlockItem item = new BlockItem(block.get(), new Item.Properties());
             ModCreativeTabs.setCreativeTab(item, tab);

@@ -174,52 +174,52 @@ public class SoundCommand {
 
     private static int modifySoundAttenuationDistance(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets, int attenuationDistance) {
         ServerApi.modifySound(shortPath, pTargets, attenuationDistance, null, null, null, null, null);
-        pSource.sendSuccess(Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
+        pSource.sendSuccess(() -> Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
         return pTargets.length;
     }
 
     private static int modifySoundVolume(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets, float volume) {
         ServerApi.modifySound(shortPath, pTargets, null, volume, null, null, null, null);
-        pSource.sendSuccess(Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
+        pSource.sendSuccess(() -> Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
         return pTargets.length;
     }
 
     private static int modifySoundPitch(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets, float pitch) {
         ServerApi.modifySound(shortPath, pTargets, null, null, pitch, null, null, null);
-        pSource.sendSuccess(Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
+        pSource.sendSuccess(() -> Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
         return pTargets.length;
     }
 
     private static int modifySoundX(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets, double x) {
         ServerApi.modifySound(shortPath, pTargets, null, null, null, x, null, null);
-        pSource.sendSuccess(Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
+        pSource.sendSuccess(() -> Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
         return pTargets.length;
     }
 
     private static int modifySoundY(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets, double y) {
         ServerApi.modifySound(shortPath, pTargets, null, null, null, null, y, null);
-        pSource.sendSuccess(Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
+        pSource.sendSuccess(() -> Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
         return pTargets.length;
     }
 
     private static int modifySoundZ(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets, double z) {
         ServerApi.modifySound(shortPath, pTargets, null, null, null, null, null, z);
-        pSource.sendSuccess(Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
+        pSource.sendSuccess(() -> Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
         return pTargets.length;
     }
 
     private static int modifySoundPos(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets, Vec3 v) {
         ServerApi.modifySound(shortPath, pTargets, null, null, null, v.x, v.y, v.z);
-        pSource.sendSuccess(Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
+        pSource.sendSuccess(() -> Component.translatable("commands.mineify.sound.modify", SoundFile.fromShortPath(shortPath, category)), true);
         return pTargets.length;
     }
 
     private static int stopSound(CommandSourceStack pSource, String shortPath, ESoundCategory category, ServerPlayer[] pTargets) {
         ServerApi.stopSound(shortPath, pTargets);
         if (shortPath != null) {
-            pSource.sendSuccess(Component.translatable("commands.stopsound.success.sourceless.sound", SoundFile.fromShortPath(shortPath, category)), true);
+            pSource.sendSuccess(() -> Component.translatable("commands.stopsound.success.sourceless.sound", SoundFile.fromShortPath(shortPath, category)), true);
         } else {
-            pSource.sendSuccess(Component.translatable("commands.stopsound.success.sourceless.any"), true);
+            pSource.sendSuccess(() -> Component.translatable("commands.stopsound.success.sourceless.any"), true);
         }
         return pTargets.length;
     }
@@ -240,9 +240,9 @@ public class SoundCommand {
                     }
 
                     if (pTargets.size() == 1) {
-                        pSource.sendSuccess(Component.translatable("commands.playsound.success.single", pSound, pTargets.iterator().next().getDisplayName()), true);
+                        pSource.sendSuccess(() -> Component.translatable("commands.playsound.success.single", pSound, pTargets.iterator().next().getDisplayName()), true);
                     } else {
-                        pSource.sendSuccess(Component.translatable("commands.playsound.success.multiple", pSound, pTargets.size()), true);
+                        pSource.sendSuccess(() -> Component.translatable("commands.playsound.success.multiple", pSound, pTargets.size()), true);
                     }
 
                     return i;

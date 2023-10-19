@@ -61,7 +61,7 @@ public class SoundPlayerBlockEntityPacket implements IPacketBase<SoundPlayerBloc
     public void handle(SoundPlayerBlockEntityPacket packet, Supplier<NetworkEvent.Context> context) {        
         context.get().enqueueWork(() ->
         {
-            Level level = context.get().getSender().getLevel();
+            Level level = context.get().getSender().level();
 
             if (!level.isLoaded(packet.pos))
                 return;
