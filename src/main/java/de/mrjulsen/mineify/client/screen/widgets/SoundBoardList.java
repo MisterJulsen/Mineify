@@ -111,8 +111,7 @@ public class SoundBoardList extends ObjectSelectionList<SoundBoardList.SoundEntr
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-            pGuiGraphics.blit(new ResourceLocation(this.entry.getIconFileName()), pTop, pLeft, 0, 0, 32, 32, 32, 32, 32);
-            
+            pGuiGraphics.blit(new ResourceLocation(this.entry.getIconFileName()), pLeft, pTop, 0.0F, 0.0F, 32, 32, 32, 32);
             FormattedCharSequence formattedcharsequence = this.nameDisplayCache;
             MultiLineLabel multilinelabel = this.descriptionDisplayCache;
             if (this.showHoverOverlay() && (this.minecraft.options.touchscreen().get() || pIsMouseOver)) {
